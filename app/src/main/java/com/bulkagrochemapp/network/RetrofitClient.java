@@ -10,7 +10,7 @@ public class RetrofitClient {
     public static Retrofit getClient() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl("http://192.168.1.21/BULKAGRO_API/api/")
+                    .baseUrl("http://bulk-api.mahasagar.in/api/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
