@@ -42,9 +42,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         holder.txtName.setText(product.getName());
         holder.txtPrice.setText("₹" + product.getPrice());
 
+        // The API provides the full URL, so use it directly.
+        String imageUrl = product.getImage();
+
         Picasso.get()
-                .load(product.getImage())
+                .load(imageUrl)
                 .placeholder(R.drawable.ic_launcher_foreground)
+                .error(R.drawable.ic_image_error)
                 .into(holder.imgProduct);
     }
 

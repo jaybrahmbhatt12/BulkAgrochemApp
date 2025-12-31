@@ -9,6 +9,8 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
+    String IMAGE_URL = "http://bulk-api.mahasagar.in/";
+
     // 🔹 All Products
     @GET("products.php")
     Call<ProductResponse> getProducts();
