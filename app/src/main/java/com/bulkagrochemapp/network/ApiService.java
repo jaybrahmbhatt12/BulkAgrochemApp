@@ -10,6 +10,9 @@ import retrofit2.http.Query;
 public interface ApiService {
 
     // All Products
+    String IMAGE_URL = "http://bulk-api.mahasagar.in/";
+
+    // 🔹 All Products
     @GET("products.php")
     Call<ProductResponse> getProducts();
 
@@ -21,12 +24,7 @@ public interface ApiService {
     @GET("categories.php")
     Call<CategoryResponse> getCategories();
 
-    // Products by Category
-    /*@GET("products.php")
-    Call<ProductResponse> getProductsByCategory(
-            @Query("category_id") int categoryId
-    );*/
-    // Products by Category
+    // 🔹 Products by Category
     @GET("products.php")
     Call<ProductResponse> getProductsByCategory(
             @Query("category_id") int categoryId
