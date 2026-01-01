@@ -9,21 +9,29 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
-    // 🔹 All Products
+    // All Products
     @GET("products.php")
     Call<ProductResponse> getProducts();
 
-    // 🔹 Trending Products
+    // Trending Products
     @GET("trending_products.php")
     Call<ProductResponse> getTrendingProducts();
 
-    // 🔹 Categories
+    // Categories
     @GET("categories.php")
     Call<CategoryResponse> getCategories();
 
-    // 🔹 Products by Category
+    // Products by Category
+    /*@GET("products.php")
+    Call<ProductResponse> getProductsByCategory(
+            @Query("category_id") int categoryId
+    );*/
+    // Products by Category
     @GET("products.php")
     Call<ProductResponse> getProductsByCategory(
             @Query("category_id") int categoryId
     );
+
+
 }
+
