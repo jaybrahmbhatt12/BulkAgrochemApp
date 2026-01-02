@@ -1,7 +1,13 @@
 package com.bulkagrochemapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bulkagrochemapp.adapter.CategoryAdapter;
 import com.bulkagrochemapp.adapter.MostPopularProductAdapter;
+import com.bulkagrochemapp.adapter.SearchSuggestionAdapter;
 import com.bulkagrochemapp.adapter.TrendingProductAdapter;
 import com.bulkagrochemapp.model.CategoryResponse;
 import com.bulkagrochemapp.model.Product;
@@ -27,12 +34,16 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchSuggestionAdapter.OnSuggestionClickListener {
 
     //====== Variables =====//
 
     private static final String TAG = "API_TEST";
-    private RecyclerView rvCategories, rvTrending, rvPopular;
+    private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults;
+    private EditText searchEditText;
+    private SearchSuggestionAdapter suggestionAdapter;
+    private List<Product> allProducts = new ArrayList<>();
+    private List<Product> searchResults = new ArrayList<>();
 
     //====== onCreate() =====//
 
@@ -64,10 +75,60 @@ public class MainActivity extends AppCompatActivity {
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         );
 
+        rvSearchResults = findViewById(R.id.rvSearchResults);
+        rvSearchResults.setLayoutManager(new LinearLayoutManager(this));
+
+        searchEditText = findViewById(R.id.searchEditText);
+
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchProducts(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        searchEditText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                if (searchResults.size() == 1) {
+                    onSuggestionClick(searchResults.get(0));
+                }
+                return true;
+            }
+            return false;
+        });
+
 
         //====== API calls ======//
         loadProducts();
         loadCategories();
+    }
+
+    private void searchProducts(String query) {
+        if (query.isEmpty()) {
+            rvSearchResults.setVisibility(View.GONE);
+            return;
+        }
+
+        searchResults.clear();
+        for (Product product : allProducts) {
+            if (product.getName().toLowerCase().contains(query.toLowerCase())) {
+                searchResults.add(product);
+            }
+        }
+
+        if (searchResults.isEmpty()) {
+            rvSearchResults.setVisibility(View.GONE);
+        } else {
+            suggestionAdapter = new SearchSuggestionAdapter(this, searchResults, this);
+            rvSearchResults.setAdapter(suggestionAdapter);
+            rvSearchResults.setVisibility(View.VISIBLE);
+        }
     }
 
     //====== API  ======//
@@ -86,12 +147,12 @@ public class MainActivity extends AppCompatActivity {
                                    Response<ProductResponse> response) {
 
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    List<Product> productList = response.body().getData();
-                    Log.d(TAG, "Total products fetched: " + productList.size());
+                    allProducts = response.body().getData();
+                    Log.d(TAG, "Total products fetched: " + allProducts.size());
 
                     // Filter for Trending Products
                     List<Product> trendingList = new ArrayList<>();
-                    for (Product product : productList) {
+                    for (Product product : allProducts) {
                         if (product.getIsTrending() == 1) {
                             trendingList.add(product);
                         }
@@ -102,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // Filter for Popular Products
                     List<Product> popularList = new ArrayList<>();
-                    for (Product product : productList) {
+                    for (Product product : allProducts) {
                         if (product.getIsPopular() == 1) {
                             popularList.add(product);
                         }
@@ -150,4 +211,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onSuggestionClick(Product product) {
+        Intent intent = new Intent(MainActivity.this, ProductDetailActivity.class);
+        intent.putExtra("product", product);
+        startActivity(intent);
+    }
 }
