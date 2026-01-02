@@ -1,15 +1,29 @@
 package com.bulkagrochemapp.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Product {
 
     private int id;
     private String name;
     private String image;
     private double price;
+    private String description; // Matches "description" field in JSON if present
+
+    @SerializedName("details")
+    private String details;
+
+    @SerializedName("original_price")
     private double original_price;
+    
+    @SerializedName("discount_percent")
     private int discount_percent;
-    private int is_trending;
-    private int is_popular;
+
+    @SerializedName("trending")
+    private int isTrending;
+
+    @SerializedName("popular")
+    private int isPopular;
 
     public int getId() {
         return id;
@@ -36,10 +50,18 @@ public class Product {
     }
 
     public int getIsTrending() {
-        return is_trending;
+        return isTrending;
     }
 
     public int getIsPopular() {
-        return is_popular;
+        return isPopular;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getDetails() {
+        return details;
     }
 }

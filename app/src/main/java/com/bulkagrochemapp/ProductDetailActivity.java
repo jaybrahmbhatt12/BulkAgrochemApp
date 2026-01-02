@@ -1,6 +1,8 @@
 package com.bulkagrochemapp;
 
 import android.os.Bundle;
+import android.text.Html;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -10,19 +12,20 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bulkagrochemapp.model.CartItem;
 import com.bulkagrochemapp.utils.CartManager;
+import com.bulkagrochemapp.utils.HtmlUtil;
 import com.squareup.picasso.Picasso;
 
 public class ProductDetailActivity extends AppCompatActivity {
 
     ImageView imgProduct;
-    TextView txtName, txtPrice, txtStock, txtQty;
+    TextView txtName, txtPrice, txtStock, txtQty, txtDetails;
     TextView btnPlus, btnMinus;
     Button btnAddToCart;
 
     int quantity = 5;
 
     int productId;
-    String name, image, stock;
+    String name, image, stock, details;
     double price;
 
     @Override
@@ -35,6 +38,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         txtName = findViewById(R.id.txtProductName);
         txtPrice = findViewById(R.id.txtProductPrice);
         txtStock = findViewById(R.id.txtStock);
+        txtDetails = findViewById(R.id.txtDetails);
         txtQty = findViewById(R.id.txtQty);
         btnPlus = findViewById(R.id.btnPlus);
         btnMinus = findViewById(R.id.btnMinus);
@@ -46,12 +50,20 @@ public class ProductDetailActivity extends AppCompatActivity {
         image = getIntent().getStringExtra("product_image");
         price = getIntent().getDoubleExtra("product_price", 0);
         stock = getIntent().getStringExtra("stock");
+        details = getIntent().getStringExtra("product_details");
 
         // 🔹 Set data
         txtName.setText(name);
         txtPrice.setText("₹" + price);
         txtStock.setText(stock != null ? stock : "In Stock");
         txtQty.setText(String.valueOf(quantity));
+        
+        if (details != null && !details.isEmpty()) {
+            txtDetails.setText(HtmlUtil.fromHtml(details));
+            txtDetails.setVisibility(View.VISIBLE);
+        } else {
+            txtDetails.setVisibility(View.GONE);
+        }
 
         Picasso.get()
                 .load(image)

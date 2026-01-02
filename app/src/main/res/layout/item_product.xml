@@ -5,77 +5,149 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-
     android:clickable="true"
     android:focusable="true"
+    android:background="#FFFFFF"
     android:foreground="?attr/selectableItemBackground"
-
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="10dp"
+        android:background="#FFFFFF">
 
-        <!-- Product Image -->
-        <ImageView
-            android:id="@+id/imgProduct"
+        <!-- IMAGE SECTION -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_launcher_foreground" />
+            android:layout_height="180dp">
+
+            <!-- Product Image -->
+            <ImageView
+                android:id="@+id/imgProduct"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_launcher_foreground"/>
+
+        </FrameLayout>
 
         <!-- Product Name -->
         <TextView
             android:id="@+id/txtProductName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="8dp"
             android:maxLines="2"
             android:ellipsize="end"
             android:text="Product Name"
             android:textColor="#212121"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textSize="15sp"
+            android:textStyle="bold"/>
 
-        <!-- Price Layout -->
+        <!-- Product Description -->
+        <TextView
+            android:id="@+id/txtDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="Short description from database..."
+            android:textSize="13sp"
+            android:textColor="#757575"
+            android:layout_marginTop="4dp"/>
+
+        <!-- Product Details -->
+        <TextView
+            android:id="@+id/txtDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:text="Product Details..."
+            android:textSize="12sp"
+            android:textColor="#616161"
+            android:layout_marginTop="4dp"/>
+
+        <!-- PRICE ROW -->
         <LinearLayout
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="6dp">
+
+            <TextView
+                android:id="@+id/txtProductPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" ₹00"
+                android:textColor="#E53935"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/txtOriginalPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹00"
+                android:textSize="13sp"
+                android:textColor="#9E9E9E" />
+
+        </LinearLayout>
+
+        <!-- Rating & Stock -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="6dp"
             android:gravity="center_vertical">
 
-            <!-- Selling Price -->
-            <TextView
-                android:id="@+id/txtProductPrice"
+            <!-- Rating -->
+            <RatingBar
+                android:id="@+id/ratingBar"
+                style="?android:attr/ratingBarStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="₹0"
-                android:textColor="#2E7D32"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="5"/>
 
-            <!-- Original Price -->
             <TextView
-                android:id="@+id/txtOriginalPrice"
+                android:id="@+id/txtReviews"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="₹0"
-                android:textColor="#9E9E9E"
-                android:textSize="12sp" />
+                android:text="78 Reviews"
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:layout_marginStart="6dp"/>
+
+            <!-- Filler View to push stock to the right -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/txtStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="InStock"
+                android:textColor="#2E7D32"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
-        <!-- Discount Badge -->
+        <!-- Discount Badge (Existing) -->
         <TextView
             android:id="@+id/txtDiscount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:text="10% OFF"
             android:textSize="11sp"
             android:textColor="#FFFFFF"
@@ -83,6 +155,15 @@
             android:background="@drawable/bg_discount"
             android:visibility="gone"/>
 
+        <!-- View More Button -->
+        <Button
+            android:id="@+id/ViewDetailBtn"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:text="View More"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="#FF6A00"
+            android:textColor="#FFFFFF"/>
 
     </LinearLayout>
 

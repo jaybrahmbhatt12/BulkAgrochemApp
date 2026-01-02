@@ -30,6 +30,26 @@ public interface ApiService {
             @Query("category_id") int categoryId
     );
 
+    // 🔹 Product Details
+    @GET("product_details.php")
+    Call<ProductResponse> getProductDetails(
+            @Query("product_id") int productId
+    );
+
+    // 🔹 Search Products
+    @GET("products.php")
+    Call<ProductResponse> searchProducts(
+            @Query("search") String query
+    );
+
+    // 🔹 Add to Cart
+    @GET("add_to_cart.php")
+    Call<ProductResponse> addToCart(
+            @Query("product_id") int productId,
+            @Query("quantity") int quantity
+    );
+
+
 
 }
 
