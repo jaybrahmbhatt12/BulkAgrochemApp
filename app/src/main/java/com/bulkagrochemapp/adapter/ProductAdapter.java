@@ -21,21 +21,24 @@ import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.utils.HtmlUtil;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder>
-        implements Filterable {
+public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder> {
 
-    Context context;
-    List<Product> productList;
+    private final Context context;
+    private final List<Product> productList;
+    private final OnProductClickListener onProductClickListener;
     List<Product> productListFull; // 🔹 original list
     private Random random = new Random(); // Initialize random object
 
-    public ProductAdapter(Context context, List<Product> productList) {
+    public interface OnProductClickListener {
+        void onProductClick(Product product);
+    }
+
+    public ProductAdapter(Context context, List<Product> productList, OnProductClickListener onProductClickListener) {
         this.context = context;
         this.productList = productList;
-        this.productListFull = new ArrayList<>(productList); // copy
+        this.onProductClickListener = onProductClickListener;
     }
 
     @NonNull
@@ -61,7 +64,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         } else {
             holder.txtDescription.setText("");
         }
-        
+
         // Bind details
         if (product.getDetails() != null && !product.getDetails().isEmpty()) {
             holder.txtDetails.setText(HtmlUtil.fromHtml(product.getDetails()));
@@ -72,7 +75,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
 
 
         // Generate random reviews count between 10 and 100
-        int reviewsCount = random.nextInt(91) + 10; 
+        int reviewsCount = random.nextInt(91) + 10;
         holder.txtReviews.setText(reviewsCount + " Reviews");
 
 
@@ -112,44 +115,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         return productList.size();
     }
 
-    // 🔹 SEARCH FILTER IMPLEMENTATION
-    @Override
-    public Filter getFilter() {
-        return productFilter;
-    }
-
-    private final Filter productFilter = new Filter() {
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-
-            List<Product> filteredList = new ArrayList<>();
-
-            if (constraint == null || constraint.length() == 0) {
-                filteredList.addAll(productListFull);
-            } else {
-                String filterPattern =
-                        constraint.toString().toLowerCase().trim();
-
-                for (Product product : productListFull) {
-                    if (product.getName().toLowerCase().contains(filterPattern)) {
-                        filteredList.add(product);
-                    }
-                }
-            }
-
-            FilterResults results = new FilterResults();
-            results.values = filteredList;
-            return results;
-        }
-
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            productList.clear();
-            productList.addAll((List<Product>) results.values);
-            notifyDataSetChanged();
-        }
-    };
-
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imgProduct;
@@ -162,7 +127,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             txtName = itemView.findViewById(R.id.txtProductName);
             txtPrice = itemView.findViewById(R.id.txtProductPrice);
             txtReviews = itemView.findViewById(R.id.txtReviews);
-            txtDescription = itemView.findViewById(R.id.txtDescription); 
+            txtDescription = itemView.findViewById(R.id.txtDescription);
             txtDetails = itemView.findViewById(R.id.txtDetails);
             ViewDetailBtn = itemView.findViewById(R.id.ViewDetailBtn);
 
