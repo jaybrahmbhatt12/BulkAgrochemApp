@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- 🔰 Header: Logo + Search -->
+        //========== Header =========//
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
                 android:padding="8dp" />
         </LinearLayout>
 
-        <!-- 🎯 Offer Banner -->
+        //========== Banner ==========//
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="160dp"
@@ -46,7 +46,7 @@
             android:src="@drawable/banner_placeholder"
             android:contentDescription="Offer Banner" />
 
-        <!-- 🌱 Categories -->
+        //========= Categories ========//
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-        <!-- 🔥 Trending Products -->
+        //========= Trending Products ========//
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-        <!-- ⭐ Most Popular -->
+        //========= Most Popular Products ========//
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -88,11 +88,14 @@
             android:layout_marginTop="16dp" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvPopular"
+            android:id="@+id/rvMostPopular"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+
+
 
     </LinearLayout>
 

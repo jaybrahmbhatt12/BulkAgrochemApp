@@ -8,7 +8,9 @@ public class Product {
     private String name;
     private String image;
     private double price;
-    private String description; // Matches "description" field in JSON if present
+    
+    @SerializedName(value = "description", alternate = {"desc", "short_description"})
+    private String description;
 
     @SerializedName("details")
     private String details;
@@ -19,10 +21,10 @@ public class Product {
     @SerializedName("discount_percent")
     private int discount_percent;
 
-    @SerializedName("trending")
+    @SerializedName(value = "trending", alternate = {"is_trending", "isTrending"})
     private int isTrending;
 
-    @SerializedName("popular")
+    @SerializedName(value = "popular", alternate = {"is_popular", "isPopular"})
     private int isPopular;
 
     public int getId() {

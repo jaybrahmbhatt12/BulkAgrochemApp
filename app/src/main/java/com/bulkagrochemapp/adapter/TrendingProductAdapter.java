@@ -73,10 +73,13 @@ public class TrendingProductAdapter extends RecyclerView.Adapter<TrendingProduct
             holder.txtDiscount.setVisibility(View.GONE);
         }
 
-        if (product.getDescription() != null) {
+        // Show description (like Product cards)
+        if (product.getDescription() != null && !product.getDescription().isEmpty()) {
             holder.txtDescription.setText(HtmlUtil.fromHtml(product.getDescription()));
+            holder.txtDescription.setVisibility(View.VISIBLE);
         } else {
-            holder.txtDescription.setText("");
+            holder.txtDescription.setText("No description available");
+            holder.txtDescription.setVisibility(View.VISIBLE);
         }
 
         // Bind details
@@ -100,13 +103,8 @@ public class TrendingProductAdapter extends RecyclerView.Adapter<TrendingProduct
                 .error(R.drawable.ic_image_error)
                 .into(holder.imgProduct);
 
-        // Remove the click listener from the whole item
-        holder.itemView.setOnClickListener(null);
-        holder.itemView.setClickable(false);
-        holder.itemView.setFocusable(false);
-
-        // Add the click listener to the View More button
-        holder.ViewDetailBtn.setOnClickListener(v -> {
+        // Define the click action
+        View.OnClickListener openDetails = v -> {
             Intent intent = new Intent(context, ProductDetailActivity.class);
             intent.putExtra("product_id", product.getId());
             intent.putExtra("product_name", product.getName());
@@ -119,7 +117,15 @@ public class TrendingProductAdapter extends RecyclerView.Adapter<TrendingProduct
             intent.putExtra("product_discount_percent", product.getDiscountPercent());
 
             context.startActivity(intent);
-        });
+        };
+
+        // Add the click listener to the View More button
+        holder.ViewDetailBtn.setOnClickListener(openDetails);
+
+        // Also add the click listener to the whole item for better UX
+        holder.itemView.setOnClickListener(openDetails);
+        holder.itemView.setClickable(true);
+        holder.itemView.setFocusable(true);
     }
 
     @Override

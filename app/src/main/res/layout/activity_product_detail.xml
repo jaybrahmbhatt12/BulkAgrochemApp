@@ -100,6 +100,17 @@
             android:backgroundTint="#2E7D32"
             android:textColor="#FFFFFF"/>
 
+        <!-- Product Description -->
+        <TextView
+            android:id="@+id/txtDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Product Description..."
+            android:textSize="14sp"
+            android:textColor="#757575"
+            android:visibility="gone"/>
+
         <!-- Product Details -->
         <TextView
             android:id="@+id/txtDetails"

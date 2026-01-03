@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         );
 
-        rvPopular = findViewById(R.id.rvPopular);
+        rvPopular = findViewById(R.id.rvMostPopular);
         rvPopular.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         );

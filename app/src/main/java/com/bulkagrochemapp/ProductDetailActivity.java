@@ -11,21 +11,29 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bulkagrochemapp.model.CartItem;
+import com.bulkagrochemapp.model.Product;
+import com.bulkagrochemapp.model.ProductResponse;
+import com.bulkagrochemapp.network.ApiService;
+import com.bulkagrochemapp.network.RetrofitClient;
 import com.bulkagrochemapp.utils.CartManager;
 import com.bulkagrochemapp.utils.HtmlUtil;
 import com.squareup.picasso.Picasso;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ProductDetailActivity extends AppCompatActivity {
 
     ImageView imgProduct;
-    TextView txtName, txtPrice, txtStock, txtQty, txtDetails;
+    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription;
     TextView btnPlus, btnMinus;
     Button btnAddToCart;
 
     int quantity = 5;
 
     int productId;
-    String name, image, stock, details;
+    String name, image, stock, details, description;
     double price;
 
     @Override
@@ -38,6 +46,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         txtName = findViewById(R.id.txtProductName);
         txtPrice = findViewById(R.id.txtProductPrice);
         txtStock = findViewById(R.id.txtStock);
+        txtDescription = findViewById(R.id.txtDescription);
         txtDetails = findViewById(R.id.txtDetails);
         txtQty = findViewById(R.id.txtQty);
         btnPlus = findViewById(R.id.btnPlus);
@@ -50,14 +59,24 @@ public class ProductDetailActivity extends AppCompatActivity {
         image = getIntent().getStringExtra("product_image");
         price = getIntent().getDoubleExtra("product_price", 0);
         stock = getIntent().getStringExtra("stock");
+        description = getIntent().getStringExtra("product_description");
         details = getIntent().getStringExtra("product_details");
 
-        // Set data
+        // Set data immediately from Intent
         txtName.setText(name);
         txtPrice.setText("₹" + price);
         txtStock.setText(stock != null ? stock : "In Stock");
         txtQty.setText(String.valueOf(quantity));
+
+        // Show description from Intent if available
+        if (description != null && !description.isEmpty()) {
+            txtDescription.setText(HtmlUtil.fromHtml(description));
+            txtDescription.setVisibility(View.VISIBLE);
+        } else {
+            txtDescription.setVisibility(View.GONE);
+        }
         
+        // Show details from Intent if available
         if (details != null && !details.isEmpty()) {
             txtDetails.setText(HtmlUtil.fromHtml(details));
             txtDetails.setVisibility(View.VISIBLE);
@@ -69,6 +88,9 @@ public class ProductDetailActivity extends AppCompatActivity {
                 .load(image)
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(imgProduct);
+
+        // Fetch full product details from API to ensure we have everything (e.g. if coming from Trending)
+        fetchProductDetails(productId);
 
         // Quantity +
         btnPlus.setOnClickListener(v -> {
@@ -101,6 +123,37 @@ public class ProductDetailActivity extends AppCompatActivity {
                     "Added to cart",
                     Toast.LENGTH_SHORT
             ).show();
+        });
+    }
+
+    private void fetchProductDetails(int id) {
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        Call<ProductResponse> call = apiService.getProductDetails(id);
+
+        call.enqueue(new Callback<ProductResponse>() {
+            @Override
+            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null && !response.body().getData().isEmpty()) {
+                    Product product = response.body().getData().get(0);
+                    
+                    // Update UI with fresh data
+                    // Especially description and details which might be missing from the list item
+                    if (product.getDescription() != null && !product.getDescription().isEmpty()) {
+                        txtDescription.setText(HtmlUtil.fromHtml(product.getDescription()));
+                        txtDescription.setVisibility(View.VISIBLE);
+                    }
+
+                    if (product.getDetails() != null && !product.getDetails().isEmpty()) {
+                        txtDetails.setText(HtmlUtil.fromHtml(product.getDetails()));
+                        txtDetails.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProductResponse> call, Throwable t) {
+                // Ignore error, stick with Intent data
+            }
         });
     }
 }
