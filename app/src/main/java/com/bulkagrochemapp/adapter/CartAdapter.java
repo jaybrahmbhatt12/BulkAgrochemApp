@@ -17,6 +17,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+//=========== Cart Adapter ===========//
+
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
 
     Context context;
@@ -29,6 +31,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         this.totalUpdater = totalUpdater;
     }
 
+    //====== onCreateViewHolder() =====//
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -36,6 +40,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                 .inflate(R.layout.item_cart, parent, false);
         return new ViewHolder(view);
     }
+
+    //====== onBindViewHolder() =====//
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -80,6 +86,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
     public int getItemCount() {
         return cartList.size();
     }
+
+    //====== ViewHolder =====//
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 

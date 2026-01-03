@@ -24,19 +24,25 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+//=========== Product Adapter ===========//
+
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder>
         implements Filterable {
 
     Context context;
     List<Product> productList;
-    List<Product> productListFull; // 🔹 original list
+    List<Product> productListFull; // original list
     private Random random = new Random(); // Initialize random object
+
+    //============== Constructor ================//
 
     public ProductAdapter(Context context, List<Product> productList) {
         this.context = context;
         this.productList = productList;
         this.productListFull = new ArrayList<>(productList); // copy
     }
+
+    //====== onCreateViewHolder() =====//
 
     @NonNull
     @Override
@@ -45,6 +51,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
                 .inflate(R.layout.item_product, parent, false);
         return new ViewHolder(view);
     }
+
+    //====== onBindViewHolder() =====//
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -112,11 +120,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         return productList.size();
     }
 
-    // 🔹 SEARCH FILTER IMPLEMENTATION
+    // SEARCH FILTER IMPLEMENTATION
     @Override
     public Filter getFilter() {
         return productFilter;
     }
+
+    // Filter implementation
 
     private final Filter productFilter = new Filter() {
         @Override
@@ -142,6 +152,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             return results;
         }
 
+        //====== publishResults() =====//
+
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
             productList.clear();
@@ -149,6 +161,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             notifyDataSetChanged();
         }
     };
+
+    //====== ViewHolder =====//
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 

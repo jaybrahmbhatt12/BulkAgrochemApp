@@ -45,11 +45,11 @@ public class ProductListActivity extends AppCompatActivity {
 
         rvProducts.setLayoutManager(new GridLayoutManager(this,1));
 
-        // ✅ Attach empty adapter first (important)
+        // Attach empty adapter first (important)
         adapter = new ProductAdapter(this, productList);
         rvProducts.setAdapter(adapter);
 
-        // 🔹 Get data from intent
+        // Get data from intent
         categoryId = getIntent().getIntExtra("category_id", 0);
         String categoryName = getIntent().getStringExtra("category_name");
 
@@ -66,6 +66,8 @@ public class ProductListActivity extends AppCompatActivity {
 
         loadProductsByCategory();
     }
+
+    // Fetch products by category
 
     private void loadProductsByCategory() {
 
@@ -93,6 +95,8 @@ public class ProductListActivity extends AppCompatActivity {
                             return;
                         }
 
+                        // Check if body is null
+
                         ProductResponse body = response.body();
 
                         if (body == null) {
@@ -110,7 +114,7 @@ public class ProductListActivity extends AppCompatActivity {
                             return;
                         }
 
-                        // ✅ Update adapter safely
+                        // Update adapter safely
                         productList.clear();
                         productList.addAll(body.getData());
                         adapter.notifyDataSetChanged();

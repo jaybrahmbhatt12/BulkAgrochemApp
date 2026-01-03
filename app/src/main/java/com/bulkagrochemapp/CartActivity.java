@@ -13,6 +13,7 @@ import com.bulkagrochemapp.utils.CartManager;
 
 import androidx.recyclerview.widget.ItemTouchHelper;
 
+//=========== Cart Activity ===========//
 
 public class CartActivity extends AppCompatActivity {
 
@@ -20,6 +21,7 @@ public class CartActivity extends AppCompatActivity {
     TextView txtTotal;
     TextView txtEmptyCart;
 
+    //=========== onCreate() ===========//
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

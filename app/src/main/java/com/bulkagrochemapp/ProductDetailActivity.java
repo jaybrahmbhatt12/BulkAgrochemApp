@@ -33,7 +33,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_detail);
 
-        // 🔹 Bind views
+        // Bind views
         imgProduct = findViewById(R.id.imgProduct);
         txtName = findViewById(R.id.txtProductName);
         txtPrice = findViewById(R.id.txtProductPrice);
@@ -44,7 +44,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         btnMinus = findViewById(R.id.btnMinus);
         btnAddToCart = findViewById(R.id.btnAddToCart);
 
-        // 🔹 Get intent data
+        // Get intent data
         productId = getIntent().getIntExtra("product_id", 0);
         name = getIntent().getStringExtra("product_name");
         image = getIntent().getStringExtra("product_image");
@@ -52,7 +52,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         stock = getIntent().getStringExtra("stock");
         details = getIntent().getStringExtra("product_details");
 
-        // 🔹 Set data
+        // Set data
         txtName.setText(name);
         txtPrice.setText("₹" + price);
         txtStock.setText(stock != null ? stock : "In Stock");
@@ -70,13 +70,13 @@ public class ProductDetailActivity extends AppCompatActivity {
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(imgProduct);
 
-        // 🔹 Quantity +
+        // Quantity +
         btnPlus.setOnClickListener(v -> {
             quantity+=5;
             txtQty.setText(String.valueOf(quantity));
         });
 
-        // 🔹 Quantity -
+        // Quantity -
         btnMinus.setOnClickListener(v -> {
             if (quantity > 5) {
                 quantity-=5;
@@ -84,7 +84,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
         });
 
-        // 🔹 Add to cart
+        // Add to cart
         btnAddToCart.setOnClickListener(v -> {
 
             CartItem cartItem =

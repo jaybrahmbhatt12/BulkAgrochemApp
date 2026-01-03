@@ -18,6 +18,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+//=========== Category Adapter ===========//
+
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
 
     private Context context;
@@ -28,6 +30,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         this.list = list;
     }
 
+    //====== onCreateViewHolder() =====//
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -35,6 +39,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
                 .inflate(R.layout.item_category, parent, false);
         return new ViewHolder(view);
     }
+
+    //====== onBindViewHolder() =====//
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -48,7 +54,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(holder.imgCategory);
 
-        // ✅ CATEGORY CLICK HANDLER
+        //====== On Click Listener =====//
+
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, ProductListActivity.class);
             intent.putExtra("category_id", category.getId());
@@ -61,6 +68,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     public int getItemCount() {
         return list.size();
     }
+
+    //====== ViewHolder =====//
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 

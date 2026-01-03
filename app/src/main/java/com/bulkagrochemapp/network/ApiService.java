@@ -9,10 +9,10 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
-    // All Products
+    // All Products Images
     String IMAGE_URL = "http://bulk-api.mahasagar.in/";
 
-    // 🔹 All Products
+    // All Products
     @GET("products.php")
     Call<ProductResponse> getProducts();
 
@@ -24,25 +24,25 @@ public interface ApiService {
     @GET("categories.php")
     Call<CategoryResponse> getCategories();
 
-    // 🔹 Products by Category
+    // Products by Category
     @GET("products.php")
     Call<ProductResponse> getProductsByCategory(
             @Query("category_id") int categoryId
     );
 
-    // 🔹 Product Details
+    // Product Details
     @GET("product_details.php")
     Call<ProductResponse> getProductDetails(
             @Query("product_id") int productId
     );
 
-    // 🔹 Search Products
+    // Search Products
     @GET("products.php")
     Call<ProductResponse> searchProducts(
             @Query("search") String query
     );
 
-    // 🔹 Add to Cart
+    // Add to Cart
     @GET("add_to_cart.php")
     Call<ProductResponse> addToCart(
             @Query("product_id") int productId,
