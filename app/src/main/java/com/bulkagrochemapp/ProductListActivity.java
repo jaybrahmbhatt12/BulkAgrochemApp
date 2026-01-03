@@ -56,12 +56,14 @@ public class ProductListActivity extends AppCompatActivity implements ProductAda
         rvProducts.setLayoutManager(new GridLayoutManager(this, 1));
         rvProductSearchResults.setLayoutManager(new LinearLayoutManager(this));
 
+        // Attach empty adapter first (important)
         adapter = new ProductAdapter(this, productList, this);
         rvProducts.setAdapter(adapter);
 
         suggestionAdapter = new SearchSuggestionAdapter(this, filteredProductList, this);
         rvProductSearchResults.setAdapter(suggestionAdapter);
 
+        // Get data from intent
         categoryId = getIntent().getIntExtra("category_id", 0);
         String categoryName = getIntent().getStringExtra("category_name");
 
@@ -95,6 +97,8 @@ public class ProductListActivity extends AppCompatActivity implements ProductAda
         });
     }
 
+    // Fetch products by category
+
     private void loadProductsByCategory() {
 
         Log.d(TAG, "Calling API for categoryId=" + categoryId);
@@ -121,6 +125,8 @@ public class ProductListActivity extends AppCompatActivity implements ProductAda
                             return;
                         }
 
+                        // Check if body is null
+
                         ProductResponse body = response.body();
 
                         if (body == null) {
@@ -138,6 +144,7 @@ public class ProductListActivity extends AppCompatActivity implements ProductAda
                             return;
                         }
 
+                        // ✅ Update adapter safely
                         productList.clear();
                         productList.addAll(body.getData());
                         adapter.notifyDataSetChanged();

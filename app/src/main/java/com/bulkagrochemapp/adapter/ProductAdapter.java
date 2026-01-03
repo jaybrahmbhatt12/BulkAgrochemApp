@@ -10,6 +10,8 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
@@ -23,13 +25,18 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder> {
+//=========== Product Adapter ===========//
 
-    private final Context context;
-    private final List<Product> productList;
+public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder>
+        implements Filterable {
+
+    Context context;
+    List<Product> productList;
     private final OnProductClickListener onProductClickListener;
-    List<Product> productListFull; // 🔹 original list
+    List<Product> productListFull; // original list
     private Random random = new Random(); // Initialize random object
+
+    //============== Constructor ================//
 
     public interface OnProductClickListener {
         void onProductClick(Product product);
@@ -38,8 +45,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
     public ProductAdapter(Context context, List<Product> productList, OnProductClickListener onProductClickListener) {
         this.context = context;
         this.productList = productList;
+        this.productListFull = new ArrayList<>(productList); // copy
         this.onProductClickListener = onProductClickListener;
     }
+
+    //====== onCreateViewHolder() =====//
 
     @NonNull
     @Override
@@ -48,6 +58,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
                 .inflate(R.layout.item_product, parent, false);
         return new ViewHolder(view);
     }
+
+    //====== onBindViewHolder() =====//
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -114,6 +126,50 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
     public int getItemCount() {
         return productList.size();
     }
+
+    // SEARCH FILTER IMPLEMENTATION
+    @Override
+    public Filter getFilter() {
+        return productFilter;
+    }
+
+    // Filter implementation
+
+    private final Filter productFilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+
+            List<Product> filteredList = new ArrayList<>();
+
+            if (constraint == null || constraint.length() == 0) {
+                filteredList.addAll(productListFull);
+            } else {
+                String filterPattern =
+                        constraint.toString().toLowerCase().trim();
+
+                for (Product product : productListFull) {
+                    if (product.getName().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(product);
+                    }
+                }
+            }
+
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+
+        //====== publishResults() =====//
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            productList.clear();
+            productList.addAll((List<Product>) results.values);
+            notifyDataSetChanged();
+        }
+    };
+
+    //====== ViewHolder =====//
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 

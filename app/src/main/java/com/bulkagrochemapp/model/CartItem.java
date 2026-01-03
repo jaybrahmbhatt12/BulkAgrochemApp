@@ -8,7 +8,7 @@ public class CartItem {
     private double price;
     private int quantity;
 
-    // 🔹 Constructor
+    // Constructor
     public CartItem(int productId, String name, String image, double price) {
         this.productId = productId;
         this.name = name;
@@ -17,7 +17,7 @@ public class CartItem {
         this.quantity = 1;
     }
 
-    // 🔹 REQUIRED GETTERS
+    // REQUIRED GETTERS
     public int getProductId() {
         return productId;
     }
@@ -38,7 +38,7 @@ public class CartItem {
         return quantity;
     }
 
-    // 🔹 Quantity helpers
+    // Quantity helpers
     public void increaseQty() {
         quantity++;
     }
@@ -49,7 +49,7 @@ public class CartItem {
         }
     }
 
-    // 🔹 Total price
+    // Total price
     public double getTotalPrice() {
         return price * quantity;
     }

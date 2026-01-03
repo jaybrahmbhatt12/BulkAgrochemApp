@@ -105,7 +105,8 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
 
         //====== API calls ======//
-        loadProducts();
+        loadProducts(); // Load all products (for Popular)
+        loadTrendingProducts(); // Load trending products from dedicated endpoint
         loadCategories();
     }
 
@@ -133,11 +134,10 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
     //====== API  ======//
 
-    // Fetch all products and filter them into categories
+    // Fetch all products and filter for Popular
     private void loadProducts() {
 
-        ApiService apiService =
-                RetrofitClient.getClient().create(ApiService.class);
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
 
         Call<ProductResponse> call = apiService.getProducts();
 
@@ -150,24 +150,15 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
                     allProducts = response.body().getData();
                     Log.d(TAG, "Total products fetched: " + allProducts.size());
 
-                    // Filter for Trending Products
-                    List<Product> trendingList = new ArrayList<>();
-                    for (Product product : allProducts) {
-                        if (product.getIsTrending() == 1) {
-                            trendingList.add(product);
-                        }
-                    }
-                    TrendingProductAdapter trendingAdapter = new TrendingProductAdapter(MainActivity.this, trendingList);
-                    rvTrending.setAdapter(trendingAdapter);
-                    Log.d(TAG, "Trending products count: " + trendingList.size());
-
                     // Filter for Popular Products
                     List<Product> popularList = new ArrayList<>();
-                    for (Product product : allProducts) {
-                        if (product.getIsPopular() == 1) {
-                            popularList.add(product);
-                        }
-                    }
+//                    for (Product product : productList) {
+//                        // Check if popular flag is set
+//                        if (product.getIsPopular() >= 1) {
+//                            popularList.add(product);
+//                        }
+//                    }
+                    // If no popular products found, maybe show all? No, stick to filtering.
                     MostPopularProductAdapter popularAdapter = new MostPopularProductAdapter(MainActivity.this, popularList);
                     rvPopular.setAdapter(popularAdapter);
                     Log.d(TAG, "Popular products count: " + popularList.size());
@@ -180,6 +171,31 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
                 Log.e(TAG, "API Error: " + t.getMessage());
+            }
+        });
+    }
+
+    // Fetch Trending products
+    private void loadTrendingProducts() {
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        Call<ProductResponse> call = apiService.getTrendingProducts();
+
+        call.enqueue(new Callback<ProductResponse>() {
+            @Override
+            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    List<Product> trendingList = response.body().getData();
+                    TrendingProductAdapter trendingAdapter = new TrendingProductAdapter(MainActivity.this, trendingList);
+                    rvTrending.setAdapter(trendingAdapter);
+                    Log.d(TAG, "Trending products fetched from API: " + trendingList.size());
+                } else {
+                    Log.e(TAG, "Trending products response failed");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProductResponse> call, Throwable t) {
+                Log.e(TAG, "Trending API Error: " + t.getMessage());
             }
         });
     }
