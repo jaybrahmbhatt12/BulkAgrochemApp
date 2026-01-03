@@ -2,14 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:id="@+id/search_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:fitsSystemWindows="true">
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/searchView"
@@ -17,7 +20,6 @@
         android:layout_height="wrap_content"
         android:queryHint="Search products..."
         android:iconifiedByDefault="false"
-        android:background="@android:color/transparent"
         android:imeOptions="actionSearch" />
 
         <TextView
@@ -37,13 +39,16 @@
         android:layout_height="match_parent"
         android:layout_below="@id/search_container"
         android:clipToPadding="false"
-        android:padding="6dp" />
+        android:padding="6dp"
+        android:orientation="horizontal"
+        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvProductSearchResults"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/search_container"
-        android:visibility="gone" />
+        android:visibility="gone"
+        />
 
 </RelativeLayout>
