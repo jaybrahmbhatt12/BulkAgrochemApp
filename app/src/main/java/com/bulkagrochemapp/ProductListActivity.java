@@ -1,15 +1,20 @@
 package com.bulkagrochemapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bulkagrochemapp.adapter.ProductAdapter;
+import com.bulkagrochemapp.adapter.SearchSuggestionAdapter;
 import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.model.ProductResponse;
 import com.bulkagrochemapp.network.ApiService;
@@ -22,14 +27,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProductListActivity extends AppCompatActivity {
+public class ProductListActivity extends AppCompatActivity implements ProductAdapter.OnProductClickListener, SearchSuggestionAdapter.OnSuggestionClickListener {
 
-    RecyclerView rvProducts;
+    RecyclerView rvProducts, rvProductSearchResults;
     TextView txtTitle;
+    SearchView searchView;
 
     int categoryId;
     ProductAdapter adapter;
+    SearchSuggestionAdapter suggestionAdapter;
     List<Product> productList = new ArrayList<>();
+    private List<Product> filteredProductList = new ArrayList<>();
 
     private static final String TAG = "PRODUCT_LIST";
 
@@ -41,13 +49,19 @@ public class ProductListActivity extends AppCompatActivity {
         Log.d(TAG, "ProductListActivity OPENED");
 
         rvProducts = findViewById(R.id.rvProducts);
+        rvProductSearchResults = findViewById(R.id.rvProductSearchResults);
         txtTitle = findViewById(R.id.txtTitle);
+        searchView = findViewById(R.id.searchView);
 
-        rvProducts.setLayoutManager(new GridLayoutManager(this,1));
+        rvProducts.setLayoutManager(new GridLayoutManager(this, 1));
+        rvProductSearchResults.setLayoutManager(new LinearLayoutManager(this));
 
         // Attach empty adapter first (important)
-        adapter = new ProductAdapter(this, productList);
+        adapter = new ProductAdapter(this, productList, this);
         rvProducts.setAdapter(adapter);
+
+        suggestionAdapter = new SearchSuggestionAdapter(this, filteredProductList, this);
+        rvProductSearchResults.setAdapter(suggestionAdapter);
 
         // Get data from intent
         categoryId = getIntent().getIntExtra("category_id", 0);
@@ -65,6 +79,22 @@ public class ProductListActivity extends AppCompatActivity {
         txtTitle.setText(categoryName != null ? categoryName : "Products");
 
         loadProductsByCategory();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (filteredProductList.size() == 1) {
+                    onSuggestionClick(filteredProductList.get(0));
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filter(newText);
+                return true;
+            }
+        });
     }
 
     // Fetch products by category
@@ -114,7 +144,7 @@ public class ProductListActivity extends AppCompatActivity {
                             return;
                         }
 
-                        // Update adapter safely
+                        // ✅ Update adapter safely
                         productList.clear();
                         productList.addAll(body.getData());
                         adapter.notifyDataSetChanged();
@@ -132,5 +162,36 @@ public class ProductListActivity extends AppCompatActivity {
                         ).show();
                     }
                 });
+    }
+
+    private void filter(String text) {
+        filteredProductList.clear();
+        if (text.isEmpty()) {
+            rvProductSearchResults.setVisibility(View.GONE);
+            rvProducts.setVisibility(View.VISIBLE);
+        } else {
+            rvProductSearchResults.setVisibility(View.VISIBLE);
+            rvProducts.setVisibility(View.GONE);
+            for (Product product : productList) {
+                if (product.getName().toLowerCase().contains(text.toLowerCase())) {
+                    filteredProductList.add(product);
+                }
+            }
+        }
+        suggestionAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onProductClick(Product product) {
+        Intent intent = new Intent(this, ProductDetailActivity.class);
+        intent.putExtra("product", product);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onSuggestionClick(Product product) {
+        Intent intent = new Intent(this, ProductDetailActivity.class);
+        intent.putExtra("product", product);
+        startActivity(intent);
     }
 }

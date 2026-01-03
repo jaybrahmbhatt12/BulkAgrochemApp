@@ -2,7 +2,10 @@ package com.bulkagrochemapp.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Product {
+
+import java.io.Serializable;
+
+public class Product implements Serializable {
 
     private int id;
     private String name;
@@ -17,7 +20,7 @@ public class Product {
 
     @SerializedName("original_price")
     private double original_price;
-    
+
     @SerializedName("discount_percent")
     private int discount_percent;
 

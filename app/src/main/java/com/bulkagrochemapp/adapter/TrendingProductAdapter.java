@@ -10,9 +10,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import java.util.Random;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bulkagrochemapp.ProductDetailActivity;
@@ -22,50 +22,55 @@ import com.bulkagrochemapp.utils.HtmlUtil;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Random;
 
-//=========== Trending Product Adapter ===========//
+public class TrendingProductAdapter
+        extends RecyclerView.Adapter<TrendingProductAdapter.ViewHolder> {
 
-public class TrendingProductAdapter extends RecyclerView.Adapter<TrendingProductAdapter.ViewHolder> {
-
-    Context context;
-    List<Product> productList;
+    private Context context;
+    private List<Product> productList;
     private Random random = new Random();
-
-    //============== Constructor ================//
 
     public TrendingProductAdapter(Context context, List<Product> productList) {
         this.context = context;
         this.productList = productList;
     }
 
-    //====== onCreateViewHolder() =====//
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Use the horizontal layout for trending products
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.item_product_horizontal, parent, false);
         return new ViewHolder(view);
     }
 
-    //====== onBindViewHolder() =====//
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Product product = productList.get(position);
 
+        Product product = productList.get(position);
+        if (product == null) return;
+
+        // ===== Name =====
         holder.txtName.setText(product.getName());
+
+        // ===== Price =====
         holder.txtPrice.setText("₹" + String.format("%.2f", product.getPrice()));
 
-        if (product.getOriginalPrice() > 0) {
-            holder.txtOriginalPrice.setText("₹" + String.format("%.2f", product.getOriginalPrice()));
-            holder.txtOriginalPrice.setPaintFlags(holder.txtOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        // ===== Original Price =====
+        if (product.getOriginalPrice() > product.getPrice()) {
+            holder.txtOriginalPrice.setText(
+                    "₹" + String.format("%.2f", product.getOriginalPrice())
+            );
+            holder.txtOriginalPrice.setPaintFlags(
+                    holder.txtOriginalPrice.getPaintFlags()
+                            | Paint.STRIKE_THRU_TEXT_FLAG
+            );
             holder.txtOriginalPrice.setVisibility(View.VISIBLE);
         } else {
             holder.txtOriginalPrice.setVisibility(View.GONE);
         }
 
+        // ===== Discount Badge =====
         if (product.getDiscountPercent() > 0) {
             holder.txtDiscount.setText(product.getDiscountPercent() + "% OFF");
             holder.txtDiscount.setVisibility(View.VISIBLE);
@@ -73,37 +78,45 @@ public class TrendingProductAdapter extends RecyclerView.Adapter<TrendingProduct
             holder.txtDiscount.setVisibility(View.GONE);
         }
 
-        // Show description (like Product cards)
+        // ===== Description =====
         if (product.getDescription() != null && !product.getDescription().isEmpty()) {
-            holder.txtDescription.setText(HtmlUtil.fromHtml(product.getDescription()));
+            holder.txtDescription.setText(
+                    HtmlUtil.fromHtml(product.getDescription())
+            );
             holder.txtDescription.setVisibility(View.VISIBLE);
         } else {
-            holder.txtDescription.setText("No description available");
-            holder.txtDescription.setVisibility(View.VISIBLE);
+            holder.txtDescription.setVisibility(View.GONE);
         }
 
-        // Bind details
+        // ===== Details =====
         if (product.getDetails() != null && !product.getDetails().isEmpty()) {
-            holder.txtDetails.setText(HtmlUtil.fromHtml(product.getDetails()));
+            holder.txtDetails.setText(
+                    HtmlUtil.fromHtml(product.getDetails())
+            );
             holder.txtDetails.setVisibility(View.VISIBLE);
         } else {
             holder.txtDetails.setVisibility(View.GONE);
         }
 
-        // Generate random reviews count between 10 and 100
-        int reviewsCount = random.nextInt(91) + 10;
-        holder.txtReviews.setText(reviewsCount + " Reviews");
+        // ===== Reviews & Rating =====
+        int reviews = random.nextInt(91) + 10;
+        holder.txtReviews.setText(reviews + " Reviews");
+        holder.ratingBar.setRating(4.5f); // static or dynamic later
 
-        // The API provides the full URL, so use it directly.
-        String imageUrl = product.getImage();
+        // ===== Stock =====
+        holder.txtStock.setText("InStock");
+        holder.txtStock.setTextColor(
+                ContextCompat.getColor(context, R.color.green)
+        );
 
+        // ===== Image (PICASSO) =====
         Picasso.get()
-                .load(imageUrl)
+                .load(product.getImage()) // FULL URL FROM API
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .error(R.drawable.ic_image_error)
                 .into(holder.imgProduct);
 
-        // Define the click action
+        // ===== Click (Item + Button) =====
         View.OnClickListener openDetails = v -> {
             Intent intent = new Intent(context, ProductDetailActivity.class);
             intent.putExtra("product_id", product.getId());
@@ -112,36 +125,33 @@ public class TrendingProductAdapter extends RecyclerView.Adapter<TrendingProduct
             intent.putExtra("product_image", product.getImage());
             intent.putExtra("product_description", product.getDescription());
             intent.putExtra("product_details", product.getDetails());
-            // Optionally pass original price and discount if needed in DetailActivity
             intent.putExtra("product_original_price", product.getOriginalPrice());
             intent.putExtra("product_discount_percent", product.getDiscountPercent());
-
             context.startActivity(intent);
         };
 
-        // Add the click listener to the View More button
         holder.ViewDetailBtn.setOnClickListener(openDetails);
-
-        // Also add the click listener to the whole item for better UX
         holder.itemView.setOnClickListener(openDetails);
-        holder.itemView.setClickable(true);
-        holder.itemView.setFocusable(true);
     }
 
     @Override
     public int getItemCount() {
-        return productList.size();
+        return productList != null ? productList.size() : 0;
     }
 
+    // ===== ViewHolder =====
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imgProduct;
-        TextView txtName, txtPrice, txtOriginalPrice, txtDiscount, txtReviews, txtDescription, txtDetails, txtStock;
-        Button ViewDetailBtn;
+        TextView txtName, txtPrice, txtOriginalPrice,
+                txtDiscount, txtReviews, txtDescription,
+                txtDetails, txtStock;
         RatingBar ratingBar;
+        Button ViewDetailBtn;
 
-        public ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
+
             imgProduct = itemView.findViewById(R.id.imgProduct);
             txtName = itemView.findViewById(R.id.txtProductName);
             txtPrice = itemView.findViewById(R.id.txtProductPrice);
