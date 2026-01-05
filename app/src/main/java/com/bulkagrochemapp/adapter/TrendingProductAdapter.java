@@ -54,7 +54,7 @@ public class TrendingProductAdapter
         holder.txtName.setText(product.getName());
 
         // ===== Price =====
-        holder.txtPrice.setText("₹" + String.format("%.2f", product.getPrice()));
+        holder.txtPrice.setText("₹" + String.format("%.2f", product.getPrice())+"/"+product.getStocktype());
 
         // ===== Original Price =====
         if (product.getOriginalPrice() > product.getPrice()) {
@@ -122,6 +122,7 @@ public class TrendingProductAdapter
             intent.putExtra("product_id", product.getId());
             intent.putExtra("product_name", product.getName());
             intent.putExtra("product_price", product.getPrice());
+            intent.putExtra("product_stock", product.getStocktype());
             intent.putExtra("product_image", product.getImage());
             intent.putExtra("product_description", product.getDescription());
             intent.putExtra("product_details", product.getDetails());

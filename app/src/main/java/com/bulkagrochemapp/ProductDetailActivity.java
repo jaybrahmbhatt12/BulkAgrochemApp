@@ -35,7 +35,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private Product product;
 
     int productId;
-    String name, image, stock, details, description;
+    String name, image, stock, details, description , stocktype;
     double price;
 
     @Override
@@ -65,6 +65,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         name = getIntent().getStringExtra("product_name");
         image = getIntent().getStringExtra("product_image");
         price = getIntent().getDoubleExtra("product_price", 0);
+        stocktype = getIntent().getStringExtra("product_stock");
         stock = getIntent().getStringExtra("stock");
         description = getIntent().getStringExtra("product_description");
         details = getIntent().getStringExtra("product_details");
@@ -92,7 +93,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         else {
             // for displaying data in product detail activity came trough category activity
             txtName.setText(name);
-            txtPrice.setText("₹" + price);
+            txtPrice.setText("₹" + price + "/" + stocktype);
             txtStock.setText(stock != null ? stock : "In Stock");
             txtQty.setText(String.valueOf(quantity));
 
