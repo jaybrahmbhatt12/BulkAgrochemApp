@@ -20,7 +20,9 @@
         android:layout_height="wrap_content"
         android:queryHint="Search products..."
         android:iconifiedByDefault="false"
-        android:imeOptions="actionSearch" />
+        app:theme="@style/ThemeOverlay.AppCompat.Light"
+        android:imeOptions="actionSearch"
+        />
 
         <TextView
             android:id="@+id/txtTitle"
@@ -28,6 +30,7 @@
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:text="Category"
+            android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold" />
 

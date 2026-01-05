@@ -1,6 +1,7 @@
 package com.bulkagrochemapp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +28,7 @@ import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.model.ProductResponse;
 import com.bulkagrochemapp.network.ApiService;
 import com.bulkagrochemapp.network.RetrofitClient;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
     private SearchSuggestionAdapter suggestionAdapter;
     private List<Product> allProducts = new ArrayList<>();
     private List<Product> searchResults = new ArrayList<>();
+    private FloatingActionButton fabWhatsapp;
 
     //====== onCreate() =====//
 
@@ -79,6 +83,21 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         rvSearchResults.setLayoutManager(new LinearLayoutManager(this));
 
         searchEditText = findViewById(R.id.searchEditText);
+        fabWhatsapp = findViewById(R.id.fabWhatsapp);
+
+        fabWhatsapp.setOnClickListener(v -> {
+            String phoneNumber = "+919512017161";
+            String message = "I need bulkagrochem product details.";
+            String url = "https://api.whatsapp.com/send?phone=" + phoneNumber + "&text=" + message;
+
+            try {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
+            } catch (Exception e) {
+                Toast.makeText(this, "Whatsapp is not installed on this device", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
