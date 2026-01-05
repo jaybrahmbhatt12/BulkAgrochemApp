@@ -74,7 +74,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             // 🔹 Set data
             // for displaying data in product detail activity came trough search bar
             txtName.setText(product.getName());
-            txtPrice.setText("₹" + product.getPrice());
+            txtPrice.setText("₹" + product.getPrice() + "/"+product.getStocktype());
             txtStock.setText("In Stock"); // Assuming all products are in stock
             txtQty.setText(String.valueOf(quantity));
 
