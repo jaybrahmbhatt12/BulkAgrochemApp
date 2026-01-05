@@ -17,7 +17,7 @@ public interface ApiService {
     Call<ProductResponse> getProducts();
 
     // Trending Products
-    @GET("trending_products.php")
+    @GET("products.php")
     Call<ProductResponse> getTrendingProducts();
 
     // Categories
