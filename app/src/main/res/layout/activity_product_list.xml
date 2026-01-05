@@ -24,6 +24,14 @@
         android:imeOptions="actionSearch"
         />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvProductSearchResults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/search_container"
+            android:visibility="gone"
+            />
+
         <TextView
             android:id="@+id/txtTitle"
             android:layout_width="match_parent"
@@ -46,12 +54,5 @@
         android:orientation="horizontal"
         />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvProductSearchResults"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/search_container"
-        android:visibility="gone"
-        />
 
 </RelativeLayout>

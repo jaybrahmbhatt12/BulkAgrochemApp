@@ -168,9 +168,11 @@ public class ProductListActivity extends AppCompatActivity implements ProductAda
         filteredProductList.clear();
         if (text.isEmpty()) {
             rvProductSearchResults.setVisibility(View.GONE);
+            txtTitle.setVisibility(View.VISIBLE);
             rvProducts.setVisibility(View.VISIBLE);
         } else {
             rvProductSearchResults.setVisibility(View.VISIBLE);
+            txtTitle.setVisibility(View.GONE);
             rvProducts.setVisibility(View.GONE);
             for (Product product : productList) {
                 if (product.getName().toLowerCase().contains(text.toLowerCase())) {
