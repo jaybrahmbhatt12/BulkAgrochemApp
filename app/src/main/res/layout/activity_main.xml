@@ -123,6 +123,25 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+            <!-- Hot Sale Title -->
+            <TextView
+                android:id="@+id/txtHotSale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hot Sale"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp"
+                android:textColor="#000" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvHotSale"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

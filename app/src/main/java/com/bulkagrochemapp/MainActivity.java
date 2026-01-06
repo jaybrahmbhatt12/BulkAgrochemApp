@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
     //====== Variables =====//
 
     private static final String TAG = "API_TEST";
-    private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults;
+    private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults, rvHotSale;
     private EditText searchEditText;
     private ImageView ivProfile;
     private SearchSuggestionAdapter suggestionAdapter;
@@ -80,6 +80,12 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         rvPopular.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         );
+
+        rvHotSale = findViewById(R.id.rvHotSale);
+        rvHotSale.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        );
+
 
         rvSearchResults = findViewById(R.id.rvSearchResults);
         rvSearchResults.setLayoutManager(new LinearLayoutManager(this));
@@ -179,16 +185,28 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
                     // Filter for Popular Products
                     List<Product> popularList = new ArrayList<>();
+                    List<Product> hotSaleList = new ArrayList<>();
                     for (Product product : allProducts) {
                         // Check if popular flag is set
                         if (product.getIsPopular() >= 1) {
                             popularList.add(product);
+                        }
+
+                        // 🔥 Hot Sale
+                        if (product.getIsHot() >= 1) {
+                            hotSaleList.add(product);
                         }
                     }
                     // If no popular products found, maybe show all? No, stick to filtering.
                     MostPopularProductAdapter popularAdapter = new MostPopularProductAdapter(MainActivity.this, popularList);
                     rvPopular.setAdapter(popularAdapter);
                     Log.d(TAG, "Popular products count: " + popularList.size());
+
+                    // Hot Sale Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
+                    MostPopularProductAdapter hotSaleAdapter =
+                            new MostPopularProductAdapter(MainActivity.this, hotSaleList);
+                    rvHotSale.setAdapter(hotSaleAdapter);
+                    Log.d(TAG, "Hot Sale count: " + hotSaleList.size());
 
                 } else {
                     Log.e(TAG, "Product response failed or data is null");
