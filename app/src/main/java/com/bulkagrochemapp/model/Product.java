@@ -28,6 +28,10 @@ public class Product implements Serializable {
     @SerializedName("discount_percent")
     private int discount_percent;
 
+    @SerializedName("minimum_qty")
+    private int minimum_qty;
+
+
     @SerializedName(value = "trending", alternate = {"is_trending", "isTrending"})
     private int isTrending;
 
@@ -76,5 +80,9 @@ public class Product implements Serializable {
 
     public String getStocktype() {
         return stocktype;
+    }
+
+    public int getMinimumQty() {
+        return minimum_qty;
     }
 }

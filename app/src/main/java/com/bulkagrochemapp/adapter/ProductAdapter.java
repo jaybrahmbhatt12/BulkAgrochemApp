@@ -114,6 +114,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             intent.putExtra("product_name", product.getName());
             intent.putExtra("product_price", product.getPrice());
             intent.putExtra("product_stock", product.getStocktype());
+            intent.putExtra("minimum_qty", product.getMinimumQty());
             intent.putExtra("product_image", product.getImage());
             intent.putExtra("product_description", product.getDescription());
             intent.putExtra("product_details", product.getDetails());

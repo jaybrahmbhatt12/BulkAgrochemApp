@@ -31,7 +31,8 @@ public class ProductDetailActivity extends AppCompatActivity {
     TextView btnPlus, btnMinus;
     Button btnAddToCart;
 
-    int quantity = 5;
+    int quantity = 0;
+    int initialQuantity=0,minimum_qty_value=0;
     private Product product;
 
     int productId;
@@ -66,9 +67,11 @@ public class ProductDetailActivity extends AppCompatActivity {
         image = getIntent().getStringExtra("product_image");
         price = getIntent().getDoubleExtra("product_price", 0);
         stocktype = getIntent().getStringExtra("product_stock");
+        minimum_qty_value = getIntent().getIntExtra("minimum_qty",0);
         stock = getIntent().getStringExtra("stock");
         description = getIntent().getStringExtra("product_description");
         details = getIntent().getStringExtra("product_details");
+
 
         if (product != null) {
             // 🔹 Set data
@@ -76,6 +79,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             txtName.setText(product.getName());
             txtPrice.setText("₹" + product.getPrice() + "/"+product.getStocktype());
             txtStock.setText("In Stock"); // Assuming all products are in stock
+            quantity = product.getMinimumQty();
+            initialQuantity = quantity;
             txtQty.setText(String.valueOf(quantity));
 
             if (product.getDetails() != null && !product.getDetails().isEmpty()) {
@@ -95,6 +100,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             txtName.setText(name);
             txtPrice.setText("₹" + price + "/" + stocktype);
             txtStock.setText(stock != null ? stock : "In Stock");
+            quantity = minimum_qty_value;
+            initialQuantity = quantity;
             txtQty.setText(String.valueOf(quantity));
 
             if (details != null && !details.isEmpty()) {
@@ -115,14 +122,14 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         // Quantity +
         btnPlus.setOnClickListener(v -> {
-            quantity+=5;
+            quantity+=initialQuantity;
             txtQty.setText(String.valueOf(quantity));
         });
 
         // 🔹 Quantity -
         btnMinus.setOnClickListener(v -> {
-            if (quantity > 5) {
-                quantity-=5;
+            if (quantity > initialQuantity) {
+                quantity-=initialQuantity;
                 txtQty.setText(String.valueOf(quantity));
             }
         });
