@@ -2,6 +2,7 @@ package com.bulkagrochemapp.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,6 +71,24 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         holder.txtPrice.setText(
                 "₹" + String.format("%.2f", product.getPrice()) + "/" + product.getStocktype()
         );
+        
+        // ===== Original Price =====
+        if (product.getOriginalPrice() > product.getPrice()) {
+            holder.txtOriginalPrice.setText("₹" + String.format("%.2f", product.getOriginalPrice()));
+            holder.txtOriginalPrice.setPaintFlags(holder.txtOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.txtOriginalPrice.setVisibility(View.VISIBLE);
+        } else {
+            holder.txtOriginalPrice.setVisibility(View.GONE);
+        }
+
+        // ===== Discount Badge =====
+        if (product.getDiscountPercent() > 0) {
+            holder.txtDiscount.setText(product.getDiscountPercent() + "% OFF");
+            holder.txtDiscount.setVisibility(View.VISIBLE);
+        } else {
+            holder.txtDiscount.setVisibility(View.GONE);
+        }
+
 
         if (product.getDescription() != null) {
             holder.txtDescription.setText(HtmlUtil.fromHtml(product.getDescription()));
@@ -118,6 +137,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             intent.putExtra("product_image", product.getImage());
             intent.putExtra("product_description", product.getDescription());
             intent.putExtra("product_details", product.getDetails());
+            intent.putExtra("product_original_price", product.getOriginalPrice());
+            intent.putExtra("product_discount_percent", product.getDiscountPercent());
 
             context.startActivity(intent);
         });
@@ -176,7 +197,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imgProduct;
-        TextView txtName, txtPrice, txtReviews, txtDescription, txtDetails;
+        TextView txtName, txtPrice, txtReviews, txtDescription, txtDetails, txtOriginalPrice, txtDiscount;
         Button ViewDetailBtn;
 
         public ViewHolder(@NonNull View itemView) {
@@ -188,6 +209,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             txtDescription = itemView.findViewById(R.id.txtDescription);
             txtDetails = itemView.findViewById(R.id.txtDetails);
             ViewDetailBtn = itemView.findViewById(R.id.ViewDetailBtn);
+            txtOriginalPrice = itemView.findViewById(R.id.txtOriginalPrice);
+            txtDiscount = itemView.findViewById(R.id.txtDiscount);
 
         }
     }

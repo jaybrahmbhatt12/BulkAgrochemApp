@@ -24,6 +24,8 @@ public class Product implements Serializable {
     @SerializedName("stocktype")
     private String stocktype;
 
+    @SerializedName("is_hot")
+    private int isHot;
 
     @SerializedName("discount_percent")
     private int discount_percent;
@@ -80,6 +82,10 @@ public class Product implements Serializable {
 
     public String getStocktype() {
         return stocktype;
+    }
+
+    public int getIsHot() {
+        return isHot;
     }
 
     public int getMinimumQty() {

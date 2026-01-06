@@ -1,5 +1,6 @@
 package com.bulkagrochemapp;
 
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -27,7 +28,7 @@ import retrofit2.Response;
 public class ProductDetailActivity extends AppCompatActivity {
 
     ImageView imgProduct;
-    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription;
+    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount;
     TextView btnPlus, btnMinus;
     Button btnAddToCart;
 
@@ -38,6 +39,8 @@ public class ProductDetailActivity extends AppCompatActivity {
     int productId;
     String name, image, stock, details, description , stocktype;
     double price;
+    double originalPrice;
+    int discountPercent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +59,8 @@ public class ProductDetailActivity extends AppCompatActivity {
         btnPlus = findViewById(R.id.btnPlus);
         btnMinus = findViewById(R.id.btnMinus);
         btnAddToCart = findViewById(R.id.btnAddToCart);
+        txtOriginalPrice = findViewById(R.id.txtOriginalPrice);
+        txtDiscount = findViewById(R.id.txtDiscount);
 
         // 🔹 Get intent data
         // for displaying data in product detail activity came trough search bar
@@ -71,6 +76,8 @@ public class ProductDetailActivity extends AppCompatActivity {
         stock = getIntent().getStringExtra("stock");
         description = getIntent().getStringExtra("product_description");
         details = getIntent().getStringExtra("product_details");
+        originalPrice = getIntent().getDoubleExtra("product_original_price", 0);
+        discountPercent = getIntent().getIntExtra("product_discount_percent", 0);
 
 
         if (product != null) {
@@ -82,6 +89,22 @@ public class ProductDetailActivity extends AppCompatActivity {
             quantity = product.getMinimumQty();
             initialQuantity = quantity;
             txtQty.setText(String.valueOf(quantity));
+            
+            // Original Price and Discount
+            if (product.getOriginalPrice() > product.getPrice()) {
+                 txtOriginalPrice.setText("₹" + String.format("%.2f", product.getOriginalPrice()));
+                 txtOriginalPrice.setPaintFlags(txtOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                 txtOriginalPrice.setVisibility(View.VISIBLE);
+            } else {
+                 txtOriginalPrice.setVisibility(View.GONE);
+            }
+            
+            if (product.getDiscountPercent() > 0) {
+                txtDiscount.setText(product.getDiscountPercent() + "% OFF");
+                txtDiscount.setVisibility(View.VISIBLE);
+            } else {
+                txtDiscount.setVisibility(View.GONE);
+            }
 
             if (product.getDetails() != null && !product.getDetails().isEmpty()) {
                 txtDetails.setText(HtmlUtil.fromHtml(product.getDetails()));
@@ -103,6 +126,22 @@ public class ProductDetailActivity extends AppCompatActivity {
             quantity = minimum_qty_value;
             initialQuantity = quantity;
             txtQty.setText(String.valueOf(quantity));
+            
+             // Original Price and Discount (from intent extras)
+            if (originalPrice > price) {
+                 txtOriginalPrice.setText("₹" + String.format("%.2f", originalPrice));
+                 txtOriginalPrice.setPaintFlags(txtOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                 txtOriginalPrice.setVisibility(View.VISIBLE);
+            } else {
+                 txtOriginalPrice.setVisibility(View.GONE);
+            }
+            
+            if (discountPercent > 0) {
+                txtDiscount.setText(discountPercent + "% OFF");
+                txtDiscount.setVisibility(View.VISIBLE);
+            } else {
+                txtDiscount.setVisibility(View.GONE);
+            }
 
             if (details != null && !details.isEmpty()) {
                 txtDetails.setText(HtmlUtil.fromHtml(details));
@@ -188,6 +227,18 @@ public class ProductDetailActivity extends AppCompatActivity {
                     if (product.getDetails() != null && !product.getDetails().isEmpty()) {
                         txtDetails.setText(HtmlUtil.fromHtml(product.getDetails()));
                         txtDetails.setVisibility(View.VISIBLE);
+                    }
+                    
+                    // Also update price info if available
+                    if (product.getOriginalPrice() > product.getPrice()) {
+                        txtOriginalPrice.setText("₹" + String.format("%.2f", product.getOriginalPrice()));
+                        txtOriginalPrice.setPaintFlags(txtOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                        txtOriginalPrice.setVisibility(View.VISIBLE);
+                    }
+                    
+                    if (product.getDiscountPercent() > 0) {
+                        txtDiscount.setText(product.getDiscountPercent() + "% OFF");
+                        txtDiscount.setVisibility(View.VISIBLE);
                     }
                 }
             }
