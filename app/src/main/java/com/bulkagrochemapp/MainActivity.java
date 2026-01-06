@@ -20,9 +20,13 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bulkagrochemapp.adapter.BigProductAdapter;
 import com.bulkagrochemapp.adapter.CategoryAdapter;
+import com.bulkagrochemapp.adapter.HotProductAdapter;
+import com.bulkagrochemapp.adapter.LatestProductAdapter;
 import com.bulkagrochemapp.adapter.MostPopularProductAdapter;
 import com.bulkagrochemapp.adapter.SearchSuggestionAdapter;
+import com.bulkagrochemapp.adapter.TopSellingProductAdapter;
 import com.bulkagrochemapp.adapter.TrendingProductAdapter;
 import com.bulkagrochemapp.model.CategoryResponse;
 import com.bulkagrochemapp.model.Product;
@@ -43,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
     //====== Variables =====//
 
     private static final String TAG = "API_TEST";
-    private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults, rvHotSale;
+    private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults, rvHotSale, rvLatestProduct, rvBigProduct, rvTopSelling;
     private EditText searchEditText;
     private ImageView ivProfile;
     private SearchSuggestionAdapter suggestionAdapter;
@@ -83,6 +87,21 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
         rvHotSale = findViewById(R.id.rvHotSale);
         rvHotSale.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        );
+
+        rvLatestProduct = findViewById(R.id.rvLatestProduct);
+        rvLatestProduct.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        );
+
+        rvBigProduct = findViewById(R.id.rvBigProduct);
+        rvBigProduct.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        );
+
+        rvTopSelling = findViewById(R.id.rvTopSelling);
+        rvTopSelling.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         );
 
@@ -183,30 +202,70 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
                     allProducts = response.body().getData();
                     Log.d(TAG, "Total products fetched: " + allProducts.size());
 
+        //============ FILTERS ============//
+
                     // Filter for Popular Products
                     List<Product> popularList = new ArrayList<>();
                     List<Product> hotSaleList = new ArrayList<>();
+                    List<Product> latestList = new ArrayList<>();
+                    List<Product> bigProductList = new ArrayList<>();
+                    List<Product> topSellingList = new ArrayList<>();
+
                     for (Product product : allProducts) {
+
                         // Check if popular flag is set
+
+                        // Popular
                         if (product.getIsPopular() >= 1) {
                             popularList.add(product);
                         }
-
-                        // 🔥 Hot Sale
+                        // Hot Sale
                         if (product.getIsHot() >= 1) {
                             hotSaleList.add(product);
                         }
+                        // Latest Product
+                        if (product.getIsLatest() >= 1) {
+                            latestList.add(product);
+                        }
+                        // Big Product
+                        if (product.getIsBig() >= 1) {
+                            bigProductList.add(product);
+                        }
+                        // Top Selling
+                        if (product.getIsTop() >= 1) {
+                            topSellingList.add(product);
+                        }
                     }
-                    // If no popular products found, maybe show all? No, stick to filtering.
+
+                    // Most Popular Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
                     MostPopularProductAdapter popularAdapter = new MostPopularProductAdapter(MainActivity.this, popularList);
                     rvPopular.setAdapter(popularAdapter);
                     Log.d(TAG, "Popular products count: " + popularList.size());
 
                     // Hot Sale Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
-                    MostPopularProductAdapter hotSaleAdapter =
-                            new MostPopularProductAdapter(MainActivity.this, hotSaleList);
+                    HotProductAdapter hotSaleAdapter =
+                            new HotProductAdapter(MainActivity.this, hotSaleList);
                     rvHotSale.setAdapter(hotSaleAdapter);
                     Log.d(TAG, "Hot Sale count: " + hotSaleList.size());
+
+                    // Latest Product Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
+                    LatestProductAdapter latestAdapter =
+                            new LatestProductAdapter(MainActivity.this, latestList);
+                    rvLatestProduct.setAdapter(latestAdapter);
+                    Log.d(TAG, "Latest products count: " + latestList.size());
+
+                    // Big Product Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
+                    BigProductAdapter bigProductAdapter =
+                            new BigProductAdapter(MainActivity.this, bigProductList);
+                    rvBigProduct.setAdapter(bigProductAdapter);
+                    Log.d(TAG, "Big products count: " + bigProductList.size());
+
+                    // Top Selling Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
+                    TopSellingProductAdapter topSellingAdapter =
+                            new TopSellingProductAdapter(MainActivity.this, topSellingList);
+                    rvTopSelling.setAdapter(topSellingAdapter);
+
+                    Log.d(TAG, "Top selling products count: " + topSellingList.size());
 
                 } else {
                     Log.e(TAG, "Product response failed or data is null");

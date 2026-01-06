@@ -6,6 +6,7 @@ import android.text.Html;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +22,8 @@ import com.bulkagrochemapp.utils.CartManager;
 import com.bulkagrochemapp.utils.HtmlUtil;
 import com.squareup.picasso.Picasso;
 
+import java.util.Random;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,13 +31,15 @@ import retrofit2.Response;
 public class ProductDetailActivity extends AppCompatActivity {
 
     ImageView imgProduct;
-    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount;
+    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount, txtReviews;
     TextView btnPlus, btnMinus;
     Button btnAddToCart;
+    RatingBar ratingBar;
 
     int quantity = 0;
     int initialQuantity=0,minimum_qty_value=0;
     private Product product;
+    private Random random = new Random();
 
     int productId;
     String name, image, stock, details, description , stocktype;
@@ -61,6 +66,8 @@ public class ProductDetailActivity extends AppCompatActivity {
         btnAddToCart = findViewById(R.id.btnAddToCart);
         txtOriginalPrice = findViewById(R.id.txtOriginalPrice);
         txtDiscount = findViewById(R.id.txtDiscount);
+        txtReviews = findViewById(R.id.txtReviews);
+        ratingBar = findViewById(R.id.ratingBar);
 
         // 🔹 Get intent data
         // for displaying data in product detail activity came trough search bar
@@ -79,6 +86,9 @@ public class ProductDetailActivity extends AppCompatActivity {
         originalPrice = getIntent().getDoubleExtra("product_original_price", 0);
         discountPercent = getIntent().getIntExtra("product_discount_percent", 0);
 
+        // Generate random reviews count between 10 and 100
+        int reviewsCount = random.nextInt(91) + 10;
+        txtReviews.setText(reviewsCount + " Reviews");
 
         if (product != null) {
             // 🔹 Set data

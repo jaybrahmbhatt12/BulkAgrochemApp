@@ -33,6 +33,15 @@ public class Product implements Serializable {
     @SerializedName("minimum_qty")
     private int minimum_qty;
 
+    @SerializedName("is_latest")
+    private int isLatest;
+
+    @SerializedName("is_big")
+    private int isBig;
+
+    @SerializedName("is_top")
+    private int isTop;
+
 
     @SerializedName(value = "trending", alternate = {"is_trending", "isTrending"})
     private int isTrending;
@@ -86,6 +95,18 @@ public class Product implements Serializable {
 
     public int getIsHot() {
         return isHot;
+    }
+
+    public int getIsLatest() {
+        return isLatest;
+    }
+
+    public int getIsBig() {
+        return isBig;
+    }
+
+    public int getIsTop() {
+        return isTop;
     }
 
     public int getMinimumQty() {

@@ -142,6 +142,64 @@
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
+            <!-- Latest Product Title -->
+            <TextView
+                android:id="@+id/txtLatestProduct"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Latest Product"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp"
+                android:textColor="#000" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvLatestProduct"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+            <!-- Big Product Title -->
+            <TextView
+                android:id="@+id/txtBigProduct"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Big Product"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp"
+                android:textColor="#000" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvBigProduct"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+            <!-- Top Selling Title -->
+            <TextView
+                android:id="@+id/txtTopSelling"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Top Selling"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp"
+                android:textColor="#000" />
+
+            <!-- Top Selling RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTopSelling"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+
+
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
