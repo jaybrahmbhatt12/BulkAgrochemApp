@@ -4,8 +4,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="176dp"
-    android:background="#FF6A00"
-    android:gravity="bottom"
+    android:background="#4CAF50"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
@@ -15,9 +15,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:src="@drawable/logo_bulkagro"
-        android:background="@color/white"
-
-        />
+        android:background="@drawable/bg_logo" />
 
     <TextView
         android:layout_width="wrap_content"

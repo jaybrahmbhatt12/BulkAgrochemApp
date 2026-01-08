@@ -2,18 +2,20 @@ package com.bulkagrochemapp;
 
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.bulkagrochemapp.model.CartItem;
-import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.model.ProductResponse;
 import com.bulkagrochemapp.network.ApiService;
@@ -30,11 +32,14 @@ import retrofit2.Response;
 
 public class ProductDetailActivity extends AppCompatActivity {
 
+    private static final String TAG = "ProductDetailActivity";
+
     ImageView imgProduct;
     TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount, txtReviews;
     TextView btnPlus, btnMinus;
     Button btnAddToCart;
     RatingBar ratingBar;
+    TableLayout tablePriceRange;
 
     int quantity = 0;
     int initialQuantity=0,minimum_qty_value=0;
@@ -47,6 +52,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     double originalPrice;
     int discountPercent;
 
+    //========== onCreat() ===========//
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +74,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         txtDiscount = findViewById(R.id.txtDiscount);
         txtReviews = findViewById(R.id.txtReviews);
         ratingBar = findViewById(R.id.ratingBar);
+        tablePriceRange = findViewById(R.id.tablePriceRange);
 
         // 🔹 Get intent data
         // for displaying data in product detail activity came trough search bar
@@ -127,6 +134,9 @@ public class ProductDetailActivity extends AppCompatActivity {
                     .load(product.getImage())
                     .placeholder(R.drawable.ic_launcher_foreground)
                     .into(imgProduct);
+
+            // Setup table if product data is already available
+            setupWholesaleTable(product);
         }
         else {
             // for displaying data in product detail activity came trough category activity
@@ -167,7 +177,11 @@ public class ProductDetailActivity extends AppCompatActivity {
         }
 
         // Fetch full product details from API to ensure we have everything (e.g. if coming from Trending)
-        fetchProductDetails(productId);
+        if (product != null) {
+            fetchProductDetails(product.getId());
+        } else {
+            fetchProductDetails(productId);
+        }
 
         // Quantity +
         btnPlus.setOnClickListener(v -> {
@@ -217,6 +231,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         });
     }
 
+    //========== fetchProductDetails() ===========//
     private void fetchProductDetails(int id) {
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         Call<ProductResponse> call = apiService.getProductDetails(id);
@@ -225,38 +240,113 @@ public class ProductDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null && !response.body().getData().isEmpty()) {
-                    Product product = response.body().getData().get(0);
+                    Product fetchedProduct = response.body().getData().get(0);
+
+                    // If we didn't have a product object before, we can use this one
+                    if (product == null) {
+                        product = fetchedProduct;
+                    }
 
                     // Update UI with fresh data
                     // Especially description and details which might be missing from the list item
-                    if (product.getDescription() != null && !product.getDescription().isEmpty()) {
-                        txtDescription.setText(HtmlUtil.fromHtml(product.getDescription()));
+                    if (fetchedProduct.getDescription() != null && !fetchedProduct.getDescription().isEmpty()) {
+                        txtDescription.setText(HtmlUtil.fromHtml(fetchedProduct.getDescription()));
                         txtDescription.setVisibility(View.VISIBLE);
                     }
 
-                    if (product.getDetails() != null && !product.getDetails().isEmpty()) {
-                        txtDetails.setText(HtmlUtil.fromHtml(product.getDetails()));
+                    if (fetchedProduct.getDetails() != null && !fetchedProduct.getDetails().isEmpty()) {
+                        txtDetails.setText(HtmlUtil.fromHtml(fetchedProduct.getDetails()));
                         txtDetails.setVisibility(View.VISIBLE);
                     }
 
                     // Also update price info if available
-                    if (product.getOriginalPrice() > product.getPrice()) {
-                        txtOriginalPrice.setText("₹" + String.format("%.2f", product.getOriginalPrice()));
+                    if (fetchedProduct.getOriginalPrice() > fetchedProduct.getPrice()) {
+                        txtOriginalPrice.setText("₹" + String.format("%.2f", fetchedProduct.getOriginalPrice()));
                         txtOriginalPrice.setPaintFlags(txtOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                         txtOriginalPrice.setVisibility(View.VISIBLE);
                     }
 
-                    if (product.getDiscountPercent() > 0) {
-                        txtDiscount.setText(product.getDiscountPercent() + "% OFF");
+                    if (fetchedProduct.getDiscountPercent() > 0) {
+                        txtDiscount.setText(fetchedProduct.getDiscountPercent() + "% OFF");
                         txtDiscount.setVisibility(View.VISIBLE);
                     }
+
+                    setupWholesaleTable(fetchedProduct);
+                }
+
+                if (product != null) {
+                    Log.d("API_PRODUCT", "whole_sell_qty = " + product.getWholeSellQty());
+                    Log.d("API_PRODUCT", "whole_sell_discount = " + product.getWholeSellDiscount());
                 }
             }
 
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
                 // Ignore error, stick with Intent data
+                Log.e(TAG, "fetchProductDetails failed: " + t.getMessage());
             }
         });
     }
+
+    //========== setupWholesaleTable() ===========//
+    private void setupWholesaleTable(Product product) {
+
+        if (tablePriceRange == null) {
+             tablePriceRange = findViewById(R.id.tablePriceRange);
+        }
+
+        if (tablePriceRange == null) return;
+
+        // Clear previous rows except header (index 0)
+        int childCount = tablePriceRange.getChildCount();
+        if (childCount > 1) {
+            tablePriceRange.removeViews(1, childCount - 1);
+        }
+
+        if (product == null || product.getWholeSellQty() == null || product.getWholeSellDiscount() == null) {
+            return;
+        }
+
+        String[] qtyArray = product.getWholeSellQty().split(",");
+        String[] priceArray = product.getWholeSellDiscount().split(",");
+
+        // Use the smaller length to avoid IndexOutOfBoundsException
+        int length = Math.min(qtyArray.length, priceArray.length);
+
+        for (int i = 0; i < length; i++) {
+            // Skip empty items resulting from trailing commas or empty strings
+            String q = qtyArray[i].trim();
+            String p = priceArray[i].trim();
+
+            if (q.isEmpty() || p.isEmpty()) continue;
+
+            TableRow row = new TableRow(this);
+            row.setPadding(8, 8, 8, 8);
+
+            TextView qtyTv = new TextView(this);
+            qtyTv.setText(q);
+            qtyTv.setPadding(16, 16, 16, 16);
+            qtyTv.setTextColor(ContextCompat.getColor(this, R.color.black));
+            qtyTv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            
+            // Set layout params for even spacing
+            TableRow.LayoutParams params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
+            qtyTv.setLayoutParams(params);
+
+            TextView priceTv = new TextView(this);
+            priceTv.setText("₹ " + p);
+            priceTv.setPadding(16, 16, 16, 16);
+            priceTv.setTextColor(ContextCompat.getColor(this, R.color.black));
+            priceTv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            
+             // Set layout params for even spacing
+            priceTv.setLayoutParams(params);
+
+            row.addView(qtyTv);
+            row.addView(priceTv);
+
+            tablePriceRange.addView(row);
+        }
+    }
+
 }

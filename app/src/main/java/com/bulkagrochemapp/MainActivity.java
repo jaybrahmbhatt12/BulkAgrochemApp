@@ -386,6 +386,10 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         intent.putExtra("product_details", product.getDetails());
         intent.putExtra("product_original_price", product.getOriginalPrice());
         intent.putExtra("product_discount_percent", product.getDiscountPercent());
+        
+        // Pass the whole product object to access wholesale data
+        intent.putExtra("product", product);
+        
         startActivity(intent);
     }
 

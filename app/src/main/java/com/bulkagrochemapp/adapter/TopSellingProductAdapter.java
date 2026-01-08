@@ -129,6 +129,10 @@ public class TopSellingProductAdapter
             intent.putExtra("product_details", product.getDetails());
             intent.putExtra("product_original_price", product.getOriginalPrice());
             intent.putExtra("product_discount_percent", product.getDiscountPercent());
+
+            // Pass the whole product object to access wholesale data
+            intent.putExtra("product", product);
+
             context.startActivity(intent);
         };
 

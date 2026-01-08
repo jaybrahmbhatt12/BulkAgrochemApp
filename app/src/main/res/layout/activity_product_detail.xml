@@ -177,6 +177,45 @@
 
         </LinearLayout>
 
+        <!-- Price Range Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price Range based on Quantity"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:textColor="#000" />
+
+        <!-- Price Range Table -->
+        <TableLayout
+            android:id="@+id/tablePriceRange"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="*"
+            android:visibility="visible">
+
+            <TableRow
+                android:background="#FF6F00"
+                android:padding="10dp">
+
+                <TextView
+                    android:text="Quantity (Kg/Ltr/Nos)"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    android:padding="8dp"/>
+
+                <TextView
+                    android:text="Price (Per Kg/Ltr/Nos)"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    android:padding="8dp"/>
+            </TableRow>
+
+        </TableLayout>
+
+
+
         <!-- Add to Cart -->
         <Button
             android:id="@+id/btnAddToCart"

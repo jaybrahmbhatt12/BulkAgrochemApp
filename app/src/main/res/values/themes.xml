@@ -9,8 +9,8 @@
         <item name="android:windowBackground">@color/app_background</item>
         <item name="colorSurface">@color/app_background</item>
 
-        <!-- Status bar color. Matching the toolbar for a seamless look. -->
-        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
