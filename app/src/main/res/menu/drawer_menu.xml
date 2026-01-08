@@ -1,24 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <group
         android:id="@+id/nav_group"
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_categories_toggle"
             android:orderInCategory="100"
-            android:title="Categories" />
+            android:title="Categories"
+            android:icon="@drawable/ic_arrow_drop_down"
+             />
         <!-- Dynamic categories will be added here with order 101, 102, etc. -->
         <item
             android:id="@+id/nav_trending_products"
             android:orderInCategory="200"
-            android:title="Trending Products" />
+            android:title="Trending Products"
+            android:icon="@drawable/ic_trending"/>
         <item
             android:id="@+id/nav_most_popular"
             android:orderInCategory="300"
-            android:title="Most Popular" />
+            android:title="Most Popular"
+            android:icon="@drawable/ic_popular"/>
         <item
             android:id="@+id/nav_hot_sale"
             android:orderInCategory="400"
-            android:title="Hot Sale" />
+            android:title="Hot Sale"
+            android:icon="@drawable/ic_hot_sale"/>
+        <item
+            android:id="@+id/nav_latest_product"
+            android:orderInCategory="500"
+            android:title="Latest Product"
+            android:icon="@drawable/ic_latest"/>
+        <item
+            android:id="@+id/nav_big_product"
+            android:orderInCategory="600"
+            android:title="Big Product"
+            android:icon="@drawable/ic_big_product"/>
+        <item
+            android:id="@+id/nav_top_selling"
+            android:orderInCategory="700"
+            android:title="Top Selling"
+            android:icon="@drawable/ic_top_selling"/>
     </group>
 </menu>

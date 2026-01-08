@@ -7,8 +7,8 @@
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
 
         <!-- Status bar color. In dark mode, usually black. -->
-        <item name="android:statusBarColor">@android:color/black</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/my_primary_color</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.BulkAgrochem" parent="Base.Theme.BulkAgrochem" />

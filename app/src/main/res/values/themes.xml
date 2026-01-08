@@ -9,9 +9,11 @@
         <item name="android:windowBackground">@color/app_background</item>
         <item name="colorSurface">@color/app_background</item>
 
-        <!-- Status bar color. Matching the toolbar for a seamless look. -->
-        <item name="android:statusBarColor">@color/colorPrimary</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <!-- Status bar color. We want it black. -->
+        <item name="android:statusBarColor">@color/black</item>
+        <!-- If it's black, we usually want light icons (so false) UNLESS the status bar is actually transparent/light.
+             The user wants it BLACK. -->
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.BulkAgrochem" parent="Base.Theme.BulkAgrochem" />

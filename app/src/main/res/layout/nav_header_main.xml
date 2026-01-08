@@ -1,32 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="176dp"
+    android:layout_height="220dp"
     android:background="#FF6A00"
-    android:gravity="bottom"
-    android:orientation="vertical"
     android:padding="16dp"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark"
-    >
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <ImageView
+    <!-- Logo Card (Centered) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvLogo"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:src="@drawable/logo_bulkagro"
-        android:background="@color/white"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardElevation="0dp">
 
-        />
+        <ImageView
+            android:id="@+id/nav_header_logo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/logo_bulkagro"
+            android:scaleType="fitCenter"
+            android:padding="4dp" />
+    </androidx.cardview.widget.CardView>
 
+    <!-- App Name (Below Logo) -->
     <TextView
+        android:id="@+id/nav_header_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp"
+        android:layout_below="@+id/cvLogo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="12dp"
         android:text="Bulk Agrochem"
         android:textStyle="bold"
         android:textSize="20dp"
+        android:textColor="@color/white"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
+    <!-- Profile Layout (Below App Name) -->
+    <LinearLayout
+        android:id="@+id/profileContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nav_header_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/ivProfile"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_profile"
+            app:tint="@color/white"
+            android:padding="2dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profile"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:layout_marginStart="4dp"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

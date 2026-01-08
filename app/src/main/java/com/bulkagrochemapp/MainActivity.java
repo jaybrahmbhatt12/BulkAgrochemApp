@@ -9,16 +9,20 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
@@ -77,24 +81,57 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Make status bar transparent for edge-to-edge
+        Window window = getWindow();
+        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        // Remove default title
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         nestedScrollView = findViewById(R.id.main);
 
+        // Apply padding to AppBarLayout/Toolbar to avoid overlap
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.appBarLayout), (v, insets) -> {
+             int top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+             v.setPadding(0, top, 0, 0);
+             return insets;
+        });
+
+        // Use the toolbar for the toggle, but since DrawerLayout is now BELOW the toolbar,
+        // the toggle button needs to be manually handled or we rely on the toolbar's navigation click listener.
+        // However, standard ActionBarDrawerToggle attaches to the toolbar which is now outside.
+        // Let's attach the listener to the toolbar manually to open the drawer.
+        
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        // Set custom color for the drawer toggle icon (hamburger icon)
+        toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.black));
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-
+        
+        // Since the toolbar is outside the DrawerLayout, the hamburger icon click might need explicit handling
+        // to open the drawer if the standard behavior doesn't catch it because of the hierarchy change.
+        // But usually, if toolbar is passed to ActionBarDrawerToggle, it sets the navigation click listener.
+        
         navigationView.setNavigationItemSelectedListener(this);
-
+        
+        // Remove top padding from NavigationView since it's now below the status bar/app bar area
         ViewCompat.setOnApplyWindowInsetsListener(navigationView, (v, insets) -> {
-            int top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
-            v.setPadding(0, top, 0, 0);
             return insets;
         });
+        
+        // Handle nav header profile click
+        View headerView = navigationView.getHeaderView(0);
+        LinearLayout profileContainer = headerView.findViewById(R.id.profileContainer);
+        if (profileContainer != null) {
+            profileContainer.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                startActivity(intent);
+            });
+        }
 
         rvCategories = findViewById(R.id.rvCategories);
         rvCategories.setLayoutManager(
@@ -137,17 +174,12 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
         searchEditText = findViewById(R.id.searchEditText);
         fabWhatsapp = findViewById(R.id.fabWhatsapp);
-        ivProfile = findViewById(R.id.ivProfile);
+        // ivProfile = findViewById(R.id.ivProfile); // Removed from toolbar
 
         categoriesTitle = findViewById(R.id.categories_title);
         trendingProductsTitle = findViewById(R.id.trending_products_title);
         mostPopularTitle = findViewById(R.id.most_popular_title);
         hotSaleTitle = findViewById(R.id.hot_sale_title);
-
-        ivProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-            startActivity(intent);
-        });
 
         fabWhatsapp.setOnClickListener(v -> {
             String phoneNumber = "+919512017161";
@@ -356,7 +388,9 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
                     Menu menu = navigationView.getMenu();
                     for (int i = 0; i < categoryList.size(); i++) {
                         Category category = categoryList.get(i);
-                        MenuItem menuItem = menu.add(R.id.nav_group, category.getId(), 101 + i, category.getName());
+                        // Add some leading spaces to indent the item (approx 16dp visually with standard font)
+                        String indentedTitle = "    " + category.getName();
+                        MenuItem menuItem = menu.add(R.id.nav_group, category.getId(), 101 + i, indentedTitle);
                         menuItem.setVisible(false);
                         categoryMenuItems.add(menuItem);
                     }
@@ -414,12 +448,25 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         }
 
         // Handle static menu item clicks
+        TextView targetView = null;
         if (id == R.id.nav_trending_products) {
-            scrollToView(trendingProductsTitle);
+            targetView = trendingProductsTitle;
         } else if (id == R.id.nav_most_popular) {
-            scrollToView(mostPopularTitle);
+            targetView = mostPopularTitle;
         } else if (id == R.id.nav_hot_sale) {
-            scrollToView(hotSaleTitle);
+            targetView = hotSaleTitle;
+        } else if (id == R.id.nav_latest_product) {
+            targetView = findViewById(R.id.txtLatestProduct);
+        } else if (id == R.id.nav_big_product) {
+            targetView = findViewById(R.id.txtBigProduct);
+        } else if (id == R.id.nav_top_selling) {
+            targetView = findViewById(R.id.txtTopSelling);
+        }
+        
+        if (targetView != null) {
+            scrollToView(targetView);
+            drawerLayout.closeDrawers();
+            return true;
         }
 
         drawerLayout.closeDrawers();
@@ -427,6 +474,8 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
     }
 
     private void scrollToView(View view) {
-        nestedScrollView.post(() -> nestedScrollView.smoothScrollTo(0, view.getTop()));
+        if (view != null) {
+            nestedScrollView.post(() -> nestedScrollView.smoothScrollTo(0, view.getTop()));
+        }
     }
 }
