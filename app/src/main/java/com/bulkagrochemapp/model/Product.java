@@ -42,6 +42,12 @@ public class Product implements Serializable {
     @SerializedName("is_top")
     private int isTop;
 
+    @SerializedName("whole_sell_qty")
+    private String wholeSellQty;
+
+    @SerializedName("whole_sell_discount")
+    private String wholeSellDiscount;
+
 
     @SerializedName(value = "trending", alternate = {"is_trending", "isTrending"})
     private int isTrending;
@@ -111,5 +117,13 @@ public class Product implements Serializable {
 
     public int getMinimumQty() {
         return minimum_qty;
+    }
+
+    public String getWholeSellQty() {
+        return wholeSellQty;
+    }
+
+    public String getWholeSellDiscount() {
+        return wholeSellDiscount;
     }
 }

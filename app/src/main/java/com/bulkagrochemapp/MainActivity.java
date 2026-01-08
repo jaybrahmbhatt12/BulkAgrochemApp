@@ -351,10 +351,19 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    List<Product> trendingList = response.body().getData();
-                    TrendingProductAdapter trendingAdapter = new TrendingProductAdapter(MainActivity.this, trendingList);
+                    List<Product> allTrending = response.body().getData();
+                    
+                    // Filter trending products
+                    List<Product> filteredTrending = new ArrayList<>();
+                    for (Product product : allTrending) {
+                        if (product.getIsTrending() >= 1) {
+                            filteredTrending.add(product);
+                        }
+                    }
+                    
+                    TrendingProductAdapter trendingAdapter = new TrendingProductAdapter(MainActivity.this, filteredTrending);
                     rvTrending.setAdapter(trendingAdapter);
-                    Log.d(TAG, "Trending products fetched from API: " + trendingList.size());
+                    Log.d(TAG, "Trending products fetched and filtered: " + filteredTrending.size());
                 } else {
                     Log.e(TAG, "Trending products response failed");
                 }
@@ -420,6 +429,10 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         intent.putExtra("product_details", product.getDetails());
         intent.putExtra("product_original_price", product.getOriginalPrice());
         intent.putExtra("product_discount_percent", product.getDiscountPercent());
+        
+        // Pass the whole product object to access wholesale data
+        intent.putExtra("product", product);
+        
         startActivity(intent);
     }
 
