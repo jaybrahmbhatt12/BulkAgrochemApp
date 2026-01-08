@@ -6,17 +6,23 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.widget.NestedScrollView;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,12 +30,14 @@ import com.bulkagrochemapp.adapter.CategoryAdapter;
 import com.bulkagrochemapp.adapter.MostPopularProductAdapter;
 import com.bulkagrochemapp.adapter.SearchSuggestionAdapter;
 import com.bulkagrochemapp.adapter.TrendingProductAdapter;
+import com.bulkagrochemapp.model.Category;
 import com.bulkagrochemapp.model.CategoryResponse;
 import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.model.ProductResponse;
 import com.bulkagrochemapp.network.ApiService;
 import com.bulkagrochemapp.network.RetrofitClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +46,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements SearchSuggestionAdapter.OnSuggestionClickListener {
+public class MainActivity extends AppCompatActivity implements SearchSuggestionAdapter.OnSuggestionClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     //====== Variables =====//
 
@@ -50,19 +58,37 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
     private List<Product> allProducts = new ArrayList<>();
     private List<Product> searchResults = new ArrayList<>();
     private FloatingActionButton fabWhatsapp;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+    private NestedScrollView nestedScrollView;
+    private TextView categoriesTitle, trendingProductsTitle, mostPopularTitle, hotSaleTitle;
+    private List<Category> categoryList = new ArrayList<>();
+    private List<MenuItem> categoryMenuItems = new ArrayList<>();
+    private boolean areCategoriesVisible = false;
 
     //====== onCreate() =====//
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        nestedScrollView = findViewById(R.id.main);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        navigationView.setNavigationItemSelectedListener(this);
+
+        ViewCompat.setOnApplyWindowInsetsListener(navigationView, (v, insets) -> {
+            int top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+            v.setPadding(0, top, 0, 0);
             return insets;
         });
 
@@ -86,13 +112,17 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         );
 
-
         rvSearchResults = findViewById(R.id.rvSearchResults);
         rvSearchResults.setLayoutManager(new LinearLayoutManager(this));
 
         searchEditText = findViewById(R.id.searchEditText);
         fabWhatsapp = findViewById(R.id.fabWhatsapp);
         ivProfile = findViewById(R.id.ivProfile);
+
+        categoriesTitle = findViewById(R.id.categories_title);
+        trendingProductsTitle = findViewById(R.id.trending_products_title);
+        mostPopularTitle = findViewById(R.id.most_popular_title);
+        hotSaleTitle = findViewById(R.id.hot_sale_title);
 
         ivProfile.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
@@ -257,9 +287,20 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
                                    Response<CategoryResponse> response) {
 
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    categoryList = response.body().getData();
                     CategoryAdapter adapter =
-                            new CategoryAdapter(MainActivity.this, response.body().getData());
+                            new CategoryAdapter(MainActivity.this, categoryList);
                     rvCategories.setAdapter(adapter);
+
+                    // Populate the navigation drawer
+                    Menu menu = navigationView.getMenu();
+                    for (int i = 0; i < categoryList.size(); i++) {
+                        Category category = categoryList.get(i);
+                        MenuItem menuItem = menu.add(R.id.nav_group, category.getId(), 101 + i, category.getName());
+                        menuItem.setVisible(false);
+                        categoryMenuItems.add(menuItem);
+                    }
+
                 } else {
                     Log.w("CATEGORY_API", "Categories response failed or data is null");
                 }
@@ -286,5 +327,46 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         intent.putExtra("product_original_price", product.getOriginalPrice());
         intent.putExtra("product_discount_percent", product.getDiscountPercent());
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_categories_toggle) {
+            areCategoriesVisible = !areCategoriesVisible;
+            for (MenuItem menuItem : categoryMenuItems) {
+                menuItem.setVisible(areCategoriesVisible);
+            }
+            return true; // Consume the click
+        }
+
+        // Handle dynamic category clicks
+        for (Category category : categoryList) {
+            if (id == category.getId()) {
+                Intent intent = new Intent(this, ProductListActivity.class);
+                intent.putExtra("category_id", category.getId());
+                intent.putExtra("category_name", category.getName());
+                startActivity(intent);
+                drawerLayout.closeDrawers();
+                return true;
+            }
+        }
+
+        // Handle static menu item clicks
+        if (id == R.id.nav_trending_products) {
+            scrollToView(trendingProductsTitle);
+        } else if (id == R.id.nav_most_popular) {
+            scrollToView(mostPopularTitle);
+        } else if (id == R.id.nav_hot_sale) {
+            scrollToView(hotSaleTitle);
+        }
+
+        drawerLayout.closeDrawers();
+        return true;
+    }
+
+    private void scrollToView(View view) {
+        nestedScrollView.post(() -> nestedScrollView.smoothScrollTo(0, view.getTop()));
     }
 }

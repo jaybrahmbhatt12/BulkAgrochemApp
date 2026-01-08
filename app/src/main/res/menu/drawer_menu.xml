@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/nav_group"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_categories_toggle"
+            android:orderInCategory="100"
+            android:title="Categories" />
+        <!-- Dynamic categories will be added here with order 101, 102, etc. -->
+        <item
+            android:id="@+id/nav_trending_products"
+            android:orderInCategory="200"
+            android:title="Trending Products" />
+        <item
+            android:id="@+id/nav_most_popular"
+            android:orderInCategory="300"
+            android:title="Most Popular" />
+        <item
+            android:id="@+id/nav_hot_sale"
+            android:orderInCategory="400"
+            android:title="Hot Sale" />
+    </group>
+</menu>

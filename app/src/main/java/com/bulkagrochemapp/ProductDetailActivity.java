@@ -89,7 +89,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             quantity = product.getMinimumQty();
             initialQuantity = quantity;
             txtQty.setText(String.valueOf(quantity));
-            
+
             // Original Price and Discount
             if (product.getOriginalPrice() > product.getPrice()) {
                  txtOriginalPrice.setText("₹" + String.format("%.2f", product.getOriginalPrice()));
@@ -98,7 +98,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             } else {
                  txtOriginalPrice.setVisibility(View.GONE);
             }
-            
+
             if (product.getDiscountPercent() > 0) {
                 txtDiscount.setText(product.getDiscountPercent() + "% OFF");
                 txtDiscount.setVisibility(View.VISIBLE);
@@ -126,7 +126,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             quantity = minimum_qty_value;
             initialQuantity = quantity;
             txtQty.setText(String.valueOf(quantity));
-            
+
              // Original Price and Discount (from intent extras)
             if (originalPrice > price) {
                  txtOriginalPrice.setText("₹" + String.format("%.2f", originalPrice));
@@ -135,7 +135,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             } else {
                  txtOriginalPrice.setVisibility(View.GONE);
             }
-            
+
             if (discountPercent > 0) {
                 txtDiscount.setText(discountPercent + "% OFF");
                 txtDiscount.setVisibility(View.VISIBLE);
@@ -228,14 +228,14 @@ public class ProductDetailActivity extends AppCompatActivity {
                         txtDetails.setText(HtmlUtil.fromHtml(product.getDetails()));
                         txtDetails.setVisibility(View.VISIBLE);
                     }
-                    
+
                     // Also update price info if available
                     if (product.getOriginalPrice() > product.getPrice()) {
                         txtOriginalPrice.setText("₹" + String.format("%.2f", product.getOriginalPrice()));
                         txtOriginalPrice.setPaintFlags(txtOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                         txtOriginalPrice.setVisibility(View.VISIBLE);
                     }
-                    
+
                     if (product.getDiscountPercent() > 0) {
                         txtDiscount.setText(product.getDiscountPercent() + "% OFF");
                         txtDiscount.setVisibility(View.VISIBLE);

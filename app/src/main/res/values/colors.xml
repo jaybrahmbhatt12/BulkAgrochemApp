@@ -4,4 +4,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="app_background">#F5F5F5</color>
     <color name="green">#4CAF50</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="orange_brand">#FF6A00</color>
+    <color name="colorPrimary">@color/orange_brand</color>
+    <color name="colorPrimaryDark">#E65100</color>
+    <color name="colorOnPrimary">@color/white</color>
 </resources>

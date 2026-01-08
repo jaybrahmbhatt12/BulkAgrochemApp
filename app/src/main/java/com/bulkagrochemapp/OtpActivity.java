@@ -9,6 +9,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 public class OtpActivity extends AppCompatActivity {
 
@@ -23,6 +25,12 @@ public class OtpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_otp);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            int paddingTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+            v.setPadding(v.getPaddingLeft(), paddingTop + 24, v.getPaddingRight(), v.getPaddingBottom());
+            return insets;
+        });
 
         etOtp = findViewById(R.id.etOtp);
         btnVerifyOtp = findViewById(R.id.btnVerifyOtp);
