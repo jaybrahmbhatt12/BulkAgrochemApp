@@ -151,7 +151,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="InStock"
-                android:textColor="#2E7D32"
+                android:textColor="#4CAF50"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -164,7 +164,7 @@
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:layout_marginTop="10dp"
-            android:backgroundTint="#FF6A00"
+            android:backgroundTint="#4CAF50"
             android:text="View More"
             android:textColor="#FFFFFF" />
 
