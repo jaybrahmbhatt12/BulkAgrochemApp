@@ -116,7 +116,7 @@ public class LatestProductAdapter
                 .error(R.drawable.ic_image_error)
                 .into(holder.imgProduct);
 
-        // ===== Click (Item + Button) =====
+        // ===== Click (Button ONLY) =====
         View.OnClickListener openDetails = v -> {
             Intent intent = new Intent(context, ProductDetailActivity.class);
             intent.putExtra("product_id", product.getId());
@@ -133,7 +133,10 @@ public class LatestProductAdapter
         };
 
         holder.ViewDetailBtn.setOnClickListener(openDetails);
-        holder.itemView.setOnClickListener(openDetails);
+        
+        // Disable click on the whole card
+        holder.itemView.setOnClickListener(null);
+        holder.itemView.setClickable(false);
     }
 
     @Override

@@ -116,7 +116,7 @@ public class BigProductAdapter
                 .error(R.drawable.ic_image_error)
                 .into(holder.imgProduct);
 
-        // ===== Click (Item + Button) =====
+        // ===== Click (Button ONLY) =====
         View.OnClickListener openDetails = v -> {
             Intent intent = new Intent(context, ProductDetailActivity.class);
             intent.putExtra("product_id", product.getId());
@@ -133,7 +133,8 @@ public class BigProductAdapter
         };
 
         holder.ViewDetailBtn.setOnClickListener(openDetails);
-        holder.itemView.setOnClickListener(openDetails);
+        // Removed item click listener from holder.itemView to only allow button click
+        holder.itemView.setClickable(false);
     }
 
     @Override
