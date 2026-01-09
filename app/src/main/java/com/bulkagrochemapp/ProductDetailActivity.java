@@ -35,7 +35,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private static final String TAG = "ProductDetailActivity";
 
     ImageView imgProduct;
-    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount, txtReviews;
+    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount, txtReviews, txtMaxQtyPriceInfo;
     TextView btnPlus, btnMinus;
     Button btnAddToCart;
     RatingBar ratingBar;
@@ -75,6 +75,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         txtReviews = findViewById(R.id.txtReviews);
         ratingBar = findViewById(R.id.ratingBar);
         tablePriceRange = findViewById(R.id.tablePriceRange);
+        txtMaxQtyPriceInfo = findViewById(R.id.txtMaxQtyPriceInfo);
 
         // 🔹 Get intent data
         // for displaying data in product detail activity came trough search bar
@@ -137,6 +138,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
             // Setup table if product data is already available
             setupWholesaleTable(product);
+            updatePriceForQuantity(quantity);
         }
         else {
             // for displaying data in product detail activity came trough category activity
@@ -146,6 +148,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             quantity = minimum_qty_value;
             initialQuantity = quantity;
             txtQty.setText(String.valueOf(quantity));
+            txtMaxQtyPriceInfo.setText("₹" + price + " (If you buy " + quantity + " QTY)+ GST (Rates are Per Kg/Per Liter)");
+
 
              // Original Price and Discount (from intent extras)
             if (originalPrice > price) {
@@ -187,6 +191,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         btnPlus.setOnClickListener(v -> {
             quantity+=initialQuantity;
             txtQty.setText(String.valueOf(quantity));
+            updatePriceForQuantity(quantity);
         });
 
         // 🔹 Quantity -
@@ -194,6 +199,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             if (quantity > initialQuantity) {
                 quantity-=initialQuantity;
                 txtQty.setText(String.valueOf(quantity));
+                updatePriceForQuantity(quantity);
             }
         });
 
@@ -272,6 +278,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                     }
 
                     setupWholesaleTable(fetchedProduct);
+                    updatePriceForQuantity(quantity);
                 }
 
                 if (product != null) {
@@ -328,7 +335,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             qtyTv.setPadding(16, 16, 16, 16);
             qtyTv.setTextColor(ContextCompat.getColor(this, R.color.black));
             qtyTv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            
+            qtyTv.setBackgroundResource(R.drawable.table_border);
+
             // Set layout params for even spacing
             TableRow.LayoutParams params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
             qtyTv.setLayoutParams(params);
@@ -338,7 +346,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             priceTv.setPadding(16, 16, 16, 16);
             priceTv.setTextColor(ContextCompat.getColor(this, R.color.black));
             priceTv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            
+            priceTv.setBackgroundResource(R.drawable.table_border);
+
              // Set layout params for even spacing
             priceTv.setLayoutParams(params);
 
@@ -348,5 +357,40 @@ public class ProductDetailActivity extends AppCompatActivity {
             tablePriceRange.addView(row);
         }
     }
+
+    private void updatePriceForQuantity(int quantity) {
+        if (product == null) {
+            return;
+        }
+
+        double currentPrice = product.getPrice(); // Default to the base price
+        if (product.getWholeSellQty() != null && product.getWholeSellDiscount() != null) {
+            String[] qtyArray = product.getWholeSellQty().split(",");
+            String[] priceArray = product.getWholeSellDiscount().split(",");
+            int length = Math.min(qtyArray.length, priceArray.length);
+
+            int bestQtyMatch = -1;
+
+            for (int i = 0; i < length; i++) {
+                String q = qtyArray[i].trim();
+                String p = priceArray[i].trim();
+                if (q.isEmpty() || p.isEmpty()) continue;
+
+                try {
+                    int tierQty = Integer.parseInt(q);
+                    if (quantity >= tierQty && tierQty > bestQtyMatch) {
+                        currentPrice = Double.parseDouble(p);
+                        bestQtyMatch = tierQty;
+                    }
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Could not parse wholesale strings", e);
+                }
+            }
+        }
+
+        txtPrice.setText("₹" + currentPrice + "/" + product.getStocktype());
+        txtMaxQtyPriceInfo.setText("₹" + currentPrice + " (If you buy " + quantity + " QTY)+ GST (Rates are Per Kg/Per Liter)");
+    }
+
 
 }

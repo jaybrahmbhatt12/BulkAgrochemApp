@@ -177,6 +177,19 @@
 
         </LinearLayout>
 
+
+        <!-- Max Qty Price Info -->
+        <TextView
+            android:id="@+id/txtMaxQtyPriceInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="2dp"
+            android:text="₹00 (If you buy max QTY)+ GST (Rates are Per Kg/Per Liter)"
+            android:textColor="#000"
+            android:textStyle="italic"
+            android:textSize="18sp" />
+
         <!-- Price Range Title -->
         <TextView
             android:layout_width="wrap_content"
@@ -184,7 +197,7 @@
             android:text="Price Range based on Quantity"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8sp"
             android:textColor="#000" />
 
         <!-- Price Range Table -->
@@ -193,10 +206,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:stretchColumns="*"
+            android:background="@drawable/table_border"
             android:visibility="visible">
 
             <TableRow
-                android:background="#FF6F00"
+                android:background="@drawable/table_header_border"
                 android:padding="10dp">
 
                 <TextView
@@ -214,6 +228,15 @@
 
         </TableLayout>
 
+        <!-- Terms & Conditions -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="T&amp;C* GST and Transportation Charges are Extra. (Transport Charges are too Pay)"
+            android:textStyle="italic"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:textColor="#000" />
 
 
         <!-- Add to Cart -->

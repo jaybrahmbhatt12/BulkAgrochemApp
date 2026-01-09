@@ -220,8 +220,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
 
         //====== API calls ======//
-        loadProducts(); // Load all products (for Popular)
-        loadTrendingProducts(); // Load trending products from dedicated endpoint
+        loadProducts(); // Load all products and filter
         loadCategories();
     }
 
@@ -249,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
     //====== API  ======//
 
-    // Fetch all products and filter for Popular
+    // Fetch all products and filter for Popular and Trending
     private void loadProducts() {
 
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
@@ -265,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
                     allProducts = response.body().getData();
                     Log.d(TAG, "Total products fetched: " + allProducts.size());
 
-        //============ FILTERS ============//
+                    //============ FILTERS ============//
 
                     // Filter for Popular Products
                     List<Product> popularList = new ArrayList<>();
@@ -273,10 +272,9 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
                     List<Product> latestList = new ArrayList<>();
                     List<Product> bigProductList = new ArrayList<>();
                     List<Product> topSellingList = new ArrayList<>();
+                    List<Product> trendingList = new ArrayList<>();
 
                     for (Product product : allProducts) {
-
-                        // Check if popular flag is set
 
                         // Popular
                         if (product.getIsPopular() >= 1) {
@@ -298,7 +296,16 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
                         if (product.getIsTop() >= 1) {
                             topSellingList.add(product);
                         }
+                        // Trending
+                        if (product.getIsTrending() >= 1) {
+                            trendingList.add(product);
+                        }
                     }
+
+                    // Trending Product Adapter
+                    TrendingProductAdapter trendingAdapter = new TrendingProductAdapter(MainActivity.this, trendingList);
+                    rvTrending.setAdapter(trendingAdapter);
+                    Log.d(TAG, "Trending products count: " + trendingList.size());
 
                     // Most Popular Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
                     MostPopularProductAdapter popularAdapter = new MostPopularProductAdapter(MainActivity.this, popularList);
@@ -338,40 +345,6 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
                 Log.e(TAG, "API Error: " + t.getMessage());
-            }
-        });
-    }
-
-    // Fetch Trending products
-    private void loadTrendingProducts() {
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-        Call<ProductResponse> call = apiService.getTrendingProducts();
-
-        call.enqueue(new Callback<ProductResponse>() {
-            @Override
-            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    List<Product> allTrending = response.body().getData();
-                    
-                    // Filter trending products
-                    List<Product> filteredTrending = new ArrayList<>();
-                    for (Product product : allTrending) {
-                        if (product.getIsTrending() >= 1) {
-                            filteredTrending.add(product);
-                        }
-                    }
-                    
-                    TrendingProductAdapter trendingAdapter = new TrendingProductAdapter(MainActivity.this, filteredTrending);
-                    rvTrending.setAdapter(trendingAdapter);
-                    Log.d(TAG, "Trending products fetched and filtered: " + filteredTrending.size());
-                } else {
-                    Log.e(TAG, "Trending products response failed");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ProductResponse> call, Throwable t) {
-                Log.e(TAG, "Trending API Error: " + t.getMessage());
             }
         });
     }
