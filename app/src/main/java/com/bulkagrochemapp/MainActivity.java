@@ -11,8 +11,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.LinearLayout;
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
     private static final String TAG = "API_TEST";
     private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults, rvHotSale, rvLatestProduct, rvBigProduct, rvTopSelling;
+    private View skeletonCategories, skeletonTrending, skeletonPopular, skeletonHotSale, skeletonLatest, skeletonBig, skeletonTopSelling;
     private EditText searchEditText;
     private ImageView ivProfile;
     private SearchSuggestionAdapter suggestionAdapter;
@@ -73,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
     private List<Category> categoryList = new ArrayList<>();
     private List<MenuItem> categoryMenuItems = new ArrayList<>();
     private boolean areCategoriesVisible = false;
+
+    private ImageButton cartBtn;
 
     //====== onCreate() =====//
 
@@ -101,24 +107,13 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
              return insets;
         });
 
-        // Use the toolbar for the toggle, but since DrawerLayout is now BELOW the toolbar,
-        // the toggle button needs to be manually handled or we rely on the toolbar's navigation click listener.
-        // However, standard ActionBarDrawerToggle attaches to the toolbar which is now outside.
-        // Let's attach the listener to the toolbar manually to open the drawer.
-        
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        // Set custom color for the drawer toggle icon (hamburger icon)
         toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.black));
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         
-        // Since the toolbar is outside the DrawerLayout, the hamburger icon click might need explicit handling
-        // to open the drawer if the standard behavior doesn't catch it because of the hierarchy change.
-        // But usually, if toolbar is passed to ActionBarDrawerToggle, it sets the navigation click listener.
-        
         navigationView.setNavigationItemSelectedListener(this);
         
-        // Remove top padding from NavigationView since it's now below the status bar/app bar area
         ViewCompat.setOnApplyWindowInsetsListener(navigationView, (v, insets) -> {
             return insets;
         });
@@ -133,40 +128,35 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
             });
         }
 
+        // Initialize Skeletons
+        skeletonCategories = findViewById(R.id.skeleton_categories);
+        skeletonTrending = findViewById(R.id.skeleton_trending);
+        skeletonPopular = findViewById(R.id.skeleton_popular);
+        skeletonHotSale = findViewById(R.id.skeleton_hotsale);
+        skeletonLatest = findViewById(R.id.skeleton_latest);
+        skeletonBig = findViewById(R.id.skeleton_big);
+        skeletonTopSelling = findViewById(R.id.skeleton_topselling);
+
         rvCategories = findViewById(R.id.rvCategories);
-        rvCategories.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        );
+        rvCategories.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         rvTrending = findViewById(R.id.rvTrending);
-        rvTrending.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        );
+        rvTrending.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         rvPopular = findViewById(R.id.rvMostPopular);
-        rvPopular.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        );
+        rvPopular.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         rvHotSale = findViewById(R.id.rvHotSale);
-        rvHotSale.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        );
+        rvHotSale.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         rvLatestProduct = findViewById(R.id.rvLatestProduct);
-        rvLatestProduct.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        );
+        rvLatestProduct.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         rvBigProduct = findViewById(R.id.rvBigProduct);
-        rvBigProduct.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        );
+        rvBigProduct.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         rvTopSelling = findViewById(R.id.rvTopSelling);
-        rvTopSelling.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        );
+        rvTopSelling.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
 
         rvSearchResults = findViewById(R.id.rvSearchResults);
@@ -174,7 +164,6 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
         searchEditText = findViewById(R.id.searchEditText);
         fabWhatsapp = findViewById(R.id.fabWhatsapp);
-        // ivProfile = findViewById(R.id.ivProfile); // Removed from toolbar
 
         categoriesTitle = findViewById(R.id.categories_title);
         trendingProductsTitle = findViewById(R.id.trending_products_title);
@@ -218,11 +207,62 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
             return false;
         });
 
+        // Show all skeletons and hide RecyclerViews at start
+        showAllSkeletons(true);
 
         //====== API calls ======//
-        loadProducts(); // Load all products (for Popular)
-        loadTrendingProducts(); // Load trending products from dedicated endpoint
+        loadProducts(); 
+        loadTrendingProducts(); 
         loadCategories();
+
+        cartBtn = findViewById(R.id.cartbtn);
+
+        if(cartBtn != null) {
+            cartBtn.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, CartActivity.class);
+                startActivity(intent);
+            });
+        }
+    }
+
+    private void showAllSkeletons(boolean show) {
+        int skeletonVis = show ? View.VISIBLE : View.GONE;
+        int rvVis = show ? View.GONE : View.VISIBLE;
+
+        skeletonCategories.setVisibility(skeletonVis);
+        skeletonTrending.setVisibility(skeletonVis);
+        skeletonPopular.setVisibility(skeletonVis);
+        skeletonHotSale.setVisibility(skeletonVis);
+        skeletonLatest.setVisibility(skeletonVis);
+        skeletonBig.setVisibility(skeletonVis);
+        skeletonTopSelling.setVisibility(skeletonVis);
+
+        rvCategories.setVisibility(rvVis);
+        rvTrending.setVisibility(rvVis);
+        rvPopular.setVisibility(rvVis);
+        rvHotSale.setVisibility(rvVis);
+        rvLatestProduct.setVisibility(rvVis);
+        rvBigProduct.setVisibility(rvVis);
+        rvTopSelling.setVisibility(rvVis);
+
+        if (show) {
+            Animation pulseAnim = AnimationUtils.loadAnimation(this, R.anim.pulse);
+            skeletonCategories.startAnimation(pulseAnim);
+            skeletonTrending.startAnimation(pulseAnim);
+            skeletonPopular.startAnimation(pulseAnim);
+            skeletonHotSale.startAnimation(pulseAnim);
+            skeletonLatest.startAnimation(pulseAnim);
+            skeletonBig.startAnimation(pulseAnim);
+            skeletonTopSelling.startAnimation(pulseAnim);
+        } else {
+            skeletonCategories.clearAnimation();
+            skeletonTrending.clearAnimation();
+            skeletonPopular.clearAnimation();
+            skeletonHotSale.clearAnimation();
+            skeletonLatest.clearAnimation();
+            skeletonBig.clearAnimation();
+            skeletonTopSelling.clearAnimation();
+        }
     }
 
     private void searchProducts(String query) {
@@ -251,23 +291,28 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
     // Fetch all products and filter for Popular
     private void loadProducts() {
-
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-
         Call<ProductResponse> call = apiService.getProducts();
 
         call.enqueue(new Callback<ProductResponse>() {
             @Override
-            public void onResponse(Call<ProductResponse> call,
-                                   Response<ProductResponse> response) {
+            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                // Hide specific skeletons when products are loaded
+                skeletonPopular.setVisibility(View.GONE); skeletonPopular.clearAnimation();
+                skeletonHotSale.setVisibility(View.GONE); skeletonHotSale.clearAnimation();
+                skeletonLatest.setVisibility(View.GONE); skeletonLatest.clearAnimation();
+                skeletonBig.setVisibility(View.GONE); skeletonBig.clearAnimation();
+                skeletonTopSelling.setVisibility(View.GONE); skeletonTopSelling.clearAnimation();
+
+                rvPopular.setVisibility(View.VISIBLE);
+                rvHotSale.setVisibility(View.VISIBLE);
+                rvLatestProduct.setVisibility(View.VISIBLE);
+                rvBigProduct.setVisibility(View.VISIBLE);
+                rvTopSelling.setVisibility(View.VISIBLE);
 
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     allProducts = response.body().getData();
-                    Log.d(TAG, "Total products fetched: " + allProducts.size());
-
-        //============ FILTERS ============//
-
-                    // Filter for Popular Products
+                    
                     List<Product> popularList = new ArrayList<>();
                     List<Product> hotSaleList = new ArrayList<>();
                     List<Product> latestList = new ArrayList<>();
@@ -275,68 +320,24 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
                     List<Product> topSellingList = new ArrayList<>();
 
                     for (Product product : allProducts) {
-
-                        // Check if popular flag is set
-
-                        // Popular
-                        if (product.getIsPopular() >= 1) {
-                            popularList.add(product);
-                        }
-                        // Hot Sale
-                        if (product.getIsHot() >= 1) {
-                            hotSaleList.add(product);
-                        }
-                        // Latest Product
-                        if (product.getIsLatest() >= 1) {
-                            latestList.add(product);
-                        }
-                        // Big Product
-                        if (product.getIsBig() >= 1) {
-                            bigProductList.add(product);
-                        }
-                        // Top Selling
-                        if (product.getIsTop() >= 1) {
-                            topSellingList.add(product);
-                        }
+                        if (product.getIsPopular() >= 1) popularList.add(product);
+                        if (product.getIsHot() >= 1) hotSaleList.add(product);
+                        if (product.getIsLatest() >= 1) latestList.add(product);
+                        if (product.getIsBig() >= 1) bigProductList.add(product);
+                        if (product.getIsTop() >= 1) topSellingList.add(product);
                     }
 
-                    // Most Popular Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
-                    MostPopularProductAdapter popularAdapter = new MostPopularProductAdapter(MainActivity.this, popularList);
-                    rvPopular.setAdapter(popularAdapter);
-                    Log.d(TAG, "Popular products count: " + popularList.size());
-
-                    // Hot Sale Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
-                    HotProductAdapter hotSaleAdapter =
-                            new HotProductAdapter(MainActivity.this, hotSaleList);
-                    rvHotSale.setAdapter(hotSaleAdapter);
-                    Log.d(TAG, "Hot Sale count: " + hotSaleList.size());
-
-                    // Latest Product Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
-                    LatestProductAdapter latestAdapter =
-                            new LatestProductAdapter(MainActivity.this, latestList);
-                    rvLatestProduct.setAdapter(latestAdapter);
-                    Log.d(TAG, "Latest products count: " + latestList.size());
-
-                    // Big Product Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
-                    BigProductAdapter bigProductAdapter =
-                            new BigProductAdapter(MainActivity.this, bigProductList);
-                    rvBigProduct.setAdapter(bigProductAdapter);
-                    Log.d(TAG, "Big products count: " + bigProductList.size());
-
-                    // Top Selling Adapter (REUSE SAME ADAPTER + SAME LAYOUT)
-                    TopSellingProductAdapter topSellingAdapter =
-                            new TopSellingProductAdapter(MainActivity.this, topSellingList);
-                    rvTopSelling.setAdapter(topSellingAdapter);
-
-                    Log.d(TAG, "Top selling products count: " + topSellingList.size());
-
-                } else {
-                    Log.e(TAG, "Product response failed or data is null");
+                    rvPopular.setAdapter(new MostPopularProductAdapter(MainActivity.this, popularList));
+                    rvHotSale.setAdapter(new HotProductAdapter(MainActivity.this, hotSaleList));
+                    rvLatestProduct.setAdapter(new LatestProductAdapter(MainActivity.this, latestList));
+                    rvBigProduct.setAdapter(new BigProductAdapter(MainActivity.this, bigProductList));
+                    rvTopSelling.setAdapter(new TopSellingProductAdapter(MainActivity.this, topSellingList));
                 }
             }
 
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
+                showAllSkeletons(false); // Safety
                 Log.e(TAG, "API Error: " + t.getMessage());
             }
         });
@@ -350,27 +351,23 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         call.enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                skeletonTrending.setVisibility(View.GONE);
+                skeletonTrending.clearAnimation();
+                rvTrending.setVisibility(View.VISIBLE);
+
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     List<Product> allTrending = response.body().getData();
-                    
-                    // Filter trending products
                     List<Product> filteredTrending = new ArrayList<>();
                     for (Product product : allTrending) {
-                        if (product.getIsTrending() >= 1) {
-                            filteredTrending.add(product);
-                        }
+                        if (product.getIsTrending() >= 1) filteredTrending.add(product);
                     }
-                    
-                    TrendingProductAdapter trendingAdapter = new TrendingProductAdapter(MainActivity.this, filteredTrending);
-                    rvTrending.setAdapter(trendingAdapter);
-                    Log.d(TAG, "Trending products fetched and filtered: " + filteredTrending.size());
-                } else {
-                    Log.e(TAG, "Trending products response failed");
+                    rvTrending.setAdapter(new TrendingProductAdapter(MainActivity.this, filteredTrending));
                 }
             }
 
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
+                skeletonTrending.setVisibility(View.GONE);
                 Log.e(TAG, "Trending API Error: " + t.getMessage());
             }
         });
@@ -378,39 +375,32 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
     // Fetch categories from the API
     private void loadCategories() {
-
-        ApiService apiService =
-                RetrofitClient.getClient().create(ApiService.class);
-
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.getCategories().enqueue(new Callback<CategoryResponse>() {
             @Override
-            public void onResponse(Call<CategoryResponse> call,
-                                   Response<CategoryResponse> response) {
+            public void onResponse(Call<CategoryResponse> call, Response<CategoryResponse> response) {
+                skeletonCategories.setVisibility(View.GONE);
+                skeletonCategories.clearAnimation();
+                rvCategories.setVisibility(View.VISIBLE);
 
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     categoryList = response.body().getData();
-                    CategoryAdapter adapter =
-                            new CategoryAdapter(MainActivity.this, categoryList);
-                    rvCategories.setAdapter(adapter);
+                    rvCategories.setAdapter(new CategoryAdapter(MainActivity.this, categoryList));
 
-                    // Populate the navigation drawer
                     Menu menu = navigationView.getMenu();
                     for (int i = 0; i < categoryList.size(); i++) {
                         Category category = categoryList.get(i);
-                        // Add some leading spaces to indent the item (approx 16dp visually with standard font)
                         String indentedTitle = "    " + category.getName();
                         MenuItem menuItem = menu.add(R.id.nav_group, category.getId(), 101 + i, indentedTitle);
                         menuItem.setVisible(false);
                         categoryMenuItems.add(menuItem);
                     }
-
-                } else {
-                    Log.w("CATEGORY_API", "Categories response failed or data is null");
                 }
             }
 
             @Override
             public void onFailure(Call<CategoryResponse> call, Throwable t) {
+                skeletonCategories.setVisibility(View.GONE);
                 Log.e("CATEGORY_API", t.getMessage());
             }
         });
@@ -429,10 +419,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         intent.putExtra("product_details", product.getDetails());
         intent.putExtra("product_original_price", product.getOriginalPrice());
         intent.putExtra("product_discount_percent", product.getDiscountPercent());
-        
-        // Pass the whole product object to access wholesale data
         intent.putExtra("product", product);
-        
         startActivity(intent);
     }
 
@@ -445,10 +432,9 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
             for (MenuItem menuItem : categoryMenuItems) {
                 menuItem.setVisible(areCategoriesVisible);
             }
-            return true; // Consume the click
+            return true; 
         }
 
-        // Handle dynamic category clicks
         for (Category category : categoryList) {
             if (id == category.getId()) {
                 Intent intent = new Intent(this, ProductListActivity.class);
@@ -460,7 +446,6 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
             }
         }
 
-        // Handle static menu item clicks
         TextView targetView = null;
         if (id == R.id.nav_trending_products) {
             targetView = trendingProductsTitle;

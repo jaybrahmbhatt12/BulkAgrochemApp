@@ -59,6 +59,20 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
+        <HorizontalScrollView
+            android:id="@+id/skeleton_categories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:visibility="gone">
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                <include layout="@layout/item_skeleton_category"/>
+                <include layout="@layout/item_skeleton_category"/>
+                <include layout="@layout/item_skeleton_category"/>
+                <include layout="@layout/item_skeleton_category"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvCategories"
             android:layout_width="match_parent"
@@ -76,6 +90,19 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <HorizontalScrollView
+            android:id="@+id/skeleton_trending"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:visibility="gone">
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+            </LinearLayout>
+        </HorizontalScrollView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTrending"
@@ -95,6 +122,19 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
+        <HorizontalScrollView
+            android:id="@+id/skeleton_popular"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:visibility="gone">
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMostPopular"
             android:layout_width="match_parent"
@@ -112,6 +152,19 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <HorizontalScrollView
+            android:id="@+id/skeleton_hotsale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:visibility="gone">
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+            </LinearLayout>
+        </HorizontalScrollView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvHotSale"
@@ -131,6 +184,19 @@
             android:layout_marginTop="12dp"
             android:textColor="@color/black" />
 
+        <HorizontalScrollView
+            android:id="@+id/skeleton_latest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:visibility="gone">
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvLatestProduct"
             android:layout_width="match_parent"
@@ -149,6 +215,19 @@
             android:layout_marginTop="12dp"
             android:textColor="@color/black" />
 
+        <HorizontalScrollView
+            android:id="@+id/skeleton_big"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:visibility="gone">
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvBigProduct"
             android:layout_width="match_parent"
@@ -166,6 +245,19 @@
             android:textStyle="bold"
             android:layout_marginTop="12dp"
             android:textColor="@color/black" />
+
+        <HorizontalScrollView
+            android:id="@+id/skeleton_topselling"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:visibility="gone">
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+                <include layout="@layout/item_skeleton_product"/>
+            </LinearLayout>
+        </HorizontalScrollView>
 
         <!-- Top Selling RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView

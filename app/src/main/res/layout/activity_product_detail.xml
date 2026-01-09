@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -32,8 +33,6 @@
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_launcher_foreground" />
 
-
-
         </FrameLayout>
 
 
@@ -64,29 +63,60 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/txtOriginalPrice"
+            <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="₹00"
-                android:textColor="#9E9E9E"
-                android:textSize="16sp"
-                android:visibility="gone"/>
+                android:layout_gravity="center_vertical">
 
-            <!-- Discount Badge -->
-            <TextView
-                android:id="@+id/txtDiscount"
+                <TextView
+                    android:id="@+id/txtOriginalPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="₹00"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:visibility="gone"/>
+
+                <FrameLayout
+                    android:id="@+id/skeletonPrice"
+                    android:layout_width="60dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="8dp"
+                    android:visibility="gone">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                    <View android:id="@+id/shimmerPrice" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                </FrameLayout>
+            </FrameLayout>
+
+            <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/bg_discount"
-                android:padding="6dp"
-                android:text="10% OFF"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:visibility="gone" />
+                android:layout_gravity="center_vertical">
+
+                <!-- Discount Badge -->
+                <TextView
+                    android:id="@+id/txtDiscount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_discount"
+                    android:padding="6dp"
+                    android:text="10% OFF"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <FrameLayout
+                    android:id="@+id/skeletonDiscount"
+                    android:layout_width="70dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="10dp"
+                    android:visibility="gone">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                    <View android:id="@+id/shimmerDiscount" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                </FrameLayout>
+            </FrameLayout>
 
         </LinearLayout>
 
@@ -214,7 +244,29 @@
 
         </TableLayout>
 
-
+        <!-- Skeleton Table Placeholder -->
+        <LinearLayout
+            android:id="@+id/skeletonTable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <FrameLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp">
+                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                <View android:id="@+id/shimmerTable1" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                <View android:id="@+id/shimmerTable1_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+            </FrameLayout>
+            <FrameLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp">
+                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                <View android:id="@+id/shimmerTable2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                <View android:id="@+id/shimmerTable2_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+            </FrameLayout>
+            <FrameLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp">
+                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                <View android:id="@+id/shimmerTable3" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                <View android:id="@+id/shimmerTable3_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+            </FrameLayout>
+        </LinearLayout>
 
         <!-- Add to Cart -->
         <Button
@@ -226,6 +278,23 @@
             android:text="Add to Cart"
             android:textColor="#FFFFFF" />
 
+        <!-- Return to Cart Button (Hidden by default) -->
+        <Button
+            android:id="@+id/btnReturnToCart"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#FF6F00"
+            android:text=" Return to Cart"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:icon="@drawable/outline_add_shopping_cart_24"
+            app:iconGravity="textStart"
+            app:iconPadding="10dp"
+            app:iconTint="#FFFFFF"
+            android:visibility="gone" />
+
         <!-- Product Description -->
         <TextView
             android:id="@+id/txtDescription"
@@ -236,6 +305,31 @@
             android:textColor="#757575"
             android:textSize="14sp"
             android:visibility="gone" />
+
+        <!-- Skeleton Description Placeholder -->
+        <LinearLayout
+            android:id="@+id/skeletonDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:visibility="gone">
+            <FrameLayout android:layout_width="match_parent" android:layout_height="16dp" android:layout_marginTop="4dp">
+                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                <View android:id="@+id/shimmerDesc1" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                <View android:id="@+id/shimmerDesc1_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+            </FrameLayout>
+            <FrameLayout android:layout_width="match_parent" android:layout_height="16dp" android:layout_marginTop="4dp">
+                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                <View android:id="@+id/shimmerDesc2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                <View android:id="@+id/shimmerDesc2_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+            </FrameLayout>
+            <FrameLayout android:layout_width="200dp" android:layout_height="16dp" android:layout_marginTop="4dp">
+                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                <View android:id="@+id/shimmerDesc3" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                <View android:id="@+id/shimmerDesc3_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+            </FrameLayout>
+        </LinearLayout>
 
         <!-- Product Details -->
         <TextView

@@ -30,6 +30,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".CartActivity" />
+
         <!-- LoginActivity: Screen for phone number input -->
         <activity
             android:name=".LoginActivity"

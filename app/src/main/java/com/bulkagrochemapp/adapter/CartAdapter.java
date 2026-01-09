@@ -1,18 +1,21 @@
 package com.bulkagrochemapp.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bulkagrochemapp.ProductDetailActivity;
 import com.bulkagrochemapp.R;
 import com.bulkagrochemapp.model.CartItem;
-import com.bulkagrochemapp.utils.CartManager;
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -57,10 +60,23 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(holder.imgProduct);
 
+        // Redirect to ProductDetailActivity on click
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ProductDetailActivity.class);
+            intent.putExtra("product_id", item.getProductId());
+            intent.putExtra("product_name", item.getName());
+            intent.putExtra("product_image", item.getImage());
+            intent.putExtra("product_price", item.getPrice());
+            intent.putExtra("product_stock", item.getStockType());
+            intent.putExtra("minimum_qty", item.getMinQuantity());
+            intent.putExtra("is_from_cart", true); // Pass this flag to hide buttons
+            context.startActivity(intent);
+        });
+
         // ➕ Increase Quantity
         holder.btnPlus.setOnClickListener(v -> {
             item.increaseQty();
-            notifyItemChanged(position);
+            notifyItemChanged(holder.getAdapterPosition());
             totalUpdater.run();
         });
 
@@ -68,17 +84,46 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         holder.btnMinus.setOnClickListener(v -> {
             item.decreaseQty();
 
+            int currentPos = holder.getAdapterPosition();
             if (item.getQuantity() <= 0) {
-                cartList.remove(position);
-                notifyItemRemoved(position);
-                notifyItemRangeChanged(position, cartList.size());
+                // Reset to minimum quantity so that if UNDO is clicked, 
+                // the item returns with its base minimum quantity instead of 0.
+                item.setQuantity(item.getMinQuantity());
+                removeItemWithUndo(holder.itemView, currentPos);
             } else {
-                notifyItemChanged(position);
+                notifyItemChanged(currentPos);
+                totalUpdater.run();
             }
-
-            totalUpdater.run();
         });
 
+        // 🗑️ Remove Button
+        holder.btnRemove.setOnClickListener(v -> {
+            int currentPos = holder.getAdapterPosition();
+            if (currentPos != RecyclerView.NO_POSITION) {
+                removeItemWithUndo(v, currentPos);
+            }
+        });
+
+    }
+
+    private void removeItemWithUndo(View view, int position) {
+        CartItem deletedItem = cartList.get(position);
+        int deletedPosition = position;
+
+        // Temporarily remove
+        cartList.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, cartList.size());
+        totalUpdater.run();
+
+        // Show Snackbar with Undo option
+        Snackbar.make(view, deletedItem.getName() + " removed", 5000)
+                .setAction("UNDO", v -> {
+                    cartList.add(deletedPosition, deletedItem);
+                    notifyItemInserted(deletedPosition);
+                    notifyItemRangeChanged(deletedPosition, cartList.size());
+                    totalUpdater.run();
+                }).show();
     }
 
 
@@ -94,6 +139,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         ImageView imgProduct;
         TextView txtName, txtQty, txtPrice;
         TextView btnPlus, btnMinus;
+        ImageButton btnRemove;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -103,6 +149,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             txtQty = itemView.findViewById(R.id.txtQty);
             btnPlus = itemView.findViewById(R.id.btnPlus);
             btnMinus = itemView.findViewById(R.id.btnMinus);
+            btnRemove = itemView.findViewById(R.id.btnRemove);
         }
     }
 

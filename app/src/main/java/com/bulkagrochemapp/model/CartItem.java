@@ -1,56 +1,46 @@
 package com.bulkagrochemapp.model;
 
-public class CartItem {
+import java.io.Serializable;
+
+public class CartItem implements Serializable {
 
     private int productId;
     private String name;
     private String image;
     private double price;
+    private String stockType; // Added for correct price unit display
     private int quantity;
+    private int minQuantity;
 
     // Constructor
-    public CartItem(int productId, String name, String image, double price) {
+    public CartItem(int productId, String name, String image, double price, int minQuantity, String stockType) {
         this.productId = productId;
         this.name = name;
         this.image = image;
         this.price = price;
-        this.quantity = 1;
+        this.minQuantity = minQuantity;
+        this.stockType = stockType;
+        this.quantity = minQuantity;
     }
 
-    // REQUIRED GETTERS
-    public int getProductId() {
-        return productId;
-    }
+    public int getProductId() { return productId; }
+    public String getName() { return name; }
+    public String getImage() { return image; }
+    public double getPrice() { return price; }
+    public String getStockType() { return stockType; }
+    public int getQuantity() { return quantity; }
+    public int getMinQuantity() { return minQuantity; }
 
-    public String getName() {
-        return name;
-    }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
 
-    public String getImage() {
-        return image;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    // Quantity helpers
-    public void increaseQty() {
-        quantity++;
-    }
-
+    public void increaseQty() { quantity += minQuantity; }
     public void decreaseQty() {
-        if (quantity > 1) {
-            quantity--;
+        if (quantity > minQuantity) {
+            quantity -= minQuantity;
+        } else {
+            quantity = 0;
         }
     }
 
-    // Total price
-    public double getTotalPrice() {
-        return price * quantity;
-    }
+    public double getTotalPrice() { return price * quantity; }
 }
