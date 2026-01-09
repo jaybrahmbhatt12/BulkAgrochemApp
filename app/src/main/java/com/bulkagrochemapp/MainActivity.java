@@ -111,9 +111,9 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.black));
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-        
+
         navigationView.setNavigationItemSelectedListener(this);
-        
+
         ViewCompat.setOnApplyWindowInsetsListener(navigationView, (v, insets) -> {
             return insets;
         });
@@ -211,9 +211,9 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         showAllSkeletons(true);
 
         //====== API calls ======//
-        loadProducts(); 
-        loadTrendingProducts(); 
+        loadProducts(); // Load all products and filter
         loadCategories();
+        loadTrendingProducts();
 
         cartBtn = findViewById(R.id.cartbtn);
 
@@ -289,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
     //====== API  ======//
 
-    // Fetch all products and filter for Popular
+    // Fetch all products and filter for Popular and Trending
     private void loadProducts() {
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         Call<ProductResponse> call = apiService.getProducts();
@@ -312,20 +312,50 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     allProducts = response.body().getData();
-                    
+                    Log.d(TAG, "Total products fetched: " + allProducts.size());
+
+                    //============ FILTERS ============//
+
+                    // Filter for Popular Products
                     List<Product> popularList = new ArrayList<>();
                     List<Product> hotSaleList = new ArrayList<>();
                     List<Product> latestList = new ArrayList<>();
                     List<Product> bigProductList = new ArrayList<>();
                     List<Product> topSellingList = new ArrayList<>();
+                    List<Product> trendingList = new ArrayList<>();
 
                     for (Product product : allProducts) {
-                        if (product.getIsPopular() >= 1) popularList.add(product);
-                        if (product.getIsHot() >= 1) hotSaleList.add(product);
-                        if (product.getIsLatest() >= 1) latestList.add(product);
-                        if (product.getIsBig() >= 1) bigProductList.add(product);
-                        if (product.getIsTop() >= 1) topSellingList.add(product);
+
+                        // Popular
+                        if (product.getIsPopular() >= 1) {
+                            popularList.add(product);
+                        }
+                        // Hot Sale
+                        if (product.getIsHot() >= 1) {
+                            hotSaleList.add(product);
+                        }
+                        // Latest Product
+                        if (product.getIsLatest() >= 1) {
+                            latestList.add(product);
+                        }
+                        // Big Product
+                        if (product.getIsBig() >= 1) {
+                            bigProductList.add(product);
+                        }
+                        // Top Selling
+                        if (product.getIsTop() >= 1) {
+                            topSellingList.add(product);
+                        }
+                        // Trending
+                        if (product.getIsTrending() >= 1) {
+                            trendingList.add(product);
+                        }
                     }
+
+                    // Trending Product Adapter
+                    TrendingProductAdapter trendingAdapter = new TrendingProductAdapter(MainActivity.this, trendingList);
+                    rvTrending.setAdapter(trendingAdapter);
+                    Log.d(TAG, "Trending products count: " + trendingList.size());
 
                     rvPopular.setAdapter(new MostPopularProductAdapter(MainActivity.this, popularList));
                     rvHotSale.setAdapter(new HotProductAdapter(MainActivity.this, hotSaleList));
@@ -432,7 +462,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
             for (MenuItem menuItem : categoryMenuItems) {
                 menuItem.setVisible(areCategoriesVisible);
             }
-            return true; 
+            return true;
         }
 
         for (Category category : categoryList) {

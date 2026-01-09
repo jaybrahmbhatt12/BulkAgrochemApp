@@ -3,6 +3,7 @@ package com.bulkagrochemapp;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -39,7 +40,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private static final String TAG = "ProductDetailActivity";
 
     ImageView imgProduct;
-    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount, txtReviews;
+    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount, txtReviews, txtMaxQtyPriceInfo;
     TextView btnPlus, btnMinus;
     View layoutQtySelector; 
     Button btnAddToCart, btnReturnToCart;
@@ -64,7 +65,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     boolean isComingFromCart = false;
     
     private Call<ProductResponse> currentCall;
-    private final Handler handler = new Handler();
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +90,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         txtReviews = findViewById(R.id.txtReviews);
         ratingBar = findViewById(R.id.ratingBar);
         tablePriceRange = findViewById(R.id.tablePriceRange);
+        txtMaxQtyPriceInfo = findViewById(R.id.txtMaxQtyPriceInfo);
         
         skeletonDescription = findViewById(R.id.skeletonDescription);
         skeletonTable = findViewById(R.id.skeletonTable);
@@ -125,13 +127,16 @@ public class ProductDetailActivity extends AppCompatActivity {
         isComingFromCart = getIntent().getBooleanExtra("is_from_cart", false);
 
         if (isComingFromCart) {
-            layoutQtySelector.setVisibility(View.GONE);
-            btnAddToCart.setVisibility(View.GONE);
-            btnReturnToCart.setVisibility(View.VISIBLE);
+            if (layoutQtySelector != null) layoutQtySelector.setVisibility(View.GONE);
+            if (btnAddToCart != null) btnAddToCart.setVisibility(View.GONE);
+            if (btnReturnToCart != null) btnReturnToCart.setVisibility(View.VISIBLE);
         }
 
-        btnReturnToCart.setOnClickListener(v -> finish());
+        if (btnReturnToCart != null) {
+            btnReturnToCart.setOnClickListener(v -> finish());
+        }
 
+        // Set initial data from Intent immediately to avoid blank screen
         if (product != null) {
             productId = product.getId();
             updateUI(product);
@@ -148,6 +153,10 @@ public class ProductDetailActivity extends AppCompatActivity {
                 Picasso.get().load(intentImage).placeholder(R.drawable.ic_launcher_foreground).into(imgProduct);
             }
             
+            if (txtMaxQtyPriceInfo != null) {
+                txtMaxQtyPriceInfo.setText("₹" + intentPrice + " (If you buy " + quantity + " QTY)+ GST (Rates are Per Kg/Per Liter)");
+            }
+            
             showSkeletons(true);
         }
 
@@ -162,6 +171,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             if (initialQuantity > 0) {
                 quantity += initialQuantity;
                 txtQty.setText(String.valueOf(quantity));
+                updatePriceForQuantity(quantity);
             }
         });
 
@@ -169,15 +179,17 @@ public class ProductDetailActivity extends AppCompatActivity {
             if (initialQuantity > 0 && quantity > initialQuantity) {
                 quantity -= initialQuantity;
                 txtQty.setText(String.valueOf(quantity));
+                updatePriceForQuantity(quantity);
             }
         });
 
         btnAddToCart.setOnClickListener(v -> {
+            double currentUnitPrice = calculateTieredPrice(quantity);
             CartItem cartItem;
             if (product != null) {
-                cartItem = new CartItem(product.getId(), product.getName(), product.getImage(), product.getPrice(), product.getMinimumQty(), product.getStocktype());
+                cartItem = new CartItem(product.getId(), product.getName(), product.getImage(), currentUnitPrice, product.getMinimumQty(), product.getStocktype());
             } else {
-                cartItem = new CartItem(productId, intentName, intentImage, intentPrice, intentMinQty, intentStocktype);
+                cartItem = new CartItem(productId, intentName, intentImage, currentUnitPrice, intentMinQty, intentStocktype);
             }
             cartItem.setQuantity(quantity);
             CartManager.addToCart(cartItem);
@@ -205,7 +217,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 Animation shimmerAnim1 = AnimationUtils.loadAnimation(this, R.anim.shimmer_translate);
                 Animation shimmerAnim2 = AnimationUtils.loadAnimation(this, R.anim.shimmer_translate);
                 
-                // Start primary shimmers
                 startShimmer(shimmerTable1, shimmerAnim1);
                 startShimmer(shimmerTable2, shimmerAnim1);
                 startShimmer(shimmerTable3, shimmerAnim1);
@@ -215,7 +226,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 startShimmer(shimmerPrice, shimmerAnim1);
                 startShimmer(shimmerDiscount, shimmerAnim1);
 
-                // Start secondary shimmers with an offset to create "infinite wave" effect
                 handler.postDelayed(() -> {
                     startShimmer(shimmerTable1_2, shimmerAnim2);
                     startShimmer(shimmerTable2_2, shimmerAnim2);
@@ -223,7 +233,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                     startShimmer(shimmerDesc1_2, shimmerAnim2);
                     startShimmer(shimmerDesc2_2, shimmerAnim2);
                     startShimmer(shimmerDesc3_2, shimmerAnim2);
-                }, 600); // 600ms offset (half of duration)
+                }, 600); 
                 
             } else {
                 stopShimmer(shimmerTable1); stopShimmer(shimmerTable1_2);
@@ -318,9 +328,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             if (skeletonDiscount != null) skeletonDiscount.setVisibility(View.GONE);
 
             txtName.setText(p.getName());
-            txtPrice.setText("₹" + p.getPrice() + "/" + (p.getStocktype() != null ? p.getStocktype() : ""));
-            txtStock.setText("In Stock");
             
+            // Sync quantity logic
             initialQuantity = p.getMinimumQty();
             if (quantity == 0 || quantity < initialQuantity) {
                  quantity = initialQuantity;
@@ -362,6 +371,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                     .into(imgProduct);
 
             setupWholesaleTable(p);
+            updatePriceForQuantity(quantity);
         });
     }
 
@@ -391,6 +401,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 qtyTv.setPadding(16, 16, 16, 16);
                 qtyTv.setTextColor(ContextCompat.getColor(this, R.color.black));
                 qtyTv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                qtyTv.setBackgroundResource(R.drawable.table_border);
                 TableRow.LayoutParams params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
                 qtyTv.setLayoutParams(params);
 
@@ -399,12 +410,48 @@ public class ProductDetailActivity extends AppCompatActivity {
                 priceTv.setPadding(16, 16, 16, 16);
                 priceTv.setTextColor(ContextCompat.getColor(this, R.color.black));
                 priceTv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                priceTv.setBackgroundResource(R.drawable.table_border);
                 priceTv.setLayoutParams(params);
 
                 row.addView(qtyTv);
                 row.addView(priceTv);
                 tablePriceRange.addView(row);
             }
+        }
+    }
+
+    private double calculateTieredPrice(int qty) {
+        if (product == null) return intentPrice;
+        
+        double currentPrice = product.getPrice(); 
+        if (product.getWholeSellQty() != null && product.getWholeSellDiscount() != null) {
+            String[] qtyArray = product.getWholeSellQty().split(",");
+            String[] priceArray = product.getWholeSellDiscount().split(",");
+            int length = Math.min(qtyArray.length, priceArray.length);
+
+            int bestQtyMatch = -1;
+            for (int i = 0; i < length; i++) {
+                try {
+                    int tierQty = Integer.parseInt(qtyArray[i].trim());
+                    if (qty >= tierQty && tierQty > bestQtyMatch) {
+                        currentPrice = Double.parseDouble(priceArray[i].trim());
+                        bestQtyMatch = tierQty;
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+        return currentPrice;
+    }
+
+    private void updatePriceForQuantity(int qty) {
+        double currentPrice = calculateTieredPrice(qty);
+        String unit = (product != null) ? product.getStocktype() : intentStocktype;
+        
+        if (txtPrice != null) {
+            txtPrice.setText("₹" + currentPrice + "/" + (unit != null ? unit : ""));
+        }
+        if (txtMaxQtyPriceInfo != null) {
+            txtMaxQtyPriceInfo.setText("₹" + currentPrice + " (If you buy " + qty + " QTY)+ GST (Rates are Per Kg/Per Liter)");
         }
     }
 }
