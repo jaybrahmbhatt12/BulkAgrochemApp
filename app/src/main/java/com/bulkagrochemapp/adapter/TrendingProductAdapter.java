@@ -30,17 +30,24 @@ public class TrendingProductAdapter
     private Context context;
     private List<Product> productList;
     private Random random = new Random();
+    private int layoutId = R.layout.item_product_horizontal;
 
     public TrendingProductAdapter(Context context, List<Product> productList) {
         this.context = context;
         this.productList = productList;
     }
 
+    public TrendingProductAdapter(Context context, List<Product> productList, int layoutId) {
+        this.context = context;
+        this.productList = productList;
+        this.layoutId = layoutId;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context)
-                .inflate(R.layout.item_product_horizontal, parent, false);
+                .inflate(layoutId, parent, false);
         return new ViewHolder(view);
     }
 
@@ -89,18 +96,22 @@ public class TrendingProductAdapter
         }
 
         // ===== Details =====
-        if (product.getDetails() != null && !product.getDetails().isEmpty()) {
-            holder.txtDetails.setText(
-                    HtmlUtil.fromHtml(product.getDetails())
-            );
-            holder.txtDetails.setVisibility(View.VISIBLE);
-        } else {
-            holder.txtDetails.setVisibility(View.GONE);
+        if (holder.txtDetails != null) {
+            if (product.getDetails() != null && !product.getDetails().isEmpty()) {
+                holder.txtDetails.setText(
+                        HtmlUtil.fromHtml(product.getDetails())
+                );
+                holder.txtDetails.setVisibility(View.VISIBLE);
+            } else {
+                holder.txtDetails.setVisibility(View.GONE);
+            }
         }
 
         // ===== Reviews & Rating =====
-        int reviews = random.nextInt(91) + 10;
-        holder.txtReviews.setText(reviews + " Reviews");
+        if (holder.txtReviews != null) {
+            int reviews = random.nextInt(91) + 10;
+            holder.txtReviews.setText(reviews + " Reviews");
+        }
         holder.ratingBar.setRating(4.5f); // static or dynamic later
 
         // ===== Stock =====

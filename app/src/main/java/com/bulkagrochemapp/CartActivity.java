@@ -202,8 +202,9 @@ public class CartActivity extends AppCompatActivity {
                         }
                     }
 
-                    rvTrending.setAdapter(new TrendingProductAdapter(CartActivity.this, trendingList));
-                    rvTopSelling.setAdapter(new TopSellingProductAdapter(CartActivity.this, topSellingList));
+                    // Pass the smaller layout ID only for the Cart view
+                    rvTrending.setAdapter(new TrendingProductAdapter(CartActivity.this, trendingList, R.layout.item_product_horizontal_cart));
+                    rvTopSelling.setAdapter(new TopSellingProductAdapter(CartActivity.this, topSellingList, R.layout.item_product_horizontal_cart));
                 }
             }
 
