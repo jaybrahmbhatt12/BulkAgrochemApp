@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     android:fitsSystemWindows="true"
     android:background="@color/white">
 
@@ -31,39 +31,145 @@
             android:layout_centerVertical="true"
             android:contentDescription="Go to home"
             android:padding="8dp"
-            android:tint="@color/black"/>
+            app:tint="@color/black"/>
 
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/txtEmptyCart"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Your cart is empty"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#757575"
-        android:gravity="center"
-        android:padding="24dp"
-        android:visibility="gone"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCart"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="5dp"
-        />
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/menu_divider_bg"
+                android:paddingBottom="10dp">
+
+                <TextView
+                    android:id="@+id/txtEmptyCart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Your cart is empty"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#757575"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:visibility="gone"/>
+
+                <Button
+                    android:id="@+id/browseProductBtn"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Browse Products"
+                    android:textAllCaps="false"
+                    android:backgroundTint="@color/green"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvCart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:nestedScrollingEnabled="false"
+                    />
+
+            </LinearLayout>
+
+            <!-- Trending Section -->
+            <TextView
+                android:id="@+id/txtTrendingTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trending Products"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:textColor="@color/black" />
+
+            <HorizontalScrollView
+                android:id="@+id/skeleton_trending"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:visibility="gone">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <include layout="@layout/item_skeleton_product"/>
+                    <include layout="@layout/item_skeleton_product"/>
+                    <include layout="@layout/item_skeleton_product"/>
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTrending"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+            <!-- Top Selling Section -->
+            <TextView
+                android:id="@+id/txtTopSellingTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Top Selling"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:textColor="@color/black" />
+
+            <HorizontalScrollView
+                android:id="@+id/skeleton_topselling"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:visibility="gone">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <include layout="@layout/item_skeleton_product"/>
+                    <include layout="@layout/item_skeleton_product"/>
+                    <include layout="@layout/item_skeleton_product"/>
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTopSelling"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
+        android:id="@+id/payLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginLeft="-5dp"
+        android:layout_marginRight="-5dp"
         android:gravity="center_vertical"
+        android:background="@drawable/border_for_btn"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:visibility="gone"
         >
 
         <TextView

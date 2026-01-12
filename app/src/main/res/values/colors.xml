@@ -10,5 +10,7 @@
     <color name="colorPrimaryDark">@color/black</color>
     <color name="colorOnPrimary">@color/white</color>
     <color name="my_primary_color">#FF0000</color>
+    <color name="light_green">#57D760</color>
+
 
 </resources>

@@ -1,5 +1,6 @@
 package com.bulkagrochemapp;
 
+import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +27,7 @@ import com.bulkagrochemapp.network.ApiService;
 import com.bulkagrochemapp.network.RetrofitClient;
 import com.bulkagrochemapp.utils.CartManager;
 import com.bulkagrochemapp.utils.HtmlUtil;
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -42,12 +44,12 @@ public class ProductDetailActivity extends AppCompatActivity {
     ImageView imgProduct;
     TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount, txtReviews, txtMaxQtyPriceInfo;
     TextView btnPlus, btnMinus;
-    View layoutQtySelector; 
+    View layoutQtySelector;
     Button btnAddToCart, btnReturnToCart;
     RatingBar ratingBar;
     TableLayout tablePriceRange;
     View skeletonDescription, skeletonTable, skeletonPrice, skeletonDiscount;
-    
+
     // Primary Shimmers
     View shimmerTable1, shimmerTable2, shimmerTable3, shimmerDesc1, shimmerDesc2, shimmerDesc3, shimmerPrice, shimmerDiscount;
     // Secondary Shimmers (for overlapping effect)
@@ -63,7 +65,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     double intentPrice;
     int intentMinQty;
     boolean isComingFromCart = false;
-    
+
     private Call<ProductResponse> currentCall;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -82,7 +84,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         txtQty = findViewById(R.id.txtQty);
         btnPlus = findViewById(R.id.btnPlus);
         btnMinus = findViewById(R.id.btnMinus);
-        layoutQtySelector = (View) btnPlus.getParent(); 
+        layoutQtySelector = (View) btnPlus.getParent();
         btnAddToCart = findViewById(R.id.btnAddToCart);
         btnReturnToCart = findViewById(R.id.btnReturnToCart);
         txtOriginalPrice = findViewById(R.id.txtOriginalPrice);
@@ -91,7 +93,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         ratingBar = findViewById(R.id.ratingBar);
         tablePriceRange = findViewById(R.id.tablePriceRange);
         txtMaxQtyPriceInfo = findViewById(R.id.txtMaxQtyPriceInfo);
-        
+
         skeletonDescription = findViewById(R.id.skeletonDescription);
         skeletonTable = findViewById(R.id.skeletonTable);
         skeletonPrice = findViewById(R.id.skeletonPrice);
@@ -144,7 +146,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             txtName.setText(intentName != null ? intentName : "");
             txtPrice.setText("₹" + intentPrice + "/" + (intentStocktype != null ? intentStocktype : ""));
             txtStock.setText("In Stock");
-            
+
             initialQuantity = intentMinQty;
             quantity = initialQuantity;
             txtQty.setText(String.valueOf(quantity));
@@ -152,11 +154,11 @@ public class ProductDetailActivity extends AppCompatActivity {
             if (intentImage != null && !intentImage.isEmpty()) {
                 Picasso.get().load(intentImage).placeholder(R.drawable.ic_launcher_foreground).into(imgProduct);
             }
-            
+
             if (txtMaxQtyPriceInfo != null) {
                 txtMaxQtyPriceInfo.setText("₹" + intentPrice + " (If you buy " + quantity + " QTY)+ GST (Rates are Per Kg/Per Liter)");
             }
-            
+
             showSkeletons(true);
         }
 
@@ -193,7 +195,28 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
             cartItem.setQuantity(quantity);
             CartManager.addToCart(cartItem);
-            Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
+
+            // Show Snackbar with "Go to Cart" action
+            Snackbar snackbar = Snackbar.make(v, "Added to cart", Snackbar.LENGTH_LONG);
+            snackbar.setAction("GO TO CART", view -> {
+                Intent intent = new Intent(ProductDetailActivity.this, CartActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                // Standard slide transition: Enter from left, exit to right
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                finish();
+            });
+            snackbar.setBackgroundTint(ContextCompat.getColor(this, R.color.light_green));
+            snackbar.setActionTextColor(ContextCompat.getColor(this, R.color.black));
+
+            // Increase text size
+            View snackbarView = snackbar.getView();
+            TextView snackTextView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+            TextView snackActionView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_action);
+            if (snackTextView != null) snackTextView.setTextSize(16);
+            if (snackActionView != null) snackActionView.setTextSize(16);
+            
+            snackbar.show();
         });
     }
 
