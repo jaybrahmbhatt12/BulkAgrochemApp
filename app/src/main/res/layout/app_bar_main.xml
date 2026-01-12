@@ -13,10 +13,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:backgroundTint="#1EB312"
-        app:maxImageSize="56dp"
+        app:maxImageSize="32dp"
+        app:tint="@color/white"
         app:srcCompat="@drawable/ic_whatsapp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/Go_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="76dp"
+        android:backgroundTint="#009BB3"
+        app:maxImageSize="40dp"
+        app:tint="@color/white"
+        app:srcCompat="@drawable/up_arrow_floation_btn_img" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

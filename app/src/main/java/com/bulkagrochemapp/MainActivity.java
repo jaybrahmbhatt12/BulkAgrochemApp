@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
     private SearchSuggestionAdapter suggestionAdapter;
     private List<Product> allProducts = new ArrayList<>();
     private List<Product> searchResults = new ArrayList<>();
-    private FloatingActionButton fabWhatsapp;
+    private FloatingActionButton fabWhatsapp, GoUp;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private NestedScrollView nestedScrollView;
@@ -164,11 +164,20 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
 
         searchEditText = findViewById(R.id.searchEditText);
         fabWhatsapp = findViewById(R.id.fabWhatsapp);
+        GoUp = findViewById(R.id.Go_up);
 
         categoriesTitle = findViewById(R.id.categories_title);
         trendingProductsTitle = findViewById(R.id.trending_products_title);
         mostPopularTitle = findViewById(R.id.most_popular_title);
         hotSaleTitle = findViewById(R.id.hot_sale_title);
+
+        if (GoUp != null) {
+            GoUp.setOnClickListener(v -> {
+                if (nestedScrollView != null) {
+                    nestedScrollView.smoothScrollTo(0, 0);
+                }
+            });
+        }
 
         fabWhatsapp.setOnClickListener(v -> {
             String phoneNumber = "+919512017161";
