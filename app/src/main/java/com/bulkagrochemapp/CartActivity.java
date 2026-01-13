@@ -11,7 +11,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,7 +36,7 @@ import retrofit2.Response;
 
 //=========== Cart Activity ===========//
 
-public class CartActivity extends AppCompatActivity {
+public class CartActivity extends BaseActivity {
 
     RecyclerView rvCart, rvTrending, rvTopSelling;
     View skeletonTrending, skeletonTopSelling;

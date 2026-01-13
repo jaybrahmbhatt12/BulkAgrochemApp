@@ -9,8 +9,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
@@ -23,9 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
@@ -57,7 +53,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements SearchSuggestionAdapter.OnSuggestionClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends BaseActivity implements SearchSuggestionAdapter.OnSuggestionClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     //====== Variables =====//
 
@@ -87,10 +83,6 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Make status bar transparent for edge-to-edge
-        Window window = getWindow();
-        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Remove default title
@@ -100,11 +92,11 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         navigationView = findViewById(R.id.nav_view);
         nestedScrollView = findViewById(R.id.main);
 
-        // Apply padding to AppBarLayout/Toolbar to avoid overlap
+        // Standard padding for Toolbar to respect System Bars
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.appBarLayout), (v, insets) -> {
-             int top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
-             v.setPadding(0, top, 0, 0);
-             return insets;
+            int top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+            v.setPadding(0, top, 0, 0);
+            return insets;
         });
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -113,10 +105,6 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         toggle.syncState();
 
         navigationView.setNavigationItemSelectedListener(this);
-
-        ViewCompat.setOnApplyWindowInsetsListener(navigationView, (v, insets) -> {
-            return insets;
-        });
         
         // Handle nav header profile click
         View headerView = navigationView.getHeaderView(0);
@@ -124,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         if (profileContainer != null) {
             profileContainer.setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             });
         }
@@ -229,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements SearchSuggestionA
         if(cartBtn != null) {
             cartBtn.setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, CartActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             });
         }

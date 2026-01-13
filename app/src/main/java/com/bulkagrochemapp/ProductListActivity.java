@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,11 +26,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProductListActivity extends AppCompatActivity implements ProductAdapter.OnProductClickListener, SearchSuggestionAdapter.OnSuggestionClickListener {
+public class ProductListActivity extends BaseActivity implements ProductAdapter.OnProductClickListener, SearchSuggestionAdapter.OnSuggestionClickListener {
 
     RecyclerView rvProducts, rvProductSearchResults;
     TextView txtTitle;
     SearchView searchView;
+    View searchContainer;
 
     int categoryId;
     ProductAdapter adapter;
@@ -52,6 +52,7 @@ public class ProductListActivity extends AppCompatActivity implements ProductAda
         rvProductSearchResults = findViewById(R.id.rvProductSearchResults);
         txtTitle = findViewById(R.id.txtTitle);
         searchView = findViewById(R.id.searchView);
+        searchContainer = findViewById(R.id.search_container);
 
         rvProducts.setLayoutManager(new GridLayoutManager(this, 1));
         rvProductSearchResults.setLayoutManager(new LinearLayoutManager(this));
@@ -70,7 +71,16 @@ public class ProductListActivity extends AppCompatActivity implements ProductAda
         Log.d(TAG, "Category ID = " + categoryId);
         Log.d(TAG, "Category Name = " + categoryName);
 
-        if (categoryId == 0) {
+        // Allow loading without categoryId if it's a sale
+        boolean isSale = getIntent().getBooleanExtra("is_sale", false);
+
+        if (isSale) {
+            if (searchContainer != null) {
+                searchContainer.setVisibility(View.GONE);
+            }
+        }
+
+        if (categoryId == 0 && !isSale) {
             Toast.makeText(this, "Invalid category", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -78,7 +88,11 @@ public class ProductListActivity extends AppCompatActivity implements ProductAda
 
         txtTitle.setText(categoryName != null ? categoryName : "Products");
 
-        loadProductsByCategory();
+        if (isSale) {
+            loadSaleProducts();
+        } else {
+            loadProductsByCategory();
+        }
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -93,6 +107,29 @@ public class ProductListActivity extends AppCompatActivity implements ProductAda
             public boolean onQueryTextChange(String newText) {
                 filter(newText);
                 return true;
+            }
+        });
+    }
+
+    private void loadSaleProducts() {
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.getProducts().enqueue(new Callback<ProductResponse>() {
+            @Override
+            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    productList.clear();
+                    for (Product p : response.body().getData()) {
+                        if (p.getIsHot() >= 1) {
+                            productList.add(p);
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProductResponse> call, Throwable t) {
+                Toast.makeText(ProductListActivity.this, "Error loading sales", Toast.LENGTH_SHORT).show();
             }
         });
     }

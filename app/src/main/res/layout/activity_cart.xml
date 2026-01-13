@@ -203,4 +203,7 @@
             />
 
     </LinearLayout>
+
+    <include layout="@layout/layout_bottom_nav" />
+
 </LinearLayout>

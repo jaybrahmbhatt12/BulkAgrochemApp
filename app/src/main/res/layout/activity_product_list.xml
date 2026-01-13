@@ -50,4 +50,6 @@
         android:clipToPadding="false"
         android:padding="6dp" />
 
+    <include layout="@layout/layout_bottom_nav" />
+
 </LinearLayout>

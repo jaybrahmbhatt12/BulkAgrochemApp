@@ -8,365 +8,369 @@
     android:fitsSystemWindows="true"
     android:background="#FFFFFF">
 
-<ScrollView
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#FFFFFF">
-
-    <LinearLayout
+    <ScrollView
+        android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF">
 
-        <!-- Image Container for Badge -->
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <!-- Product Image -->
-            <ImageView
-                android:id="@+id/imgProduct"
+            <!-- Image Container for Badge -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_launcher_foreground" />
+                android:layout_height="wrap_content">
 
-        </FrameLayout>
+                <!-- Product Image -->
+                <ImageView
+                    android:id="@+id/imgProduct"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_launcher_foreground" />
 
-
-        <!-- Product Name -->
-        <TextView
-            android:id="@+id/txtProductName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Product Name"
-            android:textColor="#212121"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <!-- Price -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/txtProductPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="₹0"
-                android:textColor="#2E7D32"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/txtOriginalPrice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="₹00"
-                    android:textColor="#9E9E9E"
-                    android:textSize="16sp"
-                    android:visibility="gone"/>
-
-                <FrameLayout
-                    android:id="@+id/skeletonPrice"
-                    android:layout_width="60dp"
-                    android:layout_height="16dp"
-                    android:layout_marginStart="8dp"
-                    android:visibility="gone">
-                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                    <View android:id="@+id/shimmerPrice" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-                </FrameLayout>
             </FrameLayout>
 
-            <FrameLayout
+
+            <!-- Product Name -->
+            <TextView
+                android:id="@+id/txtProductName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Product Name"
+                android:textColor="#212121"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <!-- Price -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical">
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
 
-                <!-- Discount Badge -->
                 <TextView
-                    android:id="@+id/txtDiscount"
+                    android:id="@+id/txtProductPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:background="@drawable/bg_discount"
-                    android:padding="6dp"
-                    android:text="10% OFF"
-                    android:textColor="#FFFFFF"
+                    android:text="₹0"
+                    android:textColor="#2E7D32"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/txtOriginalPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="₹00"
+                        android:textColor="#9E9E9E"
+                        android:textSize="16sp"
+                        android:visibility="gone"/>
+
+                    <FrameLayout
+                        android:id="@+id/skeletonPrice"
+                        android:layout_width="60dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="8dp"
+                        android:visibility="gone">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                        <View android:id="@+id/shimmerPrice" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                    </FrameLayout>
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical">
+
+                    <!-- Discount Badge -->
+                    <TextView
+                        android:id="@+id/txtDiscount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:background="@drawable/bg_discount"
+                        android:padding="6dp"
+                        android:text="10% OFF"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+
+                    <FrameLayout
+                        android:id="@+id/skeletonDiscount"
+                        android:layout_width="70dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="10dp"
+                        android:visibility="gone">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                        <View android:id="@+id/shimmerDiscount" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                    </FrameLayout>
+                </FrameLayout>
+
+            </LinearLayout>
+
+
+            <!-- Rating & Reviews Row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical">
+
+                <RatingBar
+                    android:id="@+id/ratingBar"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:stepSize="0.5"
+                    android:rating="5"
+                    android:theme="@style/Widget.AppCompat.RatingBar.Small"/>
+
+                <TextView
+                    android:id="@+id/txtReviews"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 Reviews"
                     android:textSize="14sp"
-                    android:visibility="gone" />
+                    android:textColor="#757575"
+                    android:layout_marginStart="8dp"/>
 
-                <FrameLayout
-                    android:id="@+id/skeletonDiscount"
-                    android:layout_width="70dp"
-                    android:layout_height="24dp"
-                    android:layout_marginStart="10dp"
-                    android:visibility="gone">
+            </LinearLayout>
+
+            <!-- Stock -->
+            <TextView
+                android:id="@+id/txtStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="In Stock"
+                android:textColor="#388E3C" />
+
+
+            <!-- Quantity Selector -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/btnMinus"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_qty_button"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:text="-"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtQty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="10sp"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:layout_marginLeft="10sp"
+                    android:layout_marginRight="10sp" />
+
+                <TextView
+                    android:id="@+id/btnPlus"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_qty_button"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:text="+"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+
+            <!-- Max Qty Price Info -->
+            <TextView
+                android:id="@+id/txtMaxQtyPriceInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="2dp"
+                android:text="₹00 (If you buy max QTY)+ GST (Rates are Per Kg/Per Liter)"
+                android:textColor="#000"
+                android:textStyle="italic"
+                android:textSize="18sp" />
+
+            <!-- Price Range Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Price Range based on Quantity"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="8sp"
+                android:textColor="#000" />
+
+            <!-- Price Range Table -->
+            <TableLayout
+                android:id="@+id/tablePriceRange"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stretchColumns="*"
+                android:background="@drawable/table_border"
+                android:visibility="visible">
+
+                <TableRow
+                    android:background="@drawable/table_header_border"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:text="Quantity (Kg/Ltr/Nos)"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        android:padding="8dp"/>
+
+                    <TextView
+                        android:text="Price (Per Kg/Ltr/Nos)"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold"
+                        android:padding="8dp"/>
+                </TableRow>
+
+            </TableLayout>
+
+            <!-- Skeleton Table Placeholder -->
+            <LinearLayout
+                android:id="@+id/skeletonTable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <FrameLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp">
                     <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                    <View android:id="@+id/shimmerDiscount" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                    <View android:id="@+id/shimmerTable1" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                    <View android:id="@+id/shimmerTable1_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
                 </FrameLayout>
-            </FrameLayout>
-
-        </LinearLayout>
-
-
-        <!-- Rating & Reviews Row -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="6dp"
-            android:gravity="center_vertical">
-
-            <RatingBar
-                android:id="@+id/ratingBar"
-                style="?android:attr/ratingBarStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:isIndicator="true"
-                android:numStars="5"
-                android:stepSize="0.5"
-                android:rating="5"
-                android:theme="@style/Widget.AppCompat.RatingBar.Small"/>
-
+                <FrameLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                    <View android:id="@+id/shimmerTable2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                    <View android:id="@+id/shimmerTable2_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                </FrameLayout>
+                <FrameLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                    <View android:id="@+id/shimmerTable3" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                    <View android:id="@+id/shimmerTable3_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                </FrameLayout>
+            </LinearLayout>
+            <!-- Terms & Conditions -->
             <TextView
-                android:id="@+id/txtReviews"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0 Reviews"
-                android:textSize="14sp"
+                android:text="T&amp;C* GST and Transportation Charges are Extra. (Transport Charges are too Pay)"
+                android:textStyle="italic"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:textColor="#000" />
+
+
+            <!-- Add to Cart -->
+            <Button
+                android:id="@+id/btnAddToCart"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#2E7D32"
+                android:text="Add to Cart"
+                android:textColor="#FFFFFF" />
+
+            <!-- Return to Cart Button (Hidden by default) -->
+            <Button
+                android:id="@+id/btnReturnToCart"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#FF6F00"
+                android:text=" Return to Cart"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:icon="@drawable/outline_add_shopping_cart_24"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp"
+                app:iconTint="#FFFFFF"
+                android:visibility="gone" />
+
+            <!-- Product Description -->
+            <TextView
+                android:id="@+id/txtDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Product Description..."
                 android:textColor="#757575"
-                android:layout_marginStart="8dp"/>
+                android:textSize="14sp"
+                android:visibility="gone" />
 
-        </LinearLayout>
-
-        <!-- Stock -->
-        <TextView
-            android:id="@+id/txtStock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="In Stock"
-            android:textColor="#388E3C" />
-
-
-        <!-- Quantity Selector -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/btnMinus"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/bg_qty_button"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center"
-                android:text="-"
-                android:textColor="#FFFFFF"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/txtQty"
-                android:layout_width="wrap_content"
+            <!-- Skeleton Description Placeholder -->
+            <LinearLayout
+                android:id="@+id/skeletonDescription"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minWidth="10sp"
-                android:gravity="center"
-                android:text="1"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp" />
+                android:orientation="vertical"
+                android:layout_marginTop="12dp"
+                android:visibility="gone">
+                <FrameLayout android:layout_width="match_parent" android:layout_height="16dp" android:layout_marginTop="4dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                    <View android:id="@+id/shimmerDesc1" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                    <View android:id="@+id/shimmerDesc1_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                </FrameLayout>
+                <FrameLayout android:layout_width="match_parent" android:layout_height="16dp" android:layout_marginTop="4dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                    <View android:id="@+id/shimmerDesc2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                    <View android:id="@+id/shimmerDesc2_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                </FrameLayout>
+                <FrameLayout android:layout_width="200dp" android:layout_height="16dp" android:layout_marginTop="4dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
+                    <View android:id="@+id/shimmerDesc3" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                    <View android:id="@+id/shimmerDesc3_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                </FrameLayout>
+            </LinearLayout>
 
+            <!-- Product Details -->
             <TextView
-                android:id="@+id/btnPlus"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/bg_qty_button"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center"
-                android:text="+"
-                android:textColor="#FFFFFF"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:id="@+id/txtDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Product Details..."
+                android:textColor="#616161"
+                android:textSize="14sp"
+                android:visibility="gone" />
 
         </LinearLayout>
 
+    </ScrollView>
 
-        <!-- Max Qty Price Info -->
-        <TextView
-            android:id="@+id/txtMaxQtyPriceInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="2dp"
-            android:text="₹00 (If you buy max QTY)+ GST (Rates are Per Kg/Per Liter)"
-            android:textColor="#000"
-            android:textStyle="italic"
-            android:textSize="18sp" />
+    <include layout="@layout/layout_bottom_nav" />
 
-        <!-- Price Range Title -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Price Range based on Quantity"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginTop="8sp"
-            android:textColor="#000" />
-
-        <!-- Price Range Table -->
-        <TableLayout
-            android:id="@+id/tablePriceRange"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:stretchColumns="*"
-            android:background="@drawable/table_border"
-            android:visibility="visible">
-
-            <TableRow
-                android:background="@drawable/table_header_border"
-                android:padding="10dp">
-
-                <TextView
-                    android:text="Quantity (Kg/Ltr/Nos)"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold"
-                    android:padding="8dp"/>
-
-                <TextView
-                    android:text="Price (Per Kg/Ltr/Nos)"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold"
-                    android:padding="8dp"/>
-            </TableRow>
-
-        </TableLayout>
-
-        <!-- Skeleton Table Placeholder -->
-        <LinearLayout
-            android:id="@+id/skeletonTable"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-            <FrameLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp">
-                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                <View android:id="@+id/shimmerTable1" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-                <View android:id="@+id/shimmerTable1_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-            </FrameLayout>
-            <FrameLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp">
-                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                <View android:id="@+id/shimmerTable2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-                <View android:id="@+id/shimmerTable2_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-            </FrameLayout>
-            <FrameLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp">
-                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                <View android:id="@+id/shimmerTable3" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-                <View android:id="@+id/shimmerTable3_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-            </FrameLayout>
-        </LinearLayout>
-        <!-- Terms & Conditions -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="T&amp;C* GST and Transportation Charges are Extra. (Transport Charges are too Pay)"
-            android:textStyle="italic"
-            android:textSize="16sp"
-            android:layout_marginTop="16dp"
-            android:textColor="#000" />
-
-
-        <!-- Add to Cart -->
-        <Button
-            android:id="@+id/btnAddToCart"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="#2E7D32"
-            android:text="Add to Cart"
-            android:textColor="#FFFFFF" />
-
-        <!-- Return to Cart Button (Hidden by default) -->
-        <Button
-            android:id="@+id/btnReturnToCart"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="#FF6F00"
-            android:text=" Return to Cart"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:icon="@drawable/outline_add_shopping_cart_24"
-            app:iconGravity="textStart"
-            app:iconPadding="10dp"
-            app:iconTint="#FFFFFF"
-            android:visibility="gone" />
-
-        <!-- Product Description -->
-        <TextView
-            android:id="@+id/txtDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Product Description..."
-            android:textColor="#757575"
-            android:textSize="14sp"
-            android:visibility="gone" />
-
-        <!-- Skeleton Description Placeholder -->
-        <LinearLayout
-            android:id="@+id/skeletonDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="12dp"
-            android:visibility="gone">
-            <FrameLayout android:layout_width="match_parent" android:layout_height="16dp" android:layout_marginTop="4dp">
-                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                <View android:id="@+id/shimmerDesc1" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-                <View android:id="@+id/shimmerDesc1_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-            </FrameLayout>
-            <FrameLayout android:layout_width="match_parent" android:layout_height="16dp" android:layout_marginTop="4dp">
-                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                <View android:id="@+id/shimmerDesc2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-                <View android:id="@+id/shimmerDesc2_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-            </FrameLayout>
-            <FrameLayout android:layout_width="200dp" android:layout_height="16dp" android:layout_marginTop="4dp">
-                <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                <View android:id="@+id/shimmerDesc3" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-                <View android:id="@+id/shimmerDesc3_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
-            </FrameLayout>
-        </LinearLayout>
-
-        <!-- Product Details -->
-        <TextView
-            android:id="@+id/txtDetails"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Product Details..."
-            android:textColor="#616161"
-            android:textSize="14sp"
-            android:visibility="gone" />
-
-    </LinearLayout>
-
-</ScrollView>
 </LinearLayout>

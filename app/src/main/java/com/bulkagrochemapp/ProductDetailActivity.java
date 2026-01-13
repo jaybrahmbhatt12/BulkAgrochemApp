@@ -15,9 +15,7 @@ import android.widget.RatingBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.bulkagrochemapp.model.CartItem;
@@ -37,7 +35,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProductDetailActivity extends AppCompatActivity {
+public class ProductDetailActivity extends BaseActivity {
 
     private static final String TAG = "ProductDetailActivity";
 
