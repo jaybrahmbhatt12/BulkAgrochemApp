@@ -11,6 +11,9 @@ public class Product implements Serializable {
     private String name;
     private String image;
     private double price;
+
+    @SerializedName("category_id")
+    private int categoryId;
     
     @SerializedName(value = "description", alternate = {"desc", "short_description"})
     private String description;
@@ -125,5 +128,13 @@ public class Product implements Serializable {
 
     public String getWholeSellDiscount() {
         return wholeSellDiscount;
+    }
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
     }
 }

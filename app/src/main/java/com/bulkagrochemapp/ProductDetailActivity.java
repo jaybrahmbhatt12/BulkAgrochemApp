@@ -17,7 +17,10 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.bulkagrochemapp.adapter.TrendingProductAdapter;
 import com.bulkagrochemapp.model.CartItem;
 import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.model.ProductResponse;
@@ -28,6 +31,7 @@ import com.bulkagrochemapp.utils.HtmlUtil;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -40,13 +44,17 @@ public class ProductDetailActivity extends BaseActivity {
     private static final String TAG = "ProductDetailActivity";
 
     ImageView imgProduct;
-    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount, txtReviews, txtMaxQtyPriceInfo;
+    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount, txtReviews, txtMaxQtyPriceInfo, tvRelated;
     TextView btnPlus, btnMinus;
     View layoutQtySelector;
     Button btnAddToCart, btnReturnToCart;
     RatingBar ratingBar;
     TableLayout tablePriceRange;
     View skeletonDescription, skeletonTable, skeletonPrice, skeletonDiscount;
+
+    // Related Products
+    RecyclerView rvRelatedProducts;
+    TrendingProductAdapter relatedProductAdapter;
 
     // Primary Shimmers
     View shimmerTable1, shimmerTable2, shimmerTable3, shimmerDesc1, shimmerDesc2, shimmerDesc3, shimmerPrice, shimmerDiscount;
@@ -91,6 +99,8 @@ public class ProductDetailActivity extends BaseActivity {
         ratingBar = findViewById(R.id.ratingBar);
         tablePriceRange = findViewById(R.id.tablePriceRange);
         txtMaxQtyPriceInfo = findViewById(R.id.txtMaxQtyPriceInfo);
+        tvRelated = findViewById(R.id.tvRelated);
+        rvRelatedProducts = findViewById(R.id.rvRelatedProducts);
 
         skeletonDescription = findViewById(R.id.skeletonDescription);
         skeletonTable = findViewById(R.id.skeletonTable);
@@ -114,6 +124,11 @@ public class ProductDetailActivity extends BaseActivity {
         shimmerDesc1_2 = findViewById(R.id.shimmerDesc1_2);
         shimmerDesc2_2 = findViewById(R.id.shimmerDesc2_2);
         shimmerDesc3_2 = findViewById(R.id.shimmerDesc3_2);
+
+        // Setup Related Products RecyclerView
+        if (rvRelatedProducts != null) {
+            rvRelatedProducts.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        }
 
         // Get intent data
         product = (Product) getIntent().getSerializableExtra("product");
@@ -341,6 +356,49 @@ public class ProductDetailActivity extends BaseActivity {
         });
     }
 
+    private void fetchRelatedProducts(int categoryId) {
+        if (categoryId <= 0) return;
+
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        Call<ProductResponse> call = apiService.getProductsByCategory(categoryId);
+        call.enqueue(new Callback<ProductResponse>() {
+            @Override
+            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Product> list = response.body().getData();
+                    if (list != null && !list.isEmpty()) {
+                        List<Product> relatedList = new ArrayList<>();
+                        for (Product p : list) {
+                            if (p.getId() != productId) {
+                                relatedList.add(p);
+                            }
+                        }
+
+                        if (!relatedList.isEmpty()) {
+                            // Using item_product_horizontal_cart layout for related products
+                            relatedProductAdapter = new TrendingProductAdapter(ProductDetailActivity.this, relatedList, R.layout.item_product_horizontal_cart);
+                            rvRelatedProducts.setAdapter(relatedProductAdapter);
+                            tvRelated.setVisibility(View.VISIBLE);
+                            rvRelatedProducts.setVisibility(View.VISIBLE);
+                        } else {
+                            tvRelated.setVisibility(View.GONE);
+                            rvRelatedProducts.setVisibility(View.GONE);
+                        }
+                    } else {
+                        tvRelated.setVisibility(View.GONE);
+                        rvRelatedProducts.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProductResponse> call, Throwable t) {
+                if (tvRelated != null) tvRelated.setVisibility(View.GONE);
+                if (rvRelatedProducts != null) rvRelatedProducts.setVisibility(View.GONE);
+            }
+        });
+    }
+
     private void updateUI(Product p) {
         if (p == null || isFinishing() || isDestroyed()) return;
 
@@ -393,6 +451,9 @@ public class ProductDetailActivity extends BaseActivity {
 
             setupWholesaleTable(p);
             updatePriceForQuantity(quantity);
+
+            // Fetch related products from the same category
+            fetchRelatedProducts(p.getCategoryId());
         });
     }
 
