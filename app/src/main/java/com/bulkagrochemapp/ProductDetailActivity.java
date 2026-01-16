@@ -50,7 +50,7 @@ public class ProductDetailActivity extends BaseActivity {
     Button btnAddToCart, btnReturnToCart;
     RatingBar ratingBar;
     TableLayout tablePriceRange;
-    View skeletonDescription, skeletonTable, skeletonPrice, skeletonDiscount;
+    View skeletonDescription, skeletonTable, skeletonPrice, skeletonDiscount, skeletonRelated;
 
     // Related Products
     RecyclerView rvRelatedProducts;
@@ -106,6 +106,7 @@ public class ProductDetailActivity extends BaseActivity {
         skeletonTable = findViewById(R.id.skeletonTable);
         skeletonPrice = findViewById(R.id.skeletonPrice);
         skeletonDiscount = findViewById(R.id.skeletonDiscount);
+        skeletonRelated = findViewById(R.id.skeleton_related);
 
         // Bind Primary Shimmer views
         shimmerTable1 = findViewById(R.id.shimmerTable1);
@@ -359,11 +360,22 @@ public class ProductDetailActivity extends BaseActivity {
     private void fetchRelatedProducts(int categoryId) {
         if (categoryId <= 0) return;
 
+        if (skeletonRelated != null) {
+            skeletonRelated.setVisibility(View.VISIBLE);
+            Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
+            skeletonRelated.startAnimation(pulse);
+        }
+        if (rvRelatedProducts != null) rvRelatedProducts.setVisibility(View.GONE);
+
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         Call<ProductResponse> call = apiService.getProductsByCategory(categoryId);
         call.enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                if (skeletonRelated != null) {
+                    skeletonRelated.clearAnimation();
+                    skeletonRelated.setVisibility(View.GONE);
+                }
                 if (response.isSuccessful() && response.body() != null) {
                     List<Product> list = response.body().getData();
                     if (list != null && !list.isEmpty()) {
@@ -393,6 +405,10 @@ public class ProductDetailActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
+                if (skeletonRelated != null) {
+                    skeletonRelated.clearAnimation();
+                    skeletonRelated.setVisibility(View.GONE);
+                }
                 if (tvRelated != null) tvRelated.setVisibility(View.GONE);
                 if (rvRelatedProducts != null) rvRelatedProducts.setVisibility(View.GONE);
             }

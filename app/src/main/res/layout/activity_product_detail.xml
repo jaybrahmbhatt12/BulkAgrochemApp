@@ -378,12 +378,31 @@
                 android:layout_marginTop="2dp"
                 android:textColor="@color/black"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvRelatedProducts"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"/>
+                android:layout_height="wrap_content">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvRelatedProducts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp"/>
+
+                <HorizontalScrollView
+                    android:id="@+id/skeleton_related"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:visibility="gone">
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                        <include layout="@layout/item_skeleton_product"/>
+                        <include layout="@layout/item_skeleton_product"/>
+                        <include layout="@layout/item_skeleton_product"/>
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+            </FrameLayout>
 
 
         </LinearLayout>
