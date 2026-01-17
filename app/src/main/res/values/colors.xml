@@ -4,7 +4,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="app_background">#F5F5F5</color>
     <color name="green">#4CAF50</color>
-    <color name="purple_500">#FF000000</color>
     <color name="orange_brand">#FF6A00</color>
     <color name="colorPrimary">@color/orange_brand</color>
     <color name="colorPrimaryDark">@color/black</color>
@@ -12,5 +11,17 @@
     <color name="my_primary_color">#FF0000</color>
     <color name="light_green">#57D760</color>
 
+    <!-- Semantic colors for theme support (these change in dark mode) -->
+    <color name="background_color">#F8F9FA</color>
+    <color name="surface_color">#FFFFFF</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="divider_color">#EEEEEE</color>
 
+    <!-- Static Light Colors (these do NOT change in dark mode) -->
+    <color name="static_white">#FFFFFF</color>
+    <color name="static_bg">#F8F9FA</color>
+    <color name="static_text">#212121</color>
+    <color name="static_text_sec">#757575</color>
+    <color name="static_divider">#EEEEEE</color>
 </resources>

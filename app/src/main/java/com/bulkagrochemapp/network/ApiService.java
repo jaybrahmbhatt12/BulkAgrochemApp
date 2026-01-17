@@ -1,6 +1,7 @@
 package com.bulkagrochemapp.network;
 
 import com.bulkagrochemapp.model.CategoryResponse;
+import com.bulkagrochemapp.model.LocationResponse;
 import com.bulkagrochemapp.model.ProductResponse;
 
 import retrofit2.Call;
@@ -49,7 +50,7 @@ public interface ApiService {
             @Query("quantity") int quantity
     );
 
-
-
+    // Fetch India States and Cities from backend assets
+    @GET("../assets/india_states_cities.json")
+    Call<LocationResponse> getIndiaLocations();
 }
-

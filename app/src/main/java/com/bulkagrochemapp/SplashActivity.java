@@ -16,16 +16,14 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            SharedPreferences prefs = getSharedPreferences("login_prefs", MODE_PRIVATE);
-            String phoneNumber = prefs.getString("phone", "");
+            SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+            boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
 
-            Intent intent;
-            if (phoneNumber.isEmpty()) {
-                intent = new Intent(SplashActivity.this, LoginActivity.class);
+            if (isLoggedIn) {
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
             } else {
-                intent = new Intent(SplashActivity.this, MainActivity.class);
+                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
             }
-            startActivity(intent);
             finish();
         }, 2000); // 2-second delay
     }
