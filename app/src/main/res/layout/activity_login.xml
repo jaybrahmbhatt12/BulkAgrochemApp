@@ -50,6 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:hint="Mobile Number"
+            android:textColorHint="@color/static_text_sec"
             app:prefixText="+91 "
             app:prefixTextColor="@color/static_text"
             app:hintTextColor="@color/orange_brand"

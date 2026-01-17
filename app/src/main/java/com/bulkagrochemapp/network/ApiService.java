@@ -4,8 +4,12 @@ import com.bulkagrochemapp.model.CategoryResponse;
 import com.bulkagrochemapp.model.LocationResponse;
 import com.bulkagrochemapp.model.ProductResponse;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 public interface ApiService {
@@ -53,4 +57,18 @@ public interface ApiService {
     // Fetch India States and Cities from backend assets
     @GET("../assets/india_states_cities.json")
     Call<LocationResponse> getIndiaLocations();
+
+    @FormUrlEncoded
+    @POST("register.php")
+    Call<ResponseBody> register(
+            @Field("name") String name,
+            @Field("email") String email,
+            @Field("phone") String phone
+    );
+
+    @FormUrlEncoded
+    @POST("login.php")
+    Call<ResponseBody> login(
+            @Field("phone") String phone
+    );
 }
