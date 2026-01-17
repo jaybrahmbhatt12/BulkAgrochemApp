@@ -32,30 +32,44 @@
 
         <activity android:name=".CartActivity" />
 
-        <!-- LoginActivity: Screen for phone number input -->
+        <!-- LoginActivity -->
         <activity
             android:name=".LoginActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
-        <!-- OtpActivity: Screen for OTP verification -->
+        <!-- RegisterActivity -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- OtpActivity -->
         <activity
             android:name=".OtpActivity"
             android:exported="false"
             android:parentActivityName=".LoginActivity"/>
 
-        <!-- MainActivity: Main screen after login -->
+        <!-- MainActivity -->
         <activity
             android:name=".MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
 
-        <!-- ProfileActivity: Displays user profile and logout option -->
+        <!-- ProfileActivity -->
         <activity
             android:name=".ProfileActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
-        <!-- ProductListActivity: Displays products for a specific category -->
+        <!-- EditProfileActivity -->
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false"
+            android:parentActivityName=".ProfileActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- ProductListActivity -->
         <activity
             android:name=".ProductListActivity"
             android:exported="false"
