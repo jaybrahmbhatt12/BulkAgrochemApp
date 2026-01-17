@@ -11,9 +11,9 @@ public class CartItem implements Serializable {
     private String stockType; 
     private int quantity;
     private int minQuantity;
-    private double taxRate = 18.0; // Default 18% GST
+    private double taxRate; 
 
-    public CartItem(int productId, String name, String image, double price, int minQuantity, String stockType) {
+    public CartItem(int productId, String name, String image, double price, int minQuantity, String stockType, double taxRate) {
         this.productId = productId;
         this.name = name;
         this.image = image;
@@ -21,6 +21,7 @@ public class CartItem implements Serializable {
         this.minQuantity = minQuantity;
         this.stockType = stockType;
         this.quantity = minQuantity;
+        this.taxRate = taxRate;
     }
 
     public int getProductId() { return productId; }
@@ -53,6 +54,6 @@ public class CartItem implements Serializable {
     
     public double getTaxRate() { return taxRate; }
     
-    // Legacy support if needed, but we should use the new names
+    // Legacy support if needed
     public double getTotalPrice() { return getSubtotalAmount(); }
 }

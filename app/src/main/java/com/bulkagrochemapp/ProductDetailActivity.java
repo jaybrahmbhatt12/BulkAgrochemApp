@@ -203,9 +203,10 @@ public class ProductDetailActivity extends BaseActivity {
             double currentUnitPrice = calculateTieredPrice(quantity);
             CartItem cartItem;
             if (product != null) {
-                cartItem = new CartItem(product.getId(), product.getName(), product.getImage(), currentUnitPrice, product.getMinimumQty(), product.getStocktype());
+                cartItem = new CartItem(product.getId(), product.getName(), product.getImage(), currentUnitPrice, product.getMinimumQty(), product.getStocktype(), product.getTaxRate());
             } else {
-                cartItem = new CartItem(productId, intentName, intentImage, currentUnitPrice, intentMinQty, intentStocktype);
+                // Pass default 18.0 tax rate if full product object is not available
+                cartItem = new CartItem(productId, intentName, intentImage, currentUnitPrice, intentMinQty, intentStocktype, 18.0);
             }
             cartItem.setQuantity(quantity);
             CartManager.addToCart(cartItem);

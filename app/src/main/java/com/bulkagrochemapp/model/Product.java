@@ -51,6 +51,9 @@ public class Product implements Serializable {
     @SerializedName("whole_sell_discount")
     private String wholeSellDiscount;
 
+    @SerializedName("taxpro")
+    private String taxpro;
+
 
     @SerializedName(value = "trending", alternate = {"is_trending", "isTrending"})
     private int isTrending;
@@ -136,5 +139,20 @@ public class Product implements Serializable {
 
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public String getTaxpro() {
+        return taxpro;
+    }
+
+    public double getTaxRate() {
+        try {
+            if (taxpro != null && !taxpro.isEmpty()) {
+                return Double.parseDouble(taxpro);
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return 18.0; // Default if not found or invalid
     }
 }
