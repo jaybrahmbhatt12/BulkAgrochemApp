@@ -34,13 +34,16 @@
                 android:contentDescription="@string/app_name" />
 
             <ImageButton
-                android:id="@+id/cartbtn"
+                android:id="@+id/btnQuickOrder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/outline_add_shopping_cart_24"
+                android:src="@drawable/ic_quick_order"
                 android:layout_gravity="right"
                 android:background="@android:color/white"
                 android:layout_marginRight="18dp"
+                android:paddingTop="7dp"
+                app:tint="@color/orange_brand"
+                android:contentDescription="Quick Order"
                 />
 
         </androidx.appcompat.widget.Toolbar>

@@ -43,7 +43,7 @@ public class CartActivity extends BaseActivity {
     View skeletonRecommended;
     TextView txtTotal;
     TextView txtEmptyCart;
-    ImageButton btnHome;
+    ImageButton btnOrders;
     Button browseProductBtn;
 
     LinearLayout payLinearLayout;
@@ -62,7 +62,7 @@ public class CartActivity extends BaseActivity {
         rvCart = findViewById(R.id.rvCart);
         txtTotal = findViewById(R.id.txtTotal);
         txtEmptyCart = findViewById(R.id.txtEmptyCart);
-        btnHome = findViewById(R.id.btnHome);
+        btnOrders = findViewById(R.id.btnOrders);
         browseProductBtn = findViewById(R.id.browseProductBtn);
         payLinearLayout = findViewById(R.id.payLinearLayout);
 
@@ -98,14 +98,13 @@ public class CartActivity extends BaseActivity {
 
         rvCart.setAdapter(adapter);
 
-        // Redirect to Home Screen with smooth slide transition
-        if (btnHome != null) {
-            btnHome.setOnClickListener(v -> {
-                Intent intent = new Intent(CartActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-                finish();
+        // Redirect to Orders Activity
+        if (btnOrders != null) {
+            btnOrders.setOnClickListener(v -> {
+                // Assuming you have an OrdersActivity, if not, you can replace it with the correct activity name
+                // Intent intent = new Intent(CartActivity.this, OrdersActivity.class);
+                // startActivity(intent);
+                Snackbar.make(v, "Orders feature coming soon", Snackbar.LENGTH_SHORT).show();
             });
         }
 

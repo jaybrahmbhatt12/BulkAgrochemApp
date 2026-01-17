@@ -16,6 +16,11 @@
 
     <style name="Theme.BulkAgrochem" parent="Base.Theme.BulkAgrochem" />
 
+    <style name="Theme.BulkAgrochem.Splash" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
     <style name="Theme.BulkAgrochem.AppBarOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="Theme.BulkAgrochem.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />

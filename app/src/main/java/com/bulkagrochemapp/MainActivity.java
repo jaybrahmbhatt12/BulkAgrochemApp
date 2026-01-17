@@ -74,7 +74,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
     private List<MenuItem> categoryMenuItems = new ArrayList<>();
     private boolean areCategoriesVisible = false;
 
-    private ImageButton cartBtn;
+    private ImageButton btnQuickOrder;
 
     //====== onCreate() =====//
 
@@ -213,13 +213,11 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         loadCategories();
         loadTrendingProducts();
 
-        cartBtn = findViewById(R.id.cartbtn);
+        btnQuickOrder = findViewById(R.id.btnQuickOrder);
 
-        if(cartBtn != null) {
-            cartBtn.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, CartActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(intent);
+        if(btnQuickOrder != null) {
+            btnQuickOrder.setOnClickListener(v -> {
+                Toast.makeText(MainActivity.this, "Quick order coming soon", Toast.LENGTH_SHORT).show();
             });
         }
     }
