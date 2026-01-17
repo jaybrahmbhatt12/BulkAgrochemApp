@@ -13,16 +13,28 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bulkagrochemapp.network.ApiService;
+import com.bulkagrochemapp.network.RetrofitClient;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.Random;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
     private TextInputLayout tilMobile, tilOtp;
     private EditText etMobile, etOtp;
     private Button btnSendOtp, btnVerifyOtp;
-    private TextView txtSwitch, tvSubtitle;
+    private TextView txtSwitch, tvSubtitle, tvResendOtp;
+    private String generatedOtp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,18 +50,7 @@ public class LoginActivity extends AppCompatActivity {
             });
         }
 
-        // TextInputLayouts
-        tilMobile = findViewById(R.id.tilMobile);
-        tilOtp = findViewById(R.id.tilOtp);
-
-        // EditTexts
-        etMobile = findViewById(R.id.etMobile);
-        etOtp = findViewById(R.id.etOtp);
-
-        btnSendOtp = findViewById(R.id.btnSendOtp);
-        btnVerifyOtp = findViewById(R.id.btnVerifyOtp);
-        txtSwitch = findViewById(R.id.txtSwitch);
-        tvSubtitle = findViewById(R.id.tvSubtitle);
+        initViews();
 
         txtSwitch.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
@@ -58,39 +59,134 @@ public class LoginActivity extends AppCompatActivity {
 
         btnSendOtp.setOnClickListener(v -> {
             String phoneNumber = etMobile.getText().toString().trim();
-            if (phoneNumber.length() == 10) {
-                // Generate a random 6-digit OTP
-                String otp = String.format("%06d", new Random().nextInt(999999));
-
-                // Simulate sending the OTP to the user's phone
-                Toast.makeText(LoginActivity.this, "Your OTP is: " + otp, Toast.LENGTH_LONG).show();
-
-                // Show OTP fields
-                if (tilOtp != null) tilOtp.setVisibility(View.VISIBLE);
-                if (btnVerifyOtp != null) btnVerifyOtp.setVisibility(View.VISIBLE);
-                btnSendOtp.setVisibility(View.GONE);
-
-                btnVerifyOtp.setOnClickListener(v1 -> {
-                    String enteredOtp = etOtp.getText().toString().trim();
-                    if (enteredOtp.equals(otp)) {
-                        // Save login session
-                        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putBoolean("is_logged_in", true);
-                        editor.putString("phone", phoneNumber);
-                        // In a real app, we would fetch the name from a database/server here.
-                        // For now, we'll leave it as "User Name" if not registered.
-                        editor.apply();
-
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        finish();
-                    } else {
-                        if (tilOtp != null) tilOtp.setError("Invalid OTP");
-                    }
-                });
-            } else {
-                if (tilMobile != null) tilMobile.setError("Please enter a valid 10-digit phone number");
+            if (validatePhoneNumber(phoneNumber)) {
+                checkUserAndSendOtp(phoneNumber);
             }
         });
+
+        btnVerifyOtp.setOnClickListener(v1 -> {
+            verifyOtp();
+        });
+
+        tvResendOtp.setOnClickListener(v -> {
+            String phoneNumber = etMobile.getText().toString().trim();
+            if (validatePhoneNumber(phoneNumber)) {
+                checkUserAndSendOtp(phoneNumber);
+                Toast.makeText(this, "OTP Resent Successfully!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initViews() {
+        tilMobile = findViewById(R.id.tilMobile);
+        tilOtp = findViewById(R.id.tilOtp);
+        etMobile = findViewById(R.id.etMobile);
+        etOtp = findViewById(R.id.etOtp);
+        btnSendOtp = findViewById(R.id.btnSendOtp);
+        btnVerifyOtp = findViewById(R.id.btnVerifyOtp);
+        txtSwitch = findViewById(R.id.txtSwitch);
+        tvSubtitle = findViewById(R.id.tvSubtitle);
+        tvResendOtp = findViewById(R.id.tvResendOtp);
+    }
+
+    private boolean validatePhoneNumber(String phone) {
+        if (phone.length() != 10) {
+            tilMobile.setError("Mobile number must be exactly 10 digits");
+            return false;
+        }
+        if (isFakeNumber(phone)) {
+            tilMobile.setError("Enter a valid mobile number");
+            return false;
+        }
+        tilMobile.setError(null);
+        return true;
+    }
+
+    private boolean isFakeNumber(String mobile) {
+        char firstChar = mobile.charAt(0);
+        boolean allSame = true;
+        for (int i = 1; i < mobile.length(); i++) {
+            if (mobile.charAt(i) != firstChar) {
+                allSame = false;
+                break;
+            }
+        }
+        return allSame;
+    }
+
+    private void checkUserAndSendOtp(String phone) {
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.login(phone).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonString = response.body().string();
+                        JSONObject jsonObject = new JSONObject(jsonString);
+                        String status = jsonObject.optString("status");
+                        String message = jsonObject.optString("message");
+
+                        if ("success".equalsIgnoreCase(status)) {
+                            sendOtp(phone, jsonObject.optJSONObject("user"));
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Number is not registered", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(LoginActivity.this, "Network error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void sendOtp(String phone, JSONObject userData) {
+        generatedOtp = String.format("%06d", new Random().nextInt(999999));
+        
+        // TODO: Integrate SMS API here
+        Toast.makeText(LoginActivity.this, "Your OTP is: " + generatedOtp, Toast.LENGTH_LONG).show();
+
+        tilOtp.setVisibility(View.VISIBLE);
+        btnVerifyOtp.setVisibility(View.VISIBLE);
+        btnSendOtp.setVisibility(View.GONE);
+        tvResendOtp.setVisibility(View.VISIBLE);
+        
+        btnVerifyOtp.setTag(userData);
+    }
+
+    private void verifyOtp() {
+        String enteredOtp = etOtp.getText().toString().trim();
+        if (enteredOtp.equals(generatedOtp)) {
+            JSONObject userData = (JSONObject) btnVerifyOtp.getTag();
+            saveUserSession(userData);
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        } else {
+            tilOtp.setError("Invalid OTP");
+        }
+    }
+
+    private void saveUserSession(JSONObject userData) {
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("is_logged_in", true);
+        
+        if (userData != null) {
+            editor.putString("id", userData.optString("id"));
+            editor.putString("name", userData.optString("name"));
+            editor.putString("email", userData.optString("email"));
+            editor.putString("phone", userData.optString("phone"));
+            editor.putString("country", userData.optString("country"));
+            editor.putString("state", userData.optString("state"));
+            editor.putString("city", userData.optString("city"));
+            editor.putString("zip", userData.optString("zip"));
+            editor.putString("address", userData.optString("address"));
+        }
+        
+        editor.apply();
     }
 }

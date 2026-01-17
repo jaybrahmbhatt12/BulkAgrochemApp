@@ -1,87 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/static_bg">
 
-    <!-- Toolbar -->
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         android:background="@color/static_white"
-        app:title="Edit Profile"
-        app:titleTextColor="@color/static_text"
-        app:navigationIcon="@drawable/ic_arrow_drop_down"
-        app:navigationIconTint="@color/static_text" />
+        app:elevation="0dp">
 
-    <ScrollView
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_drop_down"
+            app:navigationIconTint="@color/static_text"
+            app:title="Edit Profile"
+            app:titleCentered="true"
+            app:titleTextColor="@color/static_text" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:overScrollMode="never">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/static_white"
-            android:padding="20dp">
+            android:padding="24dp">
 
-            <!-- Profile Photo Section -->
+            <!-- Perfect Profile Image Section -->
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="24dp">
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="36dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
 
+                <!-- Outer Glow/Elevation Shadow -->
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    app:cardCornerRadius="60dp"
-                    app:cardElevation="4dp"
-                    app:strokeWidth="2dp"
+                    android:id="@+id/cvProfile"
+                    android:layout_width="140dp"
+                    android:layout_height="140dp"
+                    app:cardCornerRadius="70dp"
+                    app:cardElevation="6dp"
+                    app:cardBackgroundColor="@color/static_white"
                     app:strokeColor="@color/orange_brand"
-                    app:cardBackgroundColor="@color/static_white">
+                    app:strokeWidth="2.5dp">
 
                     <ImageView
                         android:id="@+id/ivProfileImage"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_profile"
                         android:scaleType="centerCrop"
+                        android:src="@drawable/ic_profile"
                         app:tint="@color/orange_brand" />
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Camera Action Button -->
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fabEditPhoto"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginBottom="4dp"
                     android:src="@drawable/ic_camera"
-                    app:fabCustomSize="40dp"
+                    app:backgroundTint="@color/orange_brand"
+                    app:elevation="10dp"
+                    app:fabCustomSize="44dp"
                     app:tint="@color/white"
-                    app:backgroundTint="@color/orange_brand" />
+                    app:borderWidth="0dp" />
             </FrameLayout>
 
-            <!-- Input Fields -->
+            <!-- Personal Information -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Personal Information"
+                android:textColor="@color/static_text"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilName"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="User Name"
-                android:textColorHint="@color/static_text_sec"
                 android:layout_marginBottom="16dp"
-                app:hintTextColor="@color/orange_brand"
-                app:boxStrokeColor="@color/orange_brand">
+                android:hint="Full Name"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:startIconDrawable="@drawable/ic_profile"
+                app:startIconTint="@color/orange_brand">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/static_text"
-                    android:inputType="textPersonName" />
+                    android:inputType="textPersonName"
+                    android:textColor="@color/static_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -89,17 +116,23 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Mobile Number"
-                android:textColorHint="@color/static_text_sec"
                 android:layout_marginBottom="16dp"
-                app:hintTextColor="@color/orange_brand"
-                app:boxStrokeColor="@color/orange_brand">
+                android:hint="Mobile Number"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:prefixText="+91 "
+                app:prefixTextColor="@color/static_text"
+                app:startIconDrawable="@drawable/ic_call"
+                app:startIconTint="@color/orange_brand">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPhone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/static_text"
-                    android:inputType="phone" />
+                    android:inputType="phone"
+                    android:textColor="@color/static_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -107,36 +140,53 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email ID"
-                android:textColorHint="@color/static_text_sec"
-                android:layout_marginBottom="16dp"
-                app:hintTextColor="@color/orange_brand"
-                app:boxStrokeColor="@color/orange_brand">
+                android:layout_marginBottom="24dp"
+                android:hint="Email Address"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:startIconDrawable="@drawable/ic_email"
+                app:startIconTint="@color/orange_brand">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/static_text"
-                    android:inputType="textEmailAddress" />
+                    android:inputType="textEmailAddress"
+                    android:textColor="@color/static_text" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Location Details -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Location Details"
+                android:textColor="@color/static_text"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilCountry"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Country"
-                android:textColorHint="@color/static_text_sec"
                 android:layout_marginBottom="16dp"
-                app:hintTextColor="@color/orange_brand"
-                app:boxStrokeColor="@color/orange_brand"
-                app:endIconTint="@color/static_text_sec">
-                <AutoCompleteTextView
-                    android:id="@+id/actvCountry"
+                android:hint="Country"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCountry"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/static_text"
-                    android:inputType="none" />
+                    android:enabled="false"
+                    android:focusable="false"
+                    android:text="India"
+                    android:textColor="@color/static_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -144,18 +194,19 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="State"
-                android:textColorHint="@color/static_text_sec"
                 android:layout_marginBottom="16dp"
-                app:hintTextColor="@color/orange_brand"
-                app:boxStrokeColor="@color/orange_brand"
-                app:endIconTint="@color/static_text_sec">
+                android:hint="State"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp">
+
                 <AutoCompleteTextView
                     android:id="@+id/actvState"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/static_text"
-                    android:inputType="none" />
+                    android:inputType="none"
+                    android:textColor="@color/static_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -163,18 +214,19 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="City"
-                android:textColorHint="@color/static_text_sec"
                 android:layout_marginBottom="16dp"
-                app:hintTextColor="@color/orange_brand"
-                app:boxStrokeColor="@color/orange_brand"
-                app:endIconTint="@color/static_text_sec">
+                android:hint="City"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp">
+
                 <AutoCompleteTextView
                     android:id="@+id/actvDistrict"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/static_text"
-                    android:inputType="none" />
+                    android:inputType="none"
+                    android:textColor="@color/static_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -182,18 +234,20 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="ZIP Code"
-                android:textColorHint="@color/static_text_sec"
                 android:layout_marginBottom="16dp"
-                app:hintTextColor="@color/orange_brand"
-                app:boxStrokeColor="@color/orange_brand">
+                android:hint="ZIP Code"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etZip"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/static_text"
                     android:inputType="number"
-                    android:maxLength="6" />
+                    android:maxLength="6"
+                    android:textColor="@color/static_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -201,33 +255,36 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
                 android:hint="Full Address"
-                android:textColorHint="@color/static_text_sec"
-                android:layout_marginBottom="24dp"
-                app:hintTextColor="@color/orange_brand"
-                app:boxStrokeColor="@color/orange_brand">
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etAddress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/static_text"
-                    android:inputType="textMultiLine"
                     android:gravity="top"
-                    android:lines="3" />
+                    android:inputType="textMultiLine"
+                    android:lines="3"
+                    android:textColor="@color/static_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnUpdateProfile"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Update Profile"
+                android:layout_height="60dp"
+                android:layout_marginBottom="24dp"
+                android:text="Save Changes"
                 android:textAllCaps="false"
                 android:textSize="18sp"
-                android:backgroundTint="@color/orange_brand"
-                android:textColor="@color/white"
-                app:cornerRadius="8dp" />
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:elevation="4dp" />
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

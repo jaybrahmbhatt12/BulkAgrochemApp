@@ -30,8 +30,8 @@ import retrofit2.Response;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private TextInputEditText etName, etPhone, etEmail, etZip, etAddress;
-    private AutoCompleteTextView actvCountry, actvState, actvDistrict;
+    private TextInputEditText etName, etPhone, etEmail, etZip, etAddress, etCountry;
+    private AutoCompleteTextView actvState, actvDistrict;
     private ImageView ivProfileImage;
     private FloatingActionButton fabEditPhoto;
     private Button btnUpdateProfile;
@@ -61,15 +61,17 @@ public class EditProfileActivity extends AppCompatActivity {
         etName = findViewById(R.id.etName);
         etPhone = findViewById(R.id.etPhone);
         etEmail = findViewById(R.id.etEmail);
-        actvCountry = findViewById(R.id.actvCountry);
+        etCountry = findViewById(R.id.etCountry);
         actvState = findViewById(R.id.actvState);
         actvDistrict = findViewById(R.id.actvDistrict);
         etZip = findViewById(R.id.etZip);
         etAddress = findViewById(R.id.etAddress);
         btnUpdateProfile = findViewById(R.id.btnUpdateProfile);
         
-        actvCountry.setText("India", false);
-        actvCountry.setEnabled(false);
+        if (etCountry != null) {
+            etCountry.setText("India");
+            etCountry.setEnabled(false);
+        }
     }
 
     private void setupToolbar() {

@@ -53,6 +53,8 @@
             android:textColorHint="@color/static_text_sec"
             app:hintTextColor="@color/orange_brand"
             app:boxStrokeColor="@color/orange_brand"
+            app:startIconDrawable="@drawable/ic_profile"
+            app:startIconTint="@color/orange_brand"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -76,6 +78,8 @@
             android:hint="Email Address"
             app:hintTextColor="@color/orange_brand"
             app:boxStrokeColor="@color/orange_brand"
+            app:startIconDrawable="@drawable/ic_email"
+            app:startIconTint="@color/orange_brand"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -101,6 +105,8 @@
             app:prefixTextColor="@color/static_text"
             app:hintTextColor="@color/orange_brand"
             app:boxStrokeColor="@color/orange_brand"
+            app:startIconDrawable="@drawable/ic_call"
+            app:startIconTint="@color/orange_brand"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
@@ -146,25 +152,37 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="24dp"
-            android:text="Register &amp; Get OTP"
+            android:text="Register"
             android:textAllCaps="false"
             android:textSize="16sp"
             app:cornerRadius="12dp"
             android:backgroundTint="@color/green"
-            android:textColor="@color/white"/>
+            android:textColor="@color/white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnVerifyOtp"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="16dp"
-            android:text="Verify &amp; Create Account"
+            android:text="Verify"
             android:textAllCaps="false"
             android:textSize="16sp"
             android:visibility="gone"
             app:cornerRadius="12dp"
             android:backgroundTint="@color/green"
-            android:textColor="@color/white"/>
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/tvResendOtp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:padding="8dp"
+            android:text="Didn't receive OTP? Resend"
+            android:textColor="@color/orange_brand"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/txtSwitch"
