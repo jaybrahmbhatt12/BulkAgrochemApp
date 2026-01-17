@@ -8,12 +8,12 @@ public class CartItem implements Serializable {
     private String name;
     private String image;
     private double price;
-    private String stockType; // Added for correct price unit display
+    private String stockType; 
     private int quantity;
     private int minQuantity;
+    private double taxRate; 
 
-    // Constructor
-    public CartItem(int productId, String name, String image, double price, int minQuantity, String stockType) {
+    public CartItem(int productId, String name, String image, double price, int minQuantity, String stockType, double taxRate) {
         this.productId = productId;
         this.name = name;
         this.image = image;
@@ -21,6 +21,7 @@ public class CartItem implements Serializable {
         this.minQuantity = minQuantity;
         this.stockType = stockType;
         this.quantity = minQuantity;
+        this.taxRate = taxRate;
     }
 
     public int getProductId() { return productId; }
@@ -42,5 +43,17 @@ public class CartItem implements Serializable {
         }
     }
 
-    public double getTotalPrice() { return price * quantity; }
+    // Total = Price * Quantity (as per website's "TOTAL" column)
+    public double getTotalAmount() { return price * quantity; }
+    
+    // Tax = Total * TaxRate / 100
+    public double getTaxAmount() { return getTotalAmount() * (taxRate / 100.0); }
+    
+    // Subtotal = Total + Tax (as per website's "SUBTOTAL" column)
+    public double getSubtotalAmount() { return getTotalAmount() + getTaxAmount(); }
+    
+    public double getTaxRate() { return taxRate; }
+    
+    // Legacy support if needed
+    public double getTotalPrice() { return getSubtotalAmount(); }
 }

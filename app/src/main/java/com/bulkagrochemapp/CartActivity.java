@@ -11,12 +11,12 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bulkagrochemapp.adapter.BigProductAdapter;
 import com.bulkagrochemapp.adapter.CartAdapter;
-import com.bulkagrochemapp.adapter.TopSellingProductAdapter;
-import com.bulkagrochemapp.adapter.TrendingProductAdapter;
 import com.bulkagrochemapp.model.CartItem;
 import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.model.ProductResponse;
@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,16 +39,18 @@ import retrofit2.Response;
 
 public class CartActivity extends BaseActivity {
 
-    RecyclerView rvCart, rvTrending, rvTopSelling;
-    View skeletonTrending, skeletonTopSelling;
+    RecyclerView rvCart, rvRecommended;
+    View skeletonRecommended;
     TextView txtTotal;
     TextView txtEmptyCart;
     ImageButton btnHome;
     Button browseProductBtn;
 
     LinearLayout payLinearLayout;
-
-
+    
+    // Summary views
+    CardView cardCartTotals;
+    TextView txtSummarySubtotal, txtSummaryTax, txtSummaryTotal;
 
     //=========== onCreate() ===========//
 
@@ -63,14 +66,19 @@ public class CartActivity extends BaseActivity {
         browseProductBtn = findViewById(R.id.browseProductBtn);
         payLinearLayout = findViewById(R.id.payLinearLayout);
 
-        rvTrending = findViewById(R.id.rvTrending);
-        rvTopSelling = findViewById(R.id.rvTopSelling);
-        skeletonTrending = findViewById(R.id.skeleton_trending);
-        skeletonTopSelling = findViewById(R.id.skeleton_topselling);
+        rvRecommended = findViewById(R.id.rvRecommended);
+        skeletonRecommended = findViewById(R.id.skeleton_recommended);
+        
+        // Initialize summary views
+        cardCartTotals = findViewById(R.id.cardCartTotals);
+        txtSummarySubtotal = findViewById(R.id.txtSummarySubtotal);
+        txtSummaryTax = findViewById(R.id.txtSummaryTax);
+        txtSummaryTotal = findViewById(R.id.txtSummaryTotal);
 
         rvCart.setLayoutManager(new LinearLayoutManager(this));
-        rvTrending.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        rvTopSelling.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        
+        // Use Horizontal LinearLayoutManager for Recommended Section
+        rvRecommended.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         if (browseProductBtn != null) {
             browseProductBtn.setOnClickListener(v -> {
@@ -84,13 +92,11 @@ public class CartActivity extends BaseActivity {
                 this,
                 CartManager.getCartItems(),
                 () -> {
-                    txtTotal.setText("₹" + CartManager.getTotalAmount());
                     updateCartUI();
                 }
         );
 
         rvCart.setAdapter(adapter);
-        txtTotal.setText("₹" + CartManager.getTotalAmount());
 
         // Redirect to Home Screen with smooth slide transition
         if (btnHome != null) {
@@ -98,7 +104,6 @@ public class CartActivity extends BaseActivity {
                 Intent intent = new Intent(CartActivity.this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
-                // Standard slide transition: Enter from left, exit to right
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 finish();
             });
@@ -129,7 +134,6 @@ public class CartActivity extends BaseActivity {
                         // Remove item
                         items.remove(position);
                         rvCart.getAdapter().notifyItemRemoved(position);
-                        txtTotal.setText("₹" + CartManager.getTotalAmount());
                         updateCartUI();
 
                         // Show Snackbar for Undo
@@ -137,7 +141,6 @@ public class CartActivity extends BaseActivity {
                                 .setAction("UNDO", v -> {
                                     items.add(deletedPosition, deletedItem);
                                     rvCart.getAdapter().notifyItemInserted(deletedPosition);
-                                    txtTotal.setText("₹" + CartManager.getTotalAmount());
                                     updateCartUI();
                                 }).show();
                     }
@@ -145,8 +148,7 @@ public class CartActivity extends BaseActivity {
 
         new ItemTouchHelper(swipeCallback).attachToRecyclerView(rvCart);
 
-        showSkeletons(true);
-        loadSuggestions();
+        loadRecommendedProducts();
         updateCartUI();
 
     }
@@ -154,63 +156,52 @@ public class CartActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh cart list and UI when returning from ProductDetailActivity
         if (rvCart != null && rvCart.getAdapter() != null) {
             rvCart.getAdapter().notifyDataSetChanged();
         }
         updateCartUI();
     }
 
-    private void showSkeletons(boolean show) {
-        int skeletonVis = show ? View.VISIBLE : View.GONE;
-        int rvVis = show ? View.GONE : View.VISIBLE;
-
-        skeletonTrending.setVisibility(skeletonVis);
-        skeletonTopSelling.setVisibility(skeletonVis);
-
-        rvTrending.setVisibility(rvVis);
-        rvTopSelling.setVisibility(rvVis);
-
-        if (show) {
+    private void loadRecommendedProducts() {
+        if (skeletonRecommended != null) {
+            skeletonRecommended.setVisibility(View.VISIBLE);
             Animation pulseAnim = AnimationUtils.loadAnimation(this, R.anim.pulse);
-            skeletonTrending.startAnimation(pulseAnim);
-            skeletonTopSelling.startAnimation(pulseAnim);
-        } else {
-            skeletonTrending.clearAnimation();
-            skeletonTopSelling.clearAnimation();
+            skeletonRecommended.startAnimation(pulseAnim);
         }
-    }
+        if (rvRecommended != null) rvRecommended.setVisibility(View.GONE);
 
-    private void loadSuggestions() {
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.getProducts().enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
-                showSkeletons(false);
+                if (skeletonRecommended != null) {
+                    skeletonRecommended.clearAnimation();
+                    skeletonRecommended.setVisibility(View.GONE);
+                }
+                if (rvRecommended != null) rvRecommended.setVisibility(View.VISIBLE);
+
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     List<Product> allProducts = response.body().getData();
-                    List<Product> trendingList = new ArrayList<>();
-                    List<Product> topSellingList = new ArrayList<>();
-
+                    List<Product> recommendedList = new ArrayList<>();
                     for (Product product : allProducts) {
-                        if (product.getIsTrending() >= 1) {
-                            trendingList.add(product);
-                        }
-                        if (product.getIsTop() >= 1) {
-                            topSellingList.add(product);
+                        // Using getIsBig() to match content_main.xml's Big Product logic
+                        if (product.getIsBig() >= 1) {
+                            recommendedList.add(product);
                         }
                     }
 
-                    // Pass the smaller layout ID only for the Cart view
-                    rvTrending.setAdapter(new TrendingProductAdapter(CartActivity.this, trendingList, R.layout.item_product_horizontal_cart));
-                    rvTopSelling.setAdapter(new TopSellingProductAdapter(CartActivity.this, topSellingList, R.layout.item_product_horizontal_cart));
+                    // Using BigProductAdapter with item_product_horizontal_cart layout to keep card size
+                    rvRecommended.setAdapter(new BigProductAdapter(CartActivity.this, recommendedList, R.layout.item_product_horizontal_cart));
                 }
             }
 
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
-                showSkeletons(false);
-                Log.e("CART_API", "Error loading suggestions: " + t.getMessage());
+                if (skeletonRecommended != null) {
+                    skeletonRecommended.clearAnimation();
+                    skeletonRecommended.setVisibility(View.GONE);
+                }
+                Log.e("CART_API", "Error loading recommendations: " + t.getMessage());
             }
         });
     }
@@ -218,18 +209,37 @@ public class CartActivity extends BaseActivity {
     private void updateCartUI() {
         if (txtEmptyCart == null || browseProductBtn == null) return;
 
+        double subtotal = CartManager.getSubtotalBeforeTax();
+        double tax = CartManager.getTotalTaxAmount();
+        double total = CartManager.getTotalAmount();
+
         if (CartManager.getCartItems().isEmpty()) {
             txtEmptyCart.setVisibility(View.VISIBLE);
             browseProductBtn.setVisibility(View.VISIBLE);
             rvCart.setVisibility(View.GONE);
-            txtTotal.setText("₹0");
             payLinearLayout.setVisibility(View.GONE);
+            // reset values to 0
+            if (cardCartTotals != null) cardCartTotals.setVisibility(View.VISIBLE);
+            
+            txtTotal.setText("₹0.00");
+            if (txtSummarySubtotal != null) txtSummarySubtotal.setText("₹0.00");
+            if (txtSummaryTax != null) txtSummaryTax.setText("₹0.00");
+            if (txtSummaryTotal != null) txtSummaryTotal.setText("₹0.00");
         } else {
             txtEmptyCart.setVisibility(View.GONE);
             browseProductBtn.setVisibility(View.GONE);
             rvCart.setVisibility(View.VISIBLE);
-            txtTotal.setText("₹" + CartManager.getTotalAmount());
             payLinearLayout.setVisibility(View.VISIBLE);
+            if (cardCartTotals != null) cardCartTotals.setVisibility(View.VISIBLE);
+            
+            txtTotal.setText(String.format(Locale.getDefault(), "₹%.2f", total));
+            
+            if (txtSummarySubtotal != null) 
+                txtSummarySubtotal.setText(String.format(Locale.getDefault(), "₹%.2f", subtotal));
+            if (txtSummaryTax != null) 
+                txtSummaryTax.setText(String.format(Locale.getDefault(), "₹%.2f", tax));
+            if (txtSummaryTotal != null) 
+                txtSummaryTotal.setText(String.format(Locale.getDefault(), "₹%.2f", total));
         }
     }
 }

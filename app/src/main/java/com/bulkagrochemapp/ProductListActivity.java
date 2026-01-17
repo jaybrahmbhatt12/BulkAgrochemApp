@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +33,7 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
     RecyclerView rvProducts, rvProductSearchResults;
     TextView txtTitle;
     SearchView searchView;
-    View searchContainer;
+    View searchContainer, skeletonLayout;
 
     int categoryId;
     ProductAdapter adapter;
@@ -53,6 +55,7 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
         txtTitle = findViewById(R.id.txtTitle);
         searchView = findViewById(R.id.searchView);
         searchContainer = findViewById(R.id.search_container);
+        skeletonLayout = findViewById(R.id.skeleton_layout);
 
         rvProducts.setLayoutManager(new GridLayoutManager(this, 1));
         rvProductSearchResults.setLayoutManager(new LinearLayoutManager(this));
@@ -111,11 +114,28 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
         });
     }
 
+    private void showSkeleton(boolean show) {
+        if (skeletonLayout != null) {
+            if (show) {
+                skeletonLayout.setVisibility(View.VISIBLE);
+                rvProducts.setVisibility(View.GONE);
+                Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
+                skeletonLayout.startAnimation(pulse);
+            } else {
+                skeletonLayout.clearAnimation();
+                skeletonLayout.setVisibility(View.GONE);
+                rvProducts.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
     private void loadSaleProducts() {
+        showSkeleton(true);
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.getProducts().enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                showSkeleton(false);
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     productList.clear();
                     for (Product p : response.body().getData()) {
@@ -129,6 +149,7 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
 
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
+                showSkeleton(false);
                 Toast.makeText(ProductListActivity.this, "Error loading sales", Toast.LENGTH_SHORT).show();
             }
         });
@@ -137,7 +158,7 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
     // Fetch products by category
 
     private void loadProductsByCategory() {
-
+        showSkeleton(true);
         Log.d(TAG, "Calling API for categoryId=" + categoryId);
 
         ApiService apiService =
@@ -149,7 +170,7 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
                     @Override
                     public void onResponse(Call<ProductResponse> call,
                                            Response<ProductResponse> response) {
-
+                        showSkeleton(false);
                         Log.d(TAG, "HTTP Code = " + response.code());
 
                         if (!response.isSuccessful()) {
@@ -191,6 +212,7 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
 
                     @Override
                     public void onFailure(Call<ProductResponse> call, Throwable t) {
+                        showSkeleton(false);
                         Log.e(TAG, "API ERROR", t);
                         Toast.makeText(
                                 ProductListActivity.this,
