@@ -19,6 +19,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Locale;
 
 //=========== Cart Adapter ===========//
 
@@ -53,7 +54,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
 
         holder.txtName.setText(item.getName());
         holder.txtQty.setText(String.valueOf(item.getQuantity()));
-        holder.txtPrice.setText("₹" + item.getTotalPrice());
+        
+        holder.txtPricePerUnit.setText(String.format(Locale.getDefault(), "Price: ₹%.2f", item.getPrice()));
+        holder.txtLineTotal.setText(String.format(Locale.getDefault(), "₹%.2f", item.getTotalAmount()));
+        holder.txtTaxLabel.setText(String.format(Locale.getDefault(), "Tax (%.0f%%)", item.getTaxRate()));
+        holder.txtTaxAmount.setText(String.format(Locale.getDefault(), "₹%.2f", item.getTaxAmount()));
+        holder.txtSubtotal.setText(String.format(Locale.getDefault(), "₹%.2f", item.getSubtotalAmount()));
 
         Picasso.get()
                 .load(item.getImage())
@@ -137,7 +143,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imgProduct;
-        TextView txtName, txtQty, txtPrice;
+        TextView txtName, txtQty, txtPricePerUnit, txtLineTotal, txtTaxLabel, txtTaxAmount, txtSubtotal;
         TextView btnPlus, btnMinus;
         ImageButton btnRemove;
 
@@ -145,7 +151,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             super(itemView);
             imgProduct = itemView.findViewById(R.id.imgProduct);
             txtName = itemView.findViewById(R.id.txtName);
-            txtPrice = itemView.findViewById(R.id.txtPrice);
+            txtPricePerUnit = itemView.findViewById(R.id.txtPricePerUnit);
+            txtLineTotal = itemView.findViewById(R.id.txtLineTotal);
+            txtTaxLabel = itemView.findViewById(R.id.txtTaxLabel);
+            txtTaxAmount = itemView.findViewById(R.id.txtTaxAmount);
+            txtSubtotal = itemView.findViewById(R.id.txtSubtotal);
             txtQty = itemView.findViewById(R.id.txtQty);
             btnPlus = itemView.findViewById(R.id.btnPlus);
             btnMinus = itemView.findViewById(R.id.btnMinus);

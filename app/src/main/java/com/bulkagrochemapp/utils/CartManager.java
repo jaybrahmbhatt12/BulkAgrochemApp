@@ -43,11 +43,29 @@ public class CartManager {
         return cartItems;
     }
 
-    // Get total cart amount
+    // Grand Total (Sum of all item subtotals including tax)
     public static double getTotalAmount() {
         double total = 0;
         for (CartItem item : cartItems) {
-            total += item.getTotalPrice();
+            total += item.getSubtotalAmount();
+        }
+        return total;
+    }
+
+    // Sum of all items Price * Qty (before tax)
+    public static double getSubtotalBeforeTax() {
+        double total = 0;
+        for (CartItem item : cartItems) {
+            total += item.getTotalAmount();
+        }
+        return total;
+    }
+
+    // Sum of all tax amounts
+    public static double getTotalTaxAmount() {
+        double total = 0;
+        for (CartItem item : cartItems) {
+            total += item.getTaxAmount();
         }
         return total;
     }
@@ -55,6 +73,6 @@ public class CartManager {
     // Clear cart
     public static void clearCart() {
         cartItems.clear();
-        notifyTotalChanged(); // ✅ added
+        notifyTotalChanged();
     }
 }
