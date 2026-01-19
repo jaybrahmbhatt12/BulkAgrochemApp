@@ -11,6 +11,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,6 +47,8 @@ public class CartActivity extends BaseActivity {
     ImageButton btnOrders;
     Button browseProductBtn;
 
+    private boolean flag=false;
+
     LinearLayout payLinearLayout;
     
     // Summary views
@@ -76,6 +79,10 @@ public class CartActivity extends BaseActivity {
         txtSummaryTotal = findViewById(R.id.txtSummaryTotal);
 
         rvCart.setLayoutManager(new LinearLayoutManager(this));
+
+        Intent intent2 = getIntent();
+        flag = intent2.getBooleanExtra("flag",false);
+
         
         // Use Horizontal LinearLayoutManager for Recommended Section
         rvRecommended.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -150,7 +157,24 @@ public class CartActivity extends BaseActivity {
         loadRecommendedProducts();
         updateCartUI();
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if(flag==true)
+                {
+                    Intent intent = new Intent(CartActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
+                    finish();
+                }
+                else{
+                    finish();
+                }
+            }
+        });
     }
+
 
     @Override
     protected void onResume() {

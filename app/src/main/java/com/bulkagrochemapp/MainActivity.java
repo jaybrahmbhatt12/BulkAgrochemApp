@@ -74,7 +74,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
     private List<MenuItem> categoryMenuItems = new ArrayList<>();
     private boolean areCategoriesVisible = false;
 
-    private ImageButton btnQuickOrder;
+    private ImageButton btnWishlist;
 
     //====== onCreate() =====//
 
@@ -213,13 +213,30 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         loadCategories();
         loadTrendingProducts();
 
-        btnQuickOrder = findViewById(R.id.btnQuickOrder);
+        btnWishlist = findViewById(R.id.btnWishlist);
 
-        if(btnQuickOrder != null) {
-            btnQuickOrder.setOnClickListener(v -> {
-                Toast.makeText(MainActivity.this, "Quick order coming soon", Toast.LENGTH_SHORT).show();
+        if(btnWishlist != null) {
+            btnWishlist.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, WishlistActivity.class);
+                startActivity(intent);
             });
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh all product adapters to sync wishlist state
+        refreshAdapters();
+    }
+
+    private void refreshAdapters() {
+        if (rvTrending != null && rvTrending.getAdapter() != null) rvTrending.getAdapter().notifyDataSetChanged();
+        if (rvPopular != null && rvPopular.getAdapter() != null) rvPopular.getAdapter().notifyDataSetChanged();
+        if (rvHotSale != null && rvHotSale.getAdapter() != null) rvHotSale.getAdapter().notifyDataSetChanged();
+        if (rvLatestProduct != null && rvLatestProduct.getAdapter() != null) rvLatestProduct.getAdapter().notifyDataSetChanged();
+        if (rvBigProduct != null && rvBigProduct.getAdapter() != null) rvBigProduct.getAdapter().notifyDataSetChanged();
+        if (rvTopSelling != null && rvTopSelling.getAdapter() != null) rvTopSelling.getAdapter().notifyDataSetChanged();
     }
 
     private void showAllSkeletons(boolean show) {

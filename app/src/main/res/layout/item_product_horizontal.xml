@@ -44,13 +44,27 @@
                 android:textColor="#FFFFFF"
                 android:textSize="10sp"
                 android:visibility="gone" />
+
+            <!-- Wishlist Icon -->
+            <ImageButton
+                android:id="@+id/btnWishlist"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="4dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_wishlist_border"
+                android:padding="6dp"
+                android:scaleType="centerInside"
+                android:contentDescription="Add to wishlist" />
+
         </FrameLayout>
 
         <!-- Product Name -->
         <TextView
             android:id="@+id/txtProductName"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:ellipsize="end"
             android:maxLines="1"
@@ -108,8 +122,6 @@
                 android:textColor="#9E9E9E"
                 android:textSize="13sp" />
 
-
-
         </LinearLayout>
 
         <!-- Rating & Stock -->
@@ -155,8 +167,6 @@
                 android:textStyle="bold" />
 
         </LinearLayout>
-
-
 
         <!-- View More Button -->
         <Button

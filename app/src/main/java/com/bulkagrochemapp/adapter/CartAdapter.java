@@ -29,6 +29,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
     List<CartItem> cartList;
     Runnable totalUpdater;
 
+    private boolean flag=false;
+
     public CartAdapter(Context context, List<CartItem> cartList, Runnable totalUpdater) {
         this.context = context;
         this.cartList = cartList;
@@ -60,6 +62,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         holder.txtTaxLabel.setText(String.format(Locale.getDefault(), "Tax (%.0f%%)", item.getTaxRate()));
         holder.txtTaxAmount.setText(String.format(Locale.getDefault(), "₹%.2f", item.getTaxAmount()));
         holder.txtSubtotal.setText(String.format(Locale.getDefault(), "₹%.2f", item.getSubtotalAmount()));
+
 
         Picasso.get()
                 .load(item.getImage())

@@ -6,16 +6,20 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +32,7 @@ import com.bulkagrochemapp.network.ApiService;
 import com.bulkagrochemapp.network.RetrofitClient;
 import com.bulkagrochemapp.utils.CartManager;
 import com.bulkagrochemapp.utils.HtmlUtil;
+import com.bulkagrochemapp.utils.WishlistManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
@@ -48,6 +53,7 @@ public class ProductDetailActivity extends BaseActivity {
     TextView btnPlus, btnMinus;
     View layoutQtySelector;
     Button btnAddToCart, btnReturnToCart;
+    ImageButton btnBackHeader, btnWishlistDetail;
     RatingBar ratingBar;
     TableLayout tablePriceRange;
     View skeletonDescription, skeletonTable, skeletonPrice, skeletonDiscount, skeletonRelated;
@@ -93,6 +99,8 @@ public class ProductDetailActivity extends BaseActivity {
         layoutQtySelector = (View) btnPlus.getParent();
         btnAddToCart = findViewById(R.id.btnAddToCart);
         btnReturnToCart = findViewById(R.id.btnReturnToCart);
+        btnBackHeader = findViewById(R.id.btnBack);
+        btnWishlistDetail = findViewById(R.id.btnWishlistDetail);
         txtOriginalPrice = findViewById(R.id.txtOriginalPrice);
         txtDiscount = findViewById(R.id.txtDiscount);
         txtReviews = findViewById(R.id.txtReviews);
@@ -148,6 +156,10 @@ public class ProductDetailActivity extends BaseActivity {
             if (btnReturnToCart != null) btnReturnToCart.setVisibility(View.VISIBLE);
         }
 
+        if (btnBackHeader != null) {
+            btnBackHeader.setOnClickListener(v -> finish());
+        }
+
         if (btnReturnToCart != null) {
             btnReturnToCart.setOnClickListener(v -> finish());
         }
@@ -174,6 +186,28 @@ public class ProductDetailActivity extends BaseActivity {
             }
 
             showSkeletons(true);
+        }
+
+        updateWishlistIcon();
+
+        if (btnWishlistDetail != null) {
+            btnWishlistDetail.setOnClickListener(v -> {
+                if (product != null) {
+                    Animation scaleAnim = AnimationUtils.loadAnimation(this, R.anim.scale_up);
+                    btnWishlistDetail.startAnimation(scaleAnim);
+
+                    if (WishlistManager.isInWishlist(product.getId())) {
+                        WishlistManager.removeFromWishlist(product.getId());
+                        Toast.makeText(this, product.getName() + " removed from wishlist", Toast.LENGTH_SHORT).show();
+                    } else {
+                        WishlistManager.addToWishlist(product);
+                        Toast.makeText(this, product.getName() + " added to wishlist", Toast.LENGTH_SHORT).show();
+                    }
+                    updateWishlistIcon();
+                } else {
+                    Toast.makeText(this, "Please wait, product details are loading...", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         int reviewsCount = random.nextInt(91) + 10;
@@ -212,7 +246,7 @@ public class ProductDetailActivity extends BaseActivity {
             CartManager.addToCart(cartItem);
 
             // Show Snackbar with "Go to Cart" action
-            Snackbar snackbar = Snackbar.make(v, "Added to cart", Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar.make(v, (product != null ? product.getName() : intentName) +" Added to cart", Snackbar.LENGTH_LONG);
             snackbar.setAction("GO TO CART", view -> {
                 Intent intent = new Intent(ProductDetailActivity.this, CartActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -221,18 +255,27 @@ public class ProductDetailActivity extends BaseActivity {
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 finish();
             });
-            snackbar.setBackgroundTint(ContextCompat.getColor(this, R.color.light_green));
-            snackbar.setActionTextColor(ContextCompat.getColor(this, R.color.black));
-
-            // Increase text size
-            View snackbarView = snackbar.getView();
-            TextView snackTextView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
-            TextView snackActionView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_action);
-            if (snackTextView != null) snackTextView.setTextSize(16);
-            if (snackActionView != null) snackActionView.setTextSize(16);
-            
             snackbar.show();
         });
+    }
+
+    private void updateWishlistIcon() {
+        if (btnWishlistDetail != null && product != null) {
+            if (WishlistManager.isInWishlist(product.getId())) {
+                btnWishlistDetail.setImageResource(R.drawable.ic_wishlist_filled);
+            } else {
+                btnWishlistDetail.setImageResource(R.drawable.ic_wishlist_border);
+            }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -468,6 +511,7 @@ public class ProductDetailActivity extends BaseActivity {
 
             setupWholesaleTable(p);
             updatePriceForQuantity(quantity);
+            updateWishlistIcon();
 
             // Fetch related products from the same category
             fetchRelatedProducts(p.getCategoryId());

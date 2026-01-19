@@ -114,6 +114,15 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh the wishlist icons when returning to this activity
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
     private void showSkeleton(boolean show) {
         if (skeletonLayout != null) {
             if (show) {

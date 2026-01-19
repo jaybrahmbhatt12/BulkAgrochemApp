@@ -34,16 +34,15 @@
                 android:contentDescription="@string/app_name" />
 
             <ImageButton
-                android:id="@+id/btnQuickOrder"
+                android:id="@+id/btnWishlist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_quick_order"
+                android:src="@drawable/ic_wishlist"
                 android:layout_gravity="right"
                 android:background="@android:color/white"
                 android:layout_marginRight="18dp"
-                android:paddingTop="7dp"
-                app:tint="@color/orange_brand"
-                android:contentDescription="Quick Order"
+                app:tint="#FF0000"
+                android:contentDescription="Wishlist"
                 />
 
         </androidx.appcompat.widget.Toolbar>

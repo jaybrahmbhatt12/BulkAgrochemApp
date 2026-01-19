@@ -2,11 +2,52 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
     android:background="#FFFFFF">
+
+    <!-- Custom Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:background="#FFFFFF">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_centerVertical="true"
+            app:tint="@color/black"
+            android:contentDescription="Back" />
+
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="140dp"
+            android:layout_height="40dp"
+            android:src="@drawable/logo_bulkagro"
+            android:layout_centerInParent="true"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/app_name" />
+
+        <ImageButton
+            android:id="@+id/btnWishlistDetail"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_wishlist_border"
+            android:padding="6dp"
+            android:scaleType="centerInside"
+            android:contentDescription="Add to wishlist" />
+
+    </RelativeLayout>
 
     <ScrollView
         android:id="@+id/main"
@@ -21,7 +62,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Image Container for Badge -->
+            <!-- Image Container -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -278,7 +319,7 @@
                 </FrameLayout>
                 <FrameLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp">
                     <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                    <View android:id="@+id/shimmerTable3" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+                    <View android:id="@+id/shimmerTable3" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
                     <View android:id="@+id/shimmerTable3_2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
                 </FrameLayout>
             </LinearLayout>

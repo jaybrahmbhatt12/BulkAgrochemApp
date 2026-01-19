@@ -6,11 +6,15 @@ import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -22,6 +26,7 @@ import com.bulkagrochemapp.ProductDetailActivity;
 import com.bulkagrochemapp.R;
 import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.utils.HtmlUtil;
+import com.bulkagrochemapp.utils.WishlistManager;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -117,13 +122,24 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
                 .load(imageUrl)
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .error(R.drawable.ic_image_error)
-                .error(R.drawable.ic_launcher_foreground)
                 .into(holder.imgProduct);
 
-        // Remove the click listener from the whole item
-        holder.itemView.setOnClickListener(null);
-        holder.itemView.setClickable(false);
-        holder.itemView.setFocusable(false);
+        // ===== Wishlist Logic =====
+        updateWishlistIcon(holder.btnWishlist, product.getId());
+
+        holder.btnWishlist.setOnClickListener(v -> {
+            Animation scaleAnim = AnimationUtils.loadAnimation(context, R.anim.scale_up);
+            holder.btnWishlist.startAnimation(scaleAnim);
+
+            if (WishlistManager.isInWishlist(product.getId())) {
+                WishlistManager.removeFromWishlist(product.getId());
+                Toast.makeText(context, product.getName() + " removed from wishlist", Toast.LENGTH_SHORT).show();
+            } else {
+                WishlistManager.addToWishlist(product);
+                Toast.makeText(context, product.getName() + " added to wishlist", Toast.LENGTH_SHORT).show();
+            }
+            updateWishlistIcon(holder.btnWishlist, product.getId());
+        });
 
         // Add the click listener to the View More button
         holder.ViewDetailBtn.setOnClickListener(v -> {
@@ -146,6 +162,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             context.startActivity(intent);
         });
 
+    }
+
+    private void updateWishlistIcon(ImageButton btn, int productId) {
+        if (WishlistManager.isInWishlist(productId)) {
+            btn.setImageResource(R.drawable.ic_wishlist_filled);
+        } else {
+            btn.setImageResource(R.drawable.ic_wishlist_border);
+        }
     }
 
     @Override
@@ -202,6 +226,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         ImageView imgProduct;
         TextView txtName, txtPrice, txtReviews, txtDescription, txtDetails, txtOriginalPrice, txtDiscount;
         Button ViewDetailBtn;
+        ImageButton btnWishlist;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -214,7 +239,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             ViewDetailBtn = itemView.findViewById(R.id.ViewDetailBtn);
             txtOriginalPrice = itemView.findViewById(R.id.txtOriginalPrice);
             txtDiscount = itemView.findViewById(R.id.txtDiscount);
-
+            btnWishlist = itemView.findViewById(R.id.btnWishlist);
         }
     }
 }

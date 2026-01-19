@@ -6,10 +6,14 @@ import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -19,6 +23,7 @@ import com.bulkagrochemapp.ProductDetailActivity;
 import com.bulkagrochemapp.R;
 import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.utils.HtmlUtil;
+import com.bulkagrochemapp.utils.WishlistManager;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -127,6 +132,23 @@ public class TopSellingProductAdapter
                 .error(R.drawable.ic_image_error)
                 .into(holder.imgProduct);
 
+        // ===== Wishlist Logic =====
+        updateWishlistIcon(holder.btnWishlist, product.getId());
+
+        holder.btnWishlist.setOnClickListener(v -> {
+            Animation scaleAnim = AnimationUtils.loadAnimation(context, R.anim.scale_up);
+            holder.btnWishlist.startAnimation(scaleAnim);
+
+            if (WishlistManager.isInWishlist(product.getId())) {
+                WishlistManager.removeFromWishlist(product.getId());
+                Toast.makeText(context, product.getName() + " removed from wishlist", Toast.LENGTH_SHORT).show();
+            } else {
+                WishlistManager.addToWishlist(product);
+                Toast.makeText(context, product.getName() + " added to wishlist", Toast.LENGTH_SHORT).show();
+            }
+            updateWishlistIcon(holder.btnWishlist, product.getId());
+        });
+
         // ===== Click (Button ONLY) =====
         View.OnClickListener openDetails = v -> {
             Intent intent = new Intent(context, ProductDetailActivity.class);
@@ -154,6 +176,14 @@ public class TopSellingProductAdapter
         holder.itemView.setClickable(false);
     }
 
+    private void updateWishlistIcon(ImageButton btn, int productId) {
+        if (WishlistManager.isInWishlist(productId)) {
+            btn.setImageResource(R.drawable.ic_wishlist_filled);
+        } else {
+            btn.setImageResource(R.drawable.ic_wishlist_border);
+        }
+    }
+
     @Override
     public int getItemCount() {
         return productList != null ? productList.size() : 0;
@@ -168,6 +198,7 @@ public class TopSellingProductAdapter
                 txtDetails, txtStock;
         RatingBar ratingBar;
         Button ViewDetailBtn;
+        ImageButton btnWishlist;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -183,6 +214,7 @@ public class TopSellingProductAdapter
             txtStock = itemView.findViewById(R.id.txtStock);
             ratingBar = itemView.findViewById(R.id.ratingBar);
             ViewDetailBtn = itemView.findViewById(R.id.ViewDetailBtn);
+            btnWishlist = itemView.findViewById(R.id.btnWishlist);
         }
     }
 }

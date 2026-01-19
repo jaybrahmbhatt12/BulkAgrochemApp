@@ -31,6 +31,7 @@
         </activity>
 
         <activity android:name=".CartActivity" />
+        <activity android:name=".WishlistActivity" android:parentActivityName=".MainActivity" />
 
         <!-- LoginActivity -->
         <activity

@@ -44,6 +44,21 @@
                 android:textColor="#FFFFFF"
                 android:textSize="8sp"
                 android:visibility="gone" />
+
+            <!-- Wishlist Icon -->
+            <ImageButton
+                android:id="@+id/btnWishlist"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="2dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_wishlist_border"
+                android:padding="4dp"
+                android:elevation="4dp"
+                android:scaleType="centerInside"
+                android:contentDescription="Add to wishlist" />
+
         </FrameLayout>
 
         <!-- Product Name -->
