@@ -3,6 +3,7 @@ package com.bulkagrochemapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etMobile, etOtp;
     private Button btnSendOtp, btnVerifyOtp;
     private TextView txtSwitch, tvSubtitle, tvResendOtp;
-    private String generatedOtp;
+    private String serverOtp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +73,6 @@ public class LoginActivity extends AppCompatActivity {
             String phoneNumber = etMobile.getText().toString().trim();
             if (validatePhoneNumber(phoneNumber)) {
                 checkUserAndSendOtp(phoneNumber);
-                Toast.makeText(this, "OTP Resent Successfully!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -127,7 +127,7 @@ public class LoginActivity extends AppCompatActivity {
                         String message = jsonObject.optString("message");
 
                         if ("success".equalsIgnoreCase(status)) {
-                            sendOtp(phone, jsonObject.optJSONObject("user"));
+                            requestOtp(phone, jsonObject.optJSONObject("user"));
                         } else {
                             Toast.makeText(LoginActivity.this, "Number is not registered", Toast.LENGTH_SHORT).show();
                         }
@@ -144,23 +144,47 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void sendOtp(String phone, JSONObject userData) {
-        generatedOtp = String.format("%06d", new Random().nextInt(999999));
-        
-        // TODO: Integrate SMS API here
-        Toast.makeText(LoginActivity.this, "Your OTP is: " + generatedOtp, Toast.LENGTH_LONG).show();
+    private void requestOtp(String phone, JSONObject userData) {
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.sendOtp(phone).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonString = response.body().string();
+                        JSONObject jsonObject = new JSONObject(jsonString);
+                        String status = jsonObject.optString("status");
+                        String message = jsonObject.optString("message");
 
-        tilOtp.setVisibility(View.VISIBLE);
-        btnVerifyOtp.setVisibility(View.VISIBLE);
-        btnSendOtp.setVisibility(View.GONE);
-        tvResendOtp.setVisibility(View.VISIBLE);
-        
-        btnVerifyOtp.setTag(userData);
+                        if ("success".equalsIgnoreCase(status)) {
+                            serverOtp = jsonObject.optString("otp");
+                            Toast.makeText(LoginActivity.this, "OTP sent successfully!", Toast.LENGTH_SHORT).show();
+                            
+                            tilOtp.setVisibility(View.VISIBLE);
+                            btnVerifyOtp.setVisibility(View.VISIBLE);
+                            btnSendOtp.setVisibility(View.GONE);
+                            tvResendOtp.setVisibility(View.VISIBLE);
+                            
+                            btnVerifyOtp.setTag(userData);
+                        } else {
+                            Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(LoginActivity.this, "Failed to send OTP", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void verifyOtp() {
         String enteredOtp = etOtp.getText().toString().trim();
-        if (enteredOtp.equals(generatedOtp)) {
+        if (serverOtp != null && enteredOtp.equals(serverOtp)) {
             JSONObject userData = (JSONObject) btnVerifyOtp.getTag();
             saveUserSession(userData);
             startActivity(new Intent(LoginActivity.this, MainActivity.class));

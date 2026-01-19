@@ -21,9 +21,14 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -159,11 +164,20 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void updateProfile() {
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        String userId = prefs.getString("id", "");
+        
+        if (userId.isEmpty()) {
+            Toast.makeText(this, "User ID not found. Please login again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String name = etName.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
+        String country = "India";
         String state = actvState.getText().toString().trim();
-        String district = actvDistrict.getText().toString().trim();
+        String city = actvDistrict.getText().toString().trim();
         String zip = etZip.getText().toString().trim();
         String address = etAddress.getText().toString().trim();
 
@@ -177,19 +191,48 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
-        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("name", name);
-        editor.putString("phone", phone);
-        editor.putString("email", email);
-        editor.putString("country", "India");
-        editor.putString("state", state);
-        editor.putString("district", district);
-        editor.putString("zip", zip);
-        editor.putString("address", address);
-        editor.apply();
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.updateProfile(userId, name, email, phone, country, state, city, zip, address).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonString = response.body().string();
+                        JSONObject jsonObject = new JSONObject(jsonString);
+                        String status = jsonObject.optString("status");
+                        String message = jsonObject.optString("message");
 
-        Toast.makeText(this, "Profile Updated Successfully!", Toast.LENGTH_SHORT).show();
-        finish();
+                        if ("success".equalsIgnoreCase(status)) {
+                            // Update local SharedPreferences
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString("name", name);
+                            editor.putString("phone", phone);
+                            editor.putString("email", email);
+                            editor.putString("country", country);
+                            editor.putString("state", state);
+                            editor.putString("district", city);
+                            editor.putString("zip", zip);
+                            editor.putString("address", address);
+                            editor.apply();
+
+                            Toast.makeText(EditProfileActivity.this, "Profile Updated Successfully!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            Toast.makeText(EditProfileActivity.this, message, Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(EditProfileActivity.this, "Error parsing response", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(EditProfileActivity.this, "Update failed. Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(EditProfileActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

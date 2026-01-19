@@ -71,4 +71,24 @@ public interface ApiService {
     Call<ResponseBody> login(
             @Field("phone") String phone
     );
+
+    @FormUrlEncoded
+    @POST("send_otp.php")
+    Call<ResponseBody> sendOtp(
+            @Field("phone") String phone
+    );
+
+    @FormUrlEncoded
+    @POST("update_profile.php")
+    Call<ResponseBody> updateProfile(
+            @Field("id") String id,
+            @Field("name") String name,
+            @Field("email") String email,
+            @Field("phone") String phone,
+            @Field("country") String country,
+            @Field("state") String state,
+            @Field("city") String city,
+            @Field("zip") String zip,
+            @Field("address") String address
+    );
 }
