@@ -3,6 +3,7 @@ package com.bulkagrochemapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -14,9 +15,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bulkagrochemapp.network.ApiService;
+import com.bulkagrochemapp.network.RetrofitClient;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.Random;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -24,7 +36,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText etName, etEmail, etMobile, etOtp;
     private Button btnSendOtp, btnVerifyOtp;
     private TextView txtSwitch, tvResendOtp;
-    private String generatedOtp;
+    private String serverOtp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +62,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         btnSendOtp.setOnClickListener(v -> {
             if (validateInputs()) {
-                sendOtp();
+                requestOtp();
             }
         });
 
@@ -60,8 +72,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         tvResendOtp.setOnClickListener(v -> {
             if (validateInputs()) {
-                sendOtp();
-                Toast.makeText(this, "OTP Resent Successfully!", Toast.LENGTH_SHORT).show();
+                requestOtp();
             }
         });
     }
@@ -130,35 +141,91 @@ public class RegisterActivity extends AppCompatActivity {
         return allSame;
     }
 
-    private void sendOtp() {
-        // Generate a random 6-digit OTP
-        generatedOtp = String.format("%06d", new Random().nextInt(999999));
+    private void requestOtp() {
+        String phone = etMobile.getText().toString().trim();
+        
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.sendOtp(phone).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonString = response.body().string();
+                        JSONObject jsonObject = new JSONObject(jsonString);
+                        String status = jsonObject.optString("status");
+                        String message = jsonObject.optString("message");
 
-        // TODO: Integrate SMS API here to send generatedOtp to etMobile
-        // For now, simulate sending the OTP
-        Toast.makeText(this, "OTP sent to your mobile: " + generatedOtp, Toast.LENGTH_LONG).show();
+                        if ("success".equalsIgnoreCase(status)) {
+                            serverOtp = jsonObject.optString("otp");
+                            Toast.makeText(RegisterActivity.this, "OTP sent successfully to " + phone, Toast.LENGTH_SHORT).show();
+                            
+                            tilOtp.setVisibility(View.VISIBLE);
+                            btnVerifyOtp.setVisibility(View.VISIBLE);
+                            btnSendOtp.setVisibility(View.GONE);
+                            tvResendOtp.setVisibility(View.VISIBLE);
+                        } else {
+                            Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
-        tilOtp.setVisibility(View.VISIBLE);
-        btnVerifyOtp.setVisibility(View.VISIBLE);
-        btnSendOtp.setVisibility(View.GONE);
-        tvResendOtp.setVisibility(View.VISIBLE);
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(RegisterActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void verifyOtpAndRegister() {
         String enteredOtp = etOtp.getText().toString().trim();
-        if (enteredOtp.equals(generatedOtp)) {
-            String name = etName.getText().toString().trim();
-            String email = etEmail.getText().toString().trim();
-            String phone = etMobile.getText().toString().trim();
-            
-            saveUserSession(name, email, phone);
-            
-            Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-            finish();
+        if (serverOtp != null && enteredOtp.equals(serverOtp)) {
+            performRegistration();
         } else {
             tilOtp.setError("Invalid OTP");
         }
+    }
+
+    private void performRegistration() {
+        String name = etName.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
+        String phone = etMobile.getText().toString().trim();
+
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.register(name, email, phone).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonString = response.body().string();
+                        JSONObject jsonObject = new JSONObject(jsonString);
+                        String status = jsonObject.optString("status");
+                        String message = jsonObject.optString("message");
+
+                        if ("success".equalsIgnoreCase(status)) {
+                            saveUserSession(name, email, phone);
+                            Toast.makeText(RegisterActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                            finish();
+                        } else {
+                            Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (IOException | JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(RegisterActivity.this, "Error parsing response", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Registration failed. Please try again.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(RegisterActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void saveUserSession(String name, String email, String phone) {
