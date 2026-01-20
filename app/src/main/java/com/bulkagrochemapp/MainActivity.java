@@ -1,5 +1,6 @@
 package com.bulkagrochemapp;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,9 +10,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -31,6 +38,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bulkagrochemapp.adapter.BigProductAdapter;
 import com.bulkagrochemapp.adapter.CategoryAdapter;
+import com.bulkagrochemapp.adapter.CouponAdapter;
 import com.bulkagrochemapp.adapter.HotProductAdapter;
 import com.bulkagrochemapp.adapter.LatestProductAdapter;
 import com.bulkagrochemapp.adapter.MostPopularProductAdapter;
@@ -39,6 +47,7 @@ import com.bulkagrochemapp.adapter.TopSellingProductAdapter;
 import com.bulkagrochemapp.adapter.TrendingProductAdapter;
 import com.bulkagrochemapp.model.Category;
 import com.bulkagrochemapp.model.CategoryResponse;
+import com.bulkagrochemapp.model.CouponResponse;
 import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.model.ProductResponse;
 import com.bulkagrochemapp.network.ApiService;
@@ -58,7 +67,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
     //====== Variables =====//
 
     private static final String TAG = "API_TEST";
-    private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults, rvHotSale, rvLatestProduct, rvBigProduct, rvTopSelling;
+    private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults, rvHotSale, rvLatestProduct, rvBigProduct, rvTopSelling, rvCoupons;
     private View skeletonCategories, skeletonTrending, skeletonPopular, skeletonHotSale, skeletonLatest, skeletonBig, skeletonTopSelling;
     private EditText searchEditText;
     private ImageView ivProfile;
@@ -69,12 +78,13 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private NestedScrollView nestedScrollView;
-    private TextView categoriesTitle, trendingProductsTitle, mostPopularTitle, hotSaleTitle;
+    private TextView categoriesTitle, trendingProductsTitle, mostPopularTitle, hotSaleTitle, txtCouponsTitle;
     private List<Category> categoryList = new ArrayList<>();
     private List<MenuItem> categoryMenuItems = new ArrayList<>();
     private boolean areCategoriesVisible = false;
 
     private ImageButton btnWishlist;
+    private View btnPlayVideo;
 
     //====== onCreate() =====//
 
@@ -147,6 +157,9 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         rvTopSelling = findViewById(R.id.rvTopSelling);
         rvTopSelling.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
+        rvCoupons = findViewById(R.id.rvCoupons);
+        rvCoupons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
 
         rvSearchResults = findViewById(R.id.rvSearchResults);
         rvSearchResults.setLayoutManager(new LinearLayoutManager(this));
@@ -159,6 +172,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         trendingProductsTitle = findViewById(R.id.trending_products_title);
         mostPopularTitle = findViewById(R.id.most_popular_title);
         hotSaleTitle = findViewById(R.id.hot_sale_title);
+        txtCouponsTitle = findViewById(R.id.txtCouponsTitle);
 
         if (GoUp != null) {
             GoUp.setOnClickListener(v -> {
@@ -208,10 +222,11 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         // Show all skeletons and hide RecyclerViews at start
         showAllSkeletons(true);
 
-        //====== API calls ======//
+        // API calls //
         loadProducts(); // Load all products and filter
         loadCategories();
         loadTrendingProducts();
+        loadCoupons();
 
         btnWishlist = findViewById(R.id.btnWishlist);
 
@@ -221,6 +236,44 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
                 startActivity(intent);
             });
         }
+
+        btnPlayVideo = findViewById(R.id.btnPlayVideo);
+        if (btnPlayVideo != null) {
+            btnPlayVideo.setOnClickListener(v -> showVideoPopup());
+        }
+    }
+
+    private void showVideoPopup() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_video_player);
+        dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        WebView webView = dialog.findViewById(R.id.webViewVideo);
+        Button btnClose = dialog.findViewById(R.id.btnCloseVideo);
+
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setMediaPlaybackRequiresUserGesture(false);
+
+        webView.setWebViewClient(new WebViewClient());
+        webView.setWebChromeClient(new WebChromeClient());
+
+        // YouTube embed URL
+        String videoId = "ok6XEDZfLHg";
+        String embedUrl = "https://www.youtube.com/embed/" + videoId;
+        String html = "<html><body style='margin:0;padding:0;'><iframe width=\"100%\" height=\"100%\" src=\"" + embedUrl + "\" frameborder=\"0\" allowfullscreen></iframe></body></html>";
+        
+        // Use loadDataWithBaseURL to fix "Error 153" by providing a valid origin
+        webView.loadDataWithBaseURL("https://youtu.be/ok6XEDZfLHg", html, "text/html", "utf-8", null);
+
+        btnClose.setOnClickListener(v -> {
+            webView.loadUrl("about:blank");
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     @Override
@@ -237,6 +290,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         if (rvLatestProduct != null && rvLatestProduct.getAdapter() != null) rvLatestProduct.getAdapter().notifyDataSetChanged();
         if (rvBigProduct != null && rvBigProduct.getAdapter() != null) rvBigProduct.getAdapter().notifyDataSetChanged();
         if (rvTopSelling != null && rvTopSelling.getAdapter() != null) rvTopSelling.getAdapter().notifyDataSetChanged();
+        if (rvCoupons != null && rvCoupons.getAdapter() != null) rvCoupons.getAdapter().notifyDataSetChanged();
     }
 
     private void showAllSkeletons(boolean show) {
@@ -258,6 +312,8 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         rvLatestProduct.setVisibility(rvVis);
         rvBigProduct.setVisibility(rvVis);
         rvTopSelling.setVisibility(rvVis);
+        rvCoupons.setVisibility(rvVis);
+        if (txtCouponsTitle != null) txtCouponsTitle.setVisibility(rvVis);
 
         if (show) {
             Animation pulseAnim = AnimationUtils.loadAnimation(this, R.anim.pulse);
@@ -301,7 +357,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         }
     }
 
-    //====== API  ======//
+    // API //
 
     // Fetch all products and filter for Popular and Trending
     private void loadProducts() {
@@ -328,7 +384,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
                     allProducts = response.body().getData();
                     Log.d(TAG, "Total products fetched: " + allProducts.size());
 
-                    //============ FILTERS ============//
+                    // FILTERS //
 
                     // Filter for Popular Products
                     List<Product> popularList = new ArrayList<>();
@@ -446,6 +502,35 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             public void onFailure(Call<CategoryResponse> call, Throwable t) {
                 skeletonCategories.setVisibility(View.GONE);
                 Log.e("CATEGORY_API", t.getMessage());
+            }
+        });
+    }
+
+    private void loadCoupons() {
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.getCoupons().enqueue(new Callback<CouponResponse>() {
+            @Override
+            public void onResponse(Call<CouponResponse> call, Response<CouponResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    List coupons = response.body().getData();
+                    if (coupons == null || coupons.isEmpty()) {
+                        if (rvCoupons != null) rvCoupons.setVisibility(View.GONE);
+                        if (txtCouponsTitle != null) txtCouponsTitle.setVisibility(View.GONE);
+                    } else {
+                        if (rvCoupons != null) {
+                            rvCoupons.setAdapter(new CouponAdapter(MainActivity.this, coupons));
+                            rvCoupons.setVisibility(View.VISIBLE);
+                        }
+                        if (txtCouponsTitle != null) txtCouponsTitle.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CouponResponse> call, Throwable t) {
+                Log.e("COUPON_API", "Error loading coupons: " + t.getMessage());
+                if (rvCoupons != null) rvCoupons.setVisibility(View.GONE);
+                if (txtCouponsTitle != null) txtCouponsTitle.setVisibility(View.GONE);
             }
         });
     }
