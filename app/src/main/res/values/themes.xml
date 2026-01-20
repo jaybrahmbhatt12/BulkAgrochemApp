@@ -1,6 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.BulkAgrochem" parent="Theme.Material3.DayNight.NoActionBar">
+    <!-- Changed parent from Material3 to MaterialComponents to match your Night mode and fix the BottomNav lifting -->
+    <style name="Base.Theme.BulkAgrochem" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>

@@ -21,7 +21,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
-            app:popupTheme="@style/Theme.BulkAgrochem.PopupOverlay">
+            app:popupTheme="@style/Theme.BulkAgrochem.PopupOverlay"
+            >
 
             <ImageView
                 android:id="@+id/ivLogo"

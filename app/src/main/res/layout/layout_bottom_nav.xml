@@ -6,8 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@android:color/white"
+    app:backgroundTint="@null"
     app:menu="@menu/bottom_nav_menu"
     app:labelVisibilityMode="labeled"
     app:itemIconTint="@color/bottom_nav_colors"
     app:itemTextColor="@color/bottom_nav_colors"
-    app:elevation="8dp" />
+    app:elevation="0dp"
+    app:paddingBottomSystemWindowInsets="false"
+    app:paddingLeftSystemWindowInsets="false"
+    app:paddingRightSystemWindowInsets="false" />

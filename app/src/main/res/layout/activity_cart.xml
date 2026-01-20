@@ -6,268 +6,276 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
-    android:background="#F8F9FA">
+    android:background="@android:color/white">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:background="#F8F9FA"
-        android:elevation="2dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="My Cart"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#212121"
-            android:layout_centerVertical="true"/>
-
-        <ImageButton
-            android:id="@+id/btnOrders"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_orders"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:contentDescription="See orders"
-            android:padding="8dp"
-            app:tint="@color/orange_brand"/>
-
-    </RelativeLayout>
-
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingBottom="16dp"
-        >
+        android:orientation="vertical"
+        android:background="#F8F9FA">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="16dp"
+            android:background="@color/white"
+            android:elevation="2dp">
 
             <TextView
-                android:id="@+id/txtEmptyCart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Cart"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:layout_centerVertical="true"/>
+
+            <ImageButton
+                android:id="@+id/btnOrders"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_orders"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:contentDescription="See orders"
+                android:padding="8dp"
+                app:tint="@color/orange_brand"/>
+
+        </RelativeLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp"
+            >
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Your cart is empty"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#757575"
-                android:gravity="center"
-                android:padding="48dp"
-                android:visibility="gone"/>
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/txtEmptyCart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Your cart is empty"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#757575"
+                    android:gravity="center"
+                    android:padding="48dp"
+                    android:visibility="gone"/>
+
+                <Button
+                    android:id="@+id/browseProductBtn"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Browse Products"
+                    android:textAllCaps="false"
+                    android:backgroundTint="@color/green"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:visibility="gone"
+                    />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvCart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_cart"/>
+
+                <!-- Cart Totals Section (matches website) -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardCartTotals"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    android:visibility="visible"
+                    tools:visibility="visible"
+                    android:backgroundTint="@color/white"
+                    >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="CART TOTALS"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#212121"
+                            android:layout_marginBottom="12dp"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingVertical="8dp">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Subtotal (Before Tax)"
+                                android:textColor="#616161"/>
+                            <TextView
+                                android:id="@+id/txtSummarySubtotal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="₹0.00"
+                                android:textColor="#212121"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
+
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F5F5F5"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingVertical="8dp">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Total Tax (GST)"
+                                android:textColor="#616161"/>
+                            <TextView
+                                android:id="@+id/txtSummaryTax"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="₹0.00"
+                                android:textColor="#212121"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
+
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingVertical="12dp">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Grand Total"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#212121"/>
+                            <TextView
+                                android:id="@+id/txtSummaryTotal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="₹0.00"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#2E7D32"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Recommended Section (Horizontal Scroll) -->
+                <TextView
+                    android:id="@+id/txtRecommendedTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Recommended for You"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="24dp"
+                    android:textColor="@color/black" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvRecommended"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_product_horizontal_cart" />
+
+                <HorizontalScrollView
+                    android:id="@+id/skeleton_recommended"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:visibility="gone">
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                        <include layout="@layout/item_skeleton_product"/>
+                        <include layout="@layout/item_skeleton_product"/>
+                        <include layout="@layout/item_skeleton_product"/>
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <LinearLayout
+            android:id="@+id/payLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/border_for_btn"
+            android:elevation="8dp"
+            android:padding="16dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:layout_marginLeft="-5dp"
+            android:layout_marginRight="-5dp"
+            >
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Amount"
+                    android:textColor="#757575"
+                    android:textSize="12sp"/>
+                <TextView
+                    android:id="@+id/txtTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹0"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#2E7D32"/>
+            </LinearLayout>
 
             <Button
-                android:id="@+id/browseProductBtn"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Browse Products"
-                android:textAllCaps="false"
+                android:id="@+id/payBtn"
+                android:layout_width="160dp"
+                android:layout_height="54dp"
+                android:text="PAY NOW"
                 android:backgroundTint="@color/green"
                 android:textColor="@color/white"
                 android:textSize="16sp"
-                android:visibility="gone"
-                />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvCart"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_cart"/>
-
-            <!-- Cart Totals Section (matches website) -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardCartTotals"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="8dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                android:visibility="visible"
-                tools:visibility="visible"
-                android:backgroundTint="@color/white"
-                >
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="CART TOTALS"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="#212121"
-                        android:layout_marginBottom="12dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingVertical="8dp">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Subtotal (Before Tax)"
-                            android:textColor="#616161"/>
-                        <TextView
-                            android:id="@+id/txtSummarySubtotal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="₹0.00"
-                            android:textColor="#212121"
-                            android:textStyle="bold"/>
-                    </LinearLayout>
-
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F5F5F5"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingVertical="8dp">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Total Tax (GST)"
-                            android:textColor="#616161"/>
-                        <TextView
-                            android:id="@+id/txtSummaryTax"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="₹0.00"
-                            android:textColor="#212121"
-                            android:textStyle="bold"/>
-                    </LinearLayout>
-
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingVertical="12dp">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Grand Total"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="#212121"/>
-                        <TextView
-                            android:id="@+id/txtSummaryTotal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="₹0.00"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="#2E7D32"/>
-                    </LinearLayout>
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Recommended Section (Horizontal Scroll) -->
-            <TextView
-                android:id="@+id/txtRecommendedTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Recommended for You"
-                android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_marginTop="24dp"
-                android:textColor="@color/black" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvRecommended"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_product_horizontal_cart" />
-
-            <HorizontalScrollView
-                android:id="@+id/skeleton_recommended"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none"
-                android:visibility="gone">
-                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
-                    <include layout="@layout/item_skeleton_product"/>
-                    <include layout="@layout/item_skeleton_product"/>
-                    <include layout="@layout/item_skeleton_product"/>
-                </LinearLayout>
-            </HorizontalScrollView>
+                app:cornerRadius="8dp"/>
 
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
-    <LinearLayout
-        android:id="@+id/payLinearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/border_for_btn"
-        android:elevation="8dp"
-        android:padding="16dp"
-        android:visibility="gone"
-        tools:visibility="visible"
-        android:layout_marginLeft="-5dp"
-        android:layout_marginRight="-5dp"
-        >
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Total Amount"
-                android:textColor="#757575"
-                android:textSize="12sp"/>
-            <TextView
-                android:id="@+id/txtTotal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="₹0"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="#2E7D32"/>
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/payBtn"
-            android:layout_width="160dp"
-            android:layout_height="54dp"
-            android:text="PAY NOW"
-            android:backgroundTint="@color/green"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:cornerRadius="8dp"/>
-
     </LinearLayout>
 
     <include layout="@layout/layout_bottom_nav" />
