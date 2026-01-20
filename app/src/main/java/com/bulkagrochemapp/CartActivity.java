@@ -182,6 +182,10 @@ public class CartActivity extends BaseActivity {
         if (rvCart != null && rvCart.getAdapter() != null) {
             rvCart.getAdapter().notifyDataSetChanged();
         }
+        // Refresh recommended adapter to sync wishlist icon state
+        if (rvRecommended != null && rvRecommended.getAdapter() != null) {
+            rvRecommended.getAdapter().notifyDataSetChanged();
+        }
         updateCartUI();
     }
 
