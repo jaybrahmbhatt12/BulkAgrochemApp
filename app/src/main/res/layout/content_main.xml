@@ -38,15 +38,34 @@
             android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-        <!-- 🎯 Offer Banner -->
-
-        <ImageView
+        <!-- 🎯 Banner Skeleton Container -->
+        <FrameLayout
+            android:id="@+id/skeleton_banner"
             android:layout_width="match_parent"
             android:layout_height="210dp"
             android:layout_marginTop="12dp"
-            android:contentDescription="Offer Banner"
-            android:scaleType="fitCenter"
-            android:src="@drawable/banner_one" />
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:visibility="visible">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/banner_shimmer_bg" />
+
+            <View
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/shimmer_gradient" />
+        </FrameLayout>
+
+        <!-- 🎯 Offer Banner -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/bannerViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="210dp"
+            android:layout_marginTop="12dp"
+            android:visibility="gone" />
 
 
         <TextView
@@ -78,6 +97,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 
@@ -109,6 +129,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 
@@ -140,6 +161,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         <!-- Hot Sale Title -->
@@ -171,6 +193,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         <!-- Latest Product Title -->
@@ -202,6 +225,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         <!-- Big Product Title -->
@@ -233,6 +257,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         <!-- Top Selling Title -->
@@ -265,6 +290,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </LinearLayout>

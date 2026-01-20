@@ -3,6 +3,7 @@ package com.bulkagrochemapp.network;
 import com.bulkagrochemapp.model.CategoryResponse;
 import com.bulkagrochemapp.model.LocationResponse;
 import com.bulkagrochemapp.model.ProductResponse;
+import com.bulkagrochemapp.model.SliderResponse;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -16,6 +17,11 @@ public interface ApiService {
 
     // All Products Images
     String IMAGE_URL = "https://bulkapi.tiffinworld.com/api/";
+    String BANNER_IMAGE_URL = "https://bulkapi.tiffinworld.com/assets/";
+
+    // Sliders
+    @GET("sliders.php")
+    Call<SliderResponse> getSliders();
 
     // All Products
     @GET("products.php")
