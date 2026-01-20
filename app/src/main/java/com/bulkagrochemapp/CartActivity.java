@@ -18,7 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bulkagrochemapp.adapter.BigProductAdapter;
 import com.bulkagrochemapp.adapter.CartAdapter;
+import com.bulkagrochemapp.adapter.CouponAdapter;
 import com.bulkagrochemapp.model.CartItem;
+import com.bulkagrochemapp.model.CouponResponse;
 import com.bulkagrochemapp.model.Product;
 import com.bulkagrochemapp.model.ProductResponse;
 import com.bulkagrochemapp.network.ApiService;
@@ -40,7 +42,7 @@ import retrofit2.Response;
 
 public class CartActivity extends BaseActivity {
 
-    RecyclerView rvCart, rvRecommended;
+    RecyclerView rvCart, rvRecommended, rvCoupons;
     View skeletonRecommended;
     TextView txtTotal;
     TextView txtEmptyCart;
@@ -71,6 +73,7 @@ public class CartActivity extends BaseActivity {
 
         rvRecommended = findViewById(R.id.rvRecommended);
         skeletonRecommended = findViewById(R.id.skeleton_recommended);
+        rvCoupons = findViewById(R.id.rvCoupons);
         
         // Initialize summary views
         cardCartTotals = findViewById(R.id.cardCartTotals);
@@ -86,6 +89,7 @@ public class CartActivity extends BaseActivity {
         
         // Use Horizontal LinearLayoutManager for Recommended Section
         rvRecommended.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        rvCoupons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         if (browseProductBtn != null) {
             browseProductBtn.setOnClickListener(v -> {
@@ -155,6 +159,7 @@ public class CartActivity extends BaseActivity {
         new ItemTouchHelper(swipeCallback).attachToRecyclerView(rvCart);
 
         loadRecommendedProducts();
+        loadCoupons();
         updateCartUI();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -229,6 +234,23 @@ public class CartActivity extends BaseActivity {
                     skeletonRecommended.setVisibility(View.GONE);
                 }
                 Log.e("CART_API", "Error loading recommendations: " + t.getMessage());
+            }
+        });
+    }
+
+    private void loadCoupons() {
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.getCoupons().enqueue(new Callback<CouponResponse>() {
+            @Override
+            public void onResponse(Call<CouponResponse> call, Response<CouponResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    rvCoupons.setAdapter(new CouponAdapter(CartActivity.this, response.body().getData()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CouponResponse> call, Throwable t) {
+                Log.e("COUPON_API", "Error loading coupons: " + t.getMessage());
             }
         });
     }

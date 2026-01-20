@@ -275,6 +275,27 @@
                 android:textStyle="bold"
                 app:cornerRadius="8dp"/>
 
+            <!-- Coupons Section (Horizontal Scroll) -->
+            <TextView
+                android:id="@+id/txtCouponsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Available Coupons"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:textColor="@color/black" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCoupons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_coupon" />
+
         </LinearLayout>
     </LinearLayout>
 

@@ -1,6 +1,7 @@
 package com.bulkagrochemapp.network;
 
 import com.bulkagrochemapp.model.CategoryResponse;
+import com.bulkagrochemapp.model.CouponResponse;
 import com.bulkagrochemapp.model.LocationResponse;
 import com.bulkagrochemapp.model.ProductResponse;
 import com.bulkagrochemapp.model.SliderResponse;
@@ -26,6 +27,10 @@ public interface ApiService {
     // All Products
     @GET("products.php")
     Call<ProductResponse> getProducts();
+
+    // Coupons
+    @GET("coupons.php")
+    Call<CouponResponse> getCoupons();
 
     // Trending Products
     @GET("products.php")
