@@ -47,7 +47,7 @@ public class CartActivity extends BaseActivity {
     TextView txtTotal;
     TextView txtEmptyCart;
     ImageButton btnOrders;
-    Button browseProductBtn;
+    Button browseProductBtn, payBtn;
 
     private boolean flag=false;
 
@@ -69,6 +69,7 @@ public class CartActivity extends BaseActivity {
         txtEmptyCart = findViewById(R.id.txtEmptyCart);
         btnOrders = findViewById(R.id.btnOrders);
         browseProductBtn = findViewById(R.id.browseProductBtn);
+        payBtn = findViewById(R.id.payBtn);
         payLinearLayout = findViewById(R.id.payLinearLayout);
 
         rvRecommended = findViewById(R.id.rvRecommended);
@@ -99,6 +100,13 @@ public class CartActivity extends BaseActivity {
             });
         }
 
+        if (payBtn != null) {
+            payBtn.setOnClickListener(v -> {
+                Intent intent = new Intent(CartActivity.this, OrderSummaryActivity.class);
+                startActivity(intent);
+            });
+        }
+
         CartAdapter adapter = new CartAdapter(
                 this,
                 CartManager.getCartItems(),
@@ -112,9 +120,6 @@ public class CartActivity extends BaseActivity {
         // Redirect to Orders Activity
         if (btnOrders != null) {
             btnOrders.setOnClickListener(v -> {
-                // Assuming you have an OrdersActivity, if not, you can replace it with the correct activity name
-                // Intent intent = new Intent(CartActivity.this, OrdersActivity.class);
-                // startActivity(intent);
                 Snackbar.make(v, "Orders feature coming soon", Snackbar.LENGTH_SHORT).show();
             });
         }
@@ -216,13 +221,11 @@ public class CartActivity extends BaseActivity {
                     List<Product> allProducts = response.body().getData();
                     List<Product> recommendedList = new ArrayList<>();
                     for (Product product : allProducts) {
-                        // Using getIsBig() to match content_main.xml's Big Product logic
                         if (product.getIsBig() >= 1) {
                             recommendedList.add(product);
                         }
                     }
 
-                    // Using BigProductAdapter with item_product_horizontal_cart layout to keep card size
                     rvRecommended.setAdapter(new BigProductAdapter(CartActivity.this, recommendedList, R.layout.item_product_horizontal_cart));
                 }
             }
@@ -267,8 +270,7 @@ public class CartActivity extends BaseActivity {
             browseProductBtn.setVisibility(View.VISIBLE);
             rvCart.setVisibility(View.GONE);
             payLinearLayout.setVisibility(View.GONE);
-            // reset values to 0
-            if (cardCartTotals != null) cardCartTotals.setVisibility(View.VISIBLE);
+            if (cardCartTotals != null) cardCartTotals.setVisibility(View.GONE);
             
             txtTotal.setText("₹0.00");
             if (txtSummarySubtotal != null) txtSummarySubtotal.setText("₹0.00");
