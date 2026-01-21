@@ -50,6 +50,7 @@ import com.bulkagrochemapp.adapter.MostPopularProductAdapter;
 import com.bulkagrochemapp.adapter.SearchSuggestionAdapter;
 import com.bulkagrochemapp.adapter.TopSellingProductAdapter;
 import com.bulkagrochemapp.adapter.TrendingProductAdapter;
+import com.bulkagrochemapp.model.CartItem;
 import com.bulkagrochemapp.model.Category;
 import com.bulkagrochemapp.model.CategoryResponse;
 import com.bulkagrochemapp.model.CouponResponse;
@@ -59,6 +60,7 @@ import com.bulkagrochemapp.model.Slider;
 import com.bulkagrochemapp.model.SliderResponse;
 import com.bulkagrochemapp.network.ApiService;
 import com.bulkagrochemapp.network.RetrofitClient;
+import com.bulkagrochemapp.utils.CartManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
@@ -242,6 +244,9 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         loadCategories();
         loadTrendingProducts();
         loadCoupons();
+        
+        // Initial fetch of cart items from database on relaunch
+        CartManager.fetchCartFromDatabase(this, null);
 
         btnWishlist = findViewById(R.id.btnWishlist);
 
@@ -462,6 +467,24 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
                     rvLatestProduct.setAdapter(new LatestProductAdapter(MainActivity.this, latestList));
                     rvBigProduct.setAdapter(new BigProductAdapter(MainActivity.this, bigList));
                     rvTopSelling.setAdapter(new TopSellingProductAdapter(MainActivity.this, topList));
+                    
+                    // After products are loaded, re-fetch cart to update item details (name, image, etc.)
+                    CartManager.fetchCartFromDatabase(MainActivity.this, () -> {
+                        List<CartItem> cartItems = CartManager.getCartItems();
+                        for (CartItem item : cartItems) {
+                            for (Product p : allProducts) {
+                                if (p.getId() == item.getProductId()) {
+                                    item.setName(p.getName());
+                                    item.setImage(p.getImage());
+                                    item.setPrice(p.getPrice());
+                                    item.setStockType(p.getStocktype());
+                                    item.setMinQuantity(p.getMinimumQty());
+                                    item.setTaxRate(p.getTaxRate());
+                                    break;
+                                }
+                            }
+                        }
+                    });
                 }
             }
             @Override

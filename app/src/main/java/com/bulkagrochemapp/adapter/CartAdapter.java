@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bulkagrochemapp.ProductDetailActivity;
 import com.bulkagrochemapp.R;
 import com.bulkagrochemapp.model.CartItem;
+import com.bulkagrochemapp.utils.CartManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
@@ -64,10 +65,16 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         holder.txtSubtotal.setText(String.format(Locale.getDefault(), "₹%.2f", item.getSubtotalAmount()));
 
 
-        Picasso.get()
-                .load(item.getImage())
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .into(holder.imgProduct);
+        String imageUrl = item.getImage();
+        if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+            Picasso.get()
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .error(R.drawable.ic_launcher_foreground)
+                    .into(holder.imgProduct);
+        } else {
+            holder.imgProduct.setImageResource(R.drawable.ic_launcher_foreground);
+        }
 
         // Redirect to ProductDetailActivity on click
         holder.itemView.setOnClickListener(v -> {
@@ -87,6 +94,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             item.increaseQty();
             notifyItemChanged(holder.getAdapterPosition());
             totalUpdater.run();
+            CartManager.updateCartItem(context, item);
         });
 
         // ➖ Decrease Quantity
@@ -102,6 +110,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             } else {
                 notifyItemChanged(currentPos);
                 totalUpdater.run();
+                CartManager.updateCartItem(context, item);
             }
         });
 
@@ -125,6 +134,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         notifyItemRangeChanged(position, cartList.size());
         totalUpdater.run();
 
+        // Note: For full production, you'd likely want a delete API call here too.
+        // But since the user only provided add and fetch, we'll stick to those.
+
         // Show Snackbar with Undo option
         Snackbar.make(view, deletedItem.getName() + " removed", 5000)
                 .setAction("UNDO", v -> {
@@ -132,6 +144,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                     notifyItemInserted(deletedPosition);
                     notifyItemRangeChanged(deletedPosition, cartList.size());
                     totalUpdater.run();
+                    CartManager.updateCartItem(context, deletedItem);
                 }).show();
     }
 

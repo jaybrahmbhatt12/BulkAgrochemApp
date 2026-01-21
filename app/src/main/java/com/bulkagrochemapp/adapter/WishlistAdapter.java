@@ -92,7 +92,7 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
             cartItem.setQuantity(qty[0]);
 
             // Add to Cart
-            CartManager.addToCart(cartItem);
+            CartManager.addToCart(context, cartItem);
 
             // Remove from Wishlist
             WishlistManager.removeFromWishlist(product.getId());

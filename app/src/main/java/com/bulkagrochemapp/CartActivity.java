@@ -9,6 +9,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -40,7 +41,7 @@ import retrofit2.Response;
 
 //=========== Cart Activity ===========//
 
-public class CartActivity extends BaseActivity {
+public class CartActivity extends BaseActivity implements CartManager.OnCartDataChangedListener {
 
     RecyclerView rvCart, rvRecommended, rvCoupons;
     View skeletonRecommended;
@@ -48,6 +49,7 @@ public class CartActivity extends BaseActivity {
     TextView txtEmptyCart;
     ImageButton btnOrders;
     Button browseProductBtn;
+    ProgressBar progressBarCart;
 
     private boolean flag=false;
 
@@ -70,6 +72,7 @@ public class CartActivity extends BaseActivity {
         btnOrders = findViewById(R.id.btnOrders);
         browseProductBtn = findViewById(R.id.browseProductBtn);
         payLinearLayout = findViewById(R.id.payLinearLayout);
+        progressBarCart = findViewById(R.id.progressBarCart);
 
         rvRecommended = findViewById(R.id.rvRecommended);
         skeletonRecommended = findViewById(R.id.skeleton_recommended);
@@ -112,9 +115,6 @@ public class CartActivity extends BaseActivity {
         // Redirect to Orders Activity
         if (btnOrders != null) {
             btnOrders.setOnClickListener(v -> {
-                // Assuming you have an OrdersActivity, if not, you can replace it with the correct activity name
-                // Intent intent = new Intent(CartActivity.this, OrdersActivity.class);
-                // startActivity(intent);
                 Snackbar.make(v, "Orders feature coming soon", Snackbar.LENGTH_SHORT).show();
             });
         }
@@ -160,7 +160,20 @@ public class CartActivity extends BaseActivity {
 
         loadRecommendedProducts();
         loadCoupons();
+        
+        // Register listener for real-time updates when data is synced
+        CartManager.addDataChangedListener(this);
+        
+        // Initial refresh
         updateCartUI();
+        
+        // Ensure data is fresh
+        if (CartManager.getCartItems().isEmpty()) {
+            fetchCartAndProducts();
+        } else {
+            // Even if not empty, trigger a sync to get latest details if they were "Loading..."
+            syncCurrentCart();
+        }
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -180,6 +193,57 @@ public class CartActivity extends BaseActivity {
         });
     }
 
+    private void syncCurrentCart() {
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.getProducts().enqueue(new Callback<ProductResponse>() {
+            @Override
+            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    CartManager.syncWithProducts(response.body().getData());
+                }
+            }
+            @Override
+            public void onFailure(Call<ProductResponse> call, Throwable t) {}
+        });
+    }
+
+    private void fetchCartAndProducts() {
+        if (progressBarCart != null) progressBarCart.setVisibility(View.VISIBLE);
+        
+        CartManager.fetchCartFromDatabase(this, () -> {
+            ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+            apiService.getProducts().enqueue(new Callback<ProductResponse>() {
+                @Override
+                public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                    if (progressBarCart != null) progressBarCart.setVisibility(View.GONE);
+                    if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                        CartManager.syncWithProducts(response.body().getData());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ProductResponse> call, Throwable t) {
+                    if (progressBarCart != null) progressBarCart.setVisibility(View.GONE);
+                }
+            });
+        });
+    }
+
+    @Override
+    public void onDataChanged() {
+        runOnUiThread(() -> {
+            if (rvCart != null && rvCart.getAdapter() != null) {
+                rvCart.getAdapter().notifyDataSetChanged();
+            }
+            updateCartUI();
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CartManager.removeDataChangedListener(this);
+    }
 
     @Override
     protected void onResume() {

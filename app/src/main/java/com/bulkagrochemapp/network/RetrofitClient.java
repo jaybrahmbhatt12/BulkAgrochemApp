@@ -29,7 +29,7 @@ public class RetrofitClient {
 
             retrofit = new Retrofit.Builder()
                     .baseUrl("https://bulkapi.tiffinworld.com/api/")
-//                    .baseUrl("http://192.168.1.33/bulkagro_api/api/")
+//                    .baseUrl("http://192.168.1.33/Unicrop_BulkAgro_app_api/bulk-android-api/api/")
                     .client(okHttpClient)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();

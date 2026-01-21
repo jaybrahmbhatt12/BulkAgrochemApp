@@ -243,7 +243,7 @@ public class ProductDetailActivity extends BaseActivity {
                 cartItem = new CartItem(productId, intentName, intentImage, currentUnitPrice, intentMinQty, intentStocktype, 18.0);
             }
             cartItem.setQuantity(quantity);
-            CartManager.addToCart(cartItem);
+            CartManager.addToCart(ProductDetailActivity.this, cartItem);
 
             // Show Snackbar with "Go to Cart" action
             Snackbar snackbar = Snackbar.make(v, (product != null ? product.getName() : intentName) +" Added to cart", Snackbar.LENGTH_LONG);

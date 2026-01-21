@@ -168,10 +168,10 @@
         <ImageView
             android:id="@+id/banner_middle"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
+            android:layout_height="204dp"
             android:layout_marginTop="16dp"
             android:src="@drawable/banner_one"
-            android:scaleType="centerCrop"
+            android:scaleType="fitCenter"
             android:background="@drawable/bg_coupon_card"
             android:clipToOutline="true" />
 

@@ -59,10 +59,24 @@ public interface ApiService {
     );
 
     // Add to Cart
-    @GET("add_to_cart.php")
-    Call<ProductResponse> addToCart(
-            @Query("product_id") int productId,
-            @Query("quantity") int quantity
+    @FormUrlEncoded
+    @POST("add_to_cart.php")
+    Call<ResponseBody> addToCart(
+            @Field("uid") String uid,
+            @Field("pid") int pid,
+            @Field("qty") int qty,
+            @Field("size_price") String sizePrice,
+            @Field("values") String values,
+            @Field("prices") String prices,
+            @Field("tax") String tax,
+            @Field("total_prices") double totalPrices
+    );
+
+    // Fetch Cart
+    @FormUrlEncoded
+    @POST("fetch_cart.php")
+    Call<ResponseBody> fetchCart(
+            @Field("uid") String uid
     );
 
     // Fetch India States and Cities from backend assets

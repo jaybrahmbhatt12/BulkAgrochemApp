@@ -32,6 +32,13 @@ public class CartItem implements Serializable {
     public int getQuantity() { return quantity; }
     public int getMinQuantity() { return minQuantity; }
 
+    public void setName(String name) { this.name = name; }
+    public void setImage(String image) { this.image = image; }
+    public void setPrice(double price) { this.price = price; }
+    public void setStockType(String stockType) { this.stockType = stockType; }
+    public void setMinQuantity(int minQuantity) { this.minQuantity = minQuantity; }
+    public void setTaxRate(double taxRate) { this.taxRate = taxRate; }
+
     public void setQuantity(int quantity) { this.quantity = quantity; }
 
     public void increaseQty() { quantity += minQuantity; }
