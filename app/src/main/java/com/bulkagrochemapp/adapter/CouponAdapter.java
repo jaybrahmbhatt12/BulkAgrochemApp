@@ -69,7 +69,7 @@ public class CouponAdapter extends RecyclerView.Adapter<CouponAdapter.CouponView
             holder.txtCouponDescription.setVisibility(View.GONE);
         }
 
-        holder.txtCouponExpiry.setText("Ends: " + formatDate(coupon.getEndDate()));
+        holder.txtCouponExpiry.setText("Valid Upto: " + formatDate(coupon.getEndDate()));
     }
 
     private String formatDate(String dateStr) {

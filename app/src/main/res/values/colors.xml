@@ -10,6 +10,7 @@
     <color name="colorOnPrimary">@color/white</color>
     <color name="my_primary_color">#FF0000</color>
     <color name="light_green">#57D760</color>
+    <color name="yellow">#FFD700</color>
 
     <!-- Semantic colors for theme support (these change in dark mode) -->
     <color name="background_color">#F8F9FA</color>

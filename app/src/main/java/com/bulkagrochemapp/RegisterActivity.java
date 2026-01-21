@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -46,9 +47,13 @@ public class RegisterActivity extends AppCompatActivity {
         View mainView = findViewById(R.id.main);
         if (mainView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
-                int paddingTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
-                v.setPadding(v.getPaddingLeft(), paddingTop, v.getPaddingRight(), v.getPaddingBottom());
-                return insets;
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+                
+                int paddingBottom = Math.max(systemBars.bottom, ime.bottom);
+                v.setPadding(v.getPaddingLeft(), systemBars.top, v.getPaddingRight(), paddingBottom);
+                
+                return WindowInsetsCompat.CONSUMED;
             });
         }
 
@@ -205,9 +210,10 @@ public class RegisterActivity extends AppCompatActivity {
                         String message = jsonObject.optString("message");
 
                         if ("success".equalsIgnoreCase(status)) {
-                            saveUserSession(name, email, phone);
-                            Toast.makeText(RegisterActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                            Toast.makeText(RegisterActivity.this, "Registration Successful! Please login.", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
                             finish();
                         } else {
                             Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_SHORT).show();
@@ -226,15 +232,5 @@ public class RegisterActivity extends AppCompatActivity {
                 Toast.makeText(RegisterActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void saveUserSession(String name, String email, String phone) {
-        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean("is_logged_in", true);
-        editor.putString("name", name);
-        editor.putString("email", email);
-        editor.putString("phone", phone);
-        editor.apply();
     }
 }

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -45,9 +46,13 @@ public class LoginActivity extends AppCompatActivity {
         View mainView = findViewById(R.id.main);
         if (mainView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
-                int paddingTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
-                v.setPadding(v.getPaddingLeft(), paddingTop, v.getPaddingRight(), v.getPaddingBottom());
-                return insets;
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+                
+                int paddingBottom = Math.max(systemBars.bottom, ime.bottom);
+                v.setPadding(v.getPaddingLeft(), systemBars.top, v.getPaddingRight(), paddingBottom);
+                
+                return WindowInsetsCompat.CONSUMED;
             });
         }
 
@@ -204,11 +209,19 @@ public class LoginActivity extends AppCompatActivity {
             editor.putString("name", userData.optString("name"));
             editor.putString("email", userData.optString("email"));
             editor.putString("phone", userData.optString("phone"));
-            editor.putString("country", userData.optString("country"));
-            editor.putString("state", userData.optString("state"));
-            editor.putString("city", userData.optString("city"));
-            editor.putString("zip", userData.optString("zip"));
-            editor.putString("address", userData.optString("address"));
+            
+            // Fix: Check for "null" string or empty values from server
+            String country = userData.optString("country");
+            String state = userData.optString("state");
+            String city = userData.optString("city");
+            String zip = userData.optString("zip");
+            String address = userData.optString("address");
+
+            editor.putString("country", (country == null || country.equals("null")) ? "" : country);
+            editor.putString("state", (state == null || state.equals("null")) ? "" : state);
+            editor.putString("city", (city == null || city.equals("null")) ? "" : city);
+            editor.putString("zip", (zip == null || zip.equals("null")) ? "" : zip);
+            editor.putString("address", (address == null || address.equals("null")) ? "" : address);
         }
         
         editor.apply();
