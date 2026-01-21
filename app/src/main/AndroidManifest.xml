@@ -33,6 +33,7 @@
         <activity android:name=".CartActivity" />
         <activity android:name=".OrderSummaryActivity" />
         <activity android:name=".ChangeAddressActivity" />
+        <activity android:name=".PageDetailActivity" />
         <activity android:name=".WishlistActivity" android:parentActivityName=".MainActivity" />
 
         <!-- LoginActivity -->

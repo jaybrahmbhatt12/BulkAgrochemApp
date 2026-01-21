@@ -102,4 +102,10 @@ public interface ApiService {
             @Field("zip") String zip,
             @Field("address") String address
     );
+
+    // Fetch dynamic pages (About Us, Privacy Policy, etc.)
+    @GET("pages.php")
+    Call<ResponseBody> getPageContent(
+            @Query("slug") String slug
+    );
 }

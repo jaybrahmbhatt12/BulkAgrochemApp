@@ -41,7 +41,7 @@ public class OrderSummaryActivity extends AppCompatActivity {
     private Button btnApplyCoupon, btnPayNow;
     private ImageButton btnBack;
     private TextView btnChangeAddress;
-    private TextView txtAddressName, txtAddressTag, txtAddressDetails, txtAddressPhone;
+    private TextView txtAddressName, txtAddressDetails, txtAddressPhone;
     private TextView txtPriceItems, txtDiscountAmount, txtTax, txtTotalAmount, txtBottomTotal, txtCouponStatus;
     private LinearLayout layoutDiscount;
 
@@ -97,7 +97,6 @@ public class OrderSummaryActivity extends AppCompatActivity {
         btnChangeAddress = findViewById(R.id.btnChangeAddress);
         
         txtAddressName = findViewById(R.id.txtAddressName);
-        txtAddressTag = findViewById(R.id.txtAddressTag);
         txtAddressDetails = findViewById(R.id.txtAddressDetails);
         txtAddressPhone = findViewById(R.id.txtAddressPhone);
 
