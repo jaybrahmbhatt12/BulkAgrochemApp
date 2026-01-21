@@ -48,7 +48,7 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
     TextView txtTotal;
     TextView txtEmptyCart;
     ImageButton btnOrders;
-    Button browseProductBtn;
+    Button browseProductBtn, payBtn;
     ProgressBar progressBarCart;
 
     private boolean flag=false;
@@ -71,6 +71,7 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
         txtEmptyCart = findViewById(R.id.txtEmptyCart);
         btnOrders = findViewById(R.id.btnOrders);
         browseProductBtn = findViewById(R.id.browseProductBtn);
+        payBtn = findViewById(R.id.payBtn);
         payLinearLayout = findViewById(R.id.payLinearLayout);
         progressBarCart = findViewById(R.id.progressBarCart);
 
@@ -99,6 +100,13 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
                 Intent intent = new Intent(CartActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
+            });
+        }
+
+        if (payBtn != null) {
+            payBtn.setOnClickListener(v -> {
+                Intent intent = new Intent(CartActivity.this, OrderSummaryActivity.class);
+                startActivity(intent);
             });
         }
 
@@ -160,13 +168,13 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
 
         loadRecommendedProducts();
         loadCoupons();
-        
+
         // Register listener for real-time updates when data is synced
         CartManager.addDataChangedListener(this);
-        
+
         // Initial refresh
         updateCartUI();
-        
+
         // Ensure data is fresh
         if (CartManager.getCartItems().isEmpty()) {
             fetchCartAndProducts();
@@ -209,7 +217,7 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
 
     private void fetchCartAndProducts() {
         if (progressBarCart != null) progressBarCart.setVisibility(View.VISIBLE);
-        
+
         CartManager.fetchCartFromDatabase(this, () -> {
             ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
             apiService.getProducts().enqueue(new Callback<ProductResponse>() {
@@ -280,13 +288,11 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
                     List<Product> allProducts = response.body().getData();
                     List<Product> recommendedList = new ArrayList<>();
                     for (Product product : allProducts) {
-                        // Using getIsBig() to match content_main.xml's Big Product logic
                         if (product.getIsBig() >= 1) {
                             recommendedList.add(product);
                         }
                     }
 
-                    // Using BigProductAdapter with item_product_horizontal_cart layout to keep card size
                     rvRecommended.setAdapter(new BigProductAdapter(CartActivity.this, recommendedList, R.layout.item_product_horizontal_cart));
                 }
             }
@@ -331,8 +337,7 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
             browseProductBtn.setVisibility(View.VISIBLE);
             rvCart.setVisibility(View.GONE);
             payLinearLayout.setVisibility(View.GONE);
-            // reset values to 0
-            if (cardCartTotals != null) cardCartTotals.setVisibility(View.VISIBLE);
+            if (cardCartTotals != null) cardCartTotals.setVisibility(View.GONE);
             
             txtTotal.setText("₹0.00");
             if (txtSummarySubtotal != null) txtSummarySubtotal.setText("₹0.00");
