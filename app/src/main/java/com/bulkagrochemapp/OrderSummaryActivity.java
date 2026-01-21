@@ -1,5 +1,7 @@
 package com.bulkagrochemapp;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,6 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,6 +40,7 @@ public class OrderSummaryActivity extends AppCompatActivity {
     private Button btnApplyCoupon, btnPayNow;
     private ImageButton btnBack;
     private TextView btnChangeAddress;
+    private TextView txtAddressName, txtAddressTag, txtAddressDetails, txtAddressPhone;
     private TextView txtPriceItems, txtDiscountAmount, txtTax, txtTotalAmount, txtBottomTotal, txtCouponStatus;
     private LinearLayout layoutDiscount;
 
@@ -45,18 +50,28 @@ public class OrderSummaryActivity extends AppCompatActivity {
     private double grandTotal = 0;
     private List<Coupon> availableCoupons;
 
+    private final ActivityResultLauncher<Intent> changeAddressLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    loadAddress();
+                }
+            }
+    );
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_summary);
 
         initViews();
+        loadAddress();
         setupOrderList();
         calculateTotals();
         loadCoupons();
 
         btnBack.setOnClickListener(v -> finish());
-
+        
         btnApplyCoupon.setOnClickListener(v -> applyCoupon());
 
         btnPayNow.setOnClickListener(v -> {
@@ -66,7 +81,8 @@ public class OrderSummaryActivity extends AppCompatActivity {
         });
 
         btnChangeAddress.setOnClickListener(v -> {
-            Toast.makeText(this, "Change Address feature coming soon", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(OrderSummaryActivity.this, ChangeAddressActivity.class);
+            changeAddressLauncher.launch(intent);
         });
     }
 
@@ -77,6 +93,11 @@ public class OrderSummaryActivity extends AppCompatActivity {
         btnPayNow = findViewById(R.id.btnPayNow);
         btnBack = findViewById(R.id.btnBack);
         btnChangeAddress = findViewById(R.id.btnChangeAddress);
+        
+        txtAddressName = findViewById(R.id.txtAddressName);
+        txtAddressTag = findViewById(R.id.txtAddressTag);
+        txtAddressDetails = findViewById(R.id.txtAddressDetails);
+        txtAddressPhone = findViewById(R.id.txtAddressPhone);
 
         txtPriceItems = findViewById(R.id.txtPriceItems);
         txtDiscountAmount = findViewById(R.id.txtDiscountAmount);
@@ -85,6 +106,40 @@ public class OrderSummaryActivity extends AppCompatActivity {
         txtBottomTotal = findViewById(R.id.txtBottomTotal);
         txtCouponStatus = findViewById(R.id.txtCouponStatus);
         layoutDiscount = findViewById(R.id.layoutDiscount);
+    }
+
+    private void loadAddress() {
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        String name = prefs.getString("name", "User Name");
+        String phone = prefs.getString("phone", "Phone Number");
+        String address = prefs.getString("address", "");
+        String city = prefs.getString("district", "");
+        String state = prefs.getString("state", "");
+        String zip = prefs.getString("zip", "");
+
+        txtAddressName.setText(name);
+        txtAddressPhone.setText(phone);
+        
+        StringBuilder fullAddress = new StringBuilder();
+        if (!address.isEmpty()) fullAddress.append(address);
+        if (!city.isEmpty()) {
+            if (fullAddress.length() > 0) fullAddress.append(", ");
+            fullAddress.append(city);
+        }
+        if (!state.isEmpty()) {
+            if (fullAddress.length() > 0) fullAddress.append(", ");
+            fullAddress.append(state);
+        }
+        if (!zip.isEmpty()) {
+            if (fullAddress.length() > 0) fullAddress.append(" ");
+            fullAddress.append(zip);
+        }
+
+        if (fullAddress.length() > 0) {
+            txtAddressDetails.setText(fullAddress.toString());
+        } else {
+            txtAddressDetails.setText("Please update your address in profile");
+        }
     }
 
     private void setupOrderList() {
@@ -105,7 +160,7 @@ public class OrderSummaryActivity extends AppCompatActivity {
 
         txtPriceItems.setText(String.format(Locale.getDefault(), "₹%.2f", subtotal));
         txtTax.setText(String.format(Locale.getDefault(), "₹%.2f", tax));
-
+        
         if (discount > 0) {
             layoutDiscount.setVisibility(View.VISIBLE);
             txtDiscountAmount.setText(String.format(Locale.getDefault(), "-₹%.2f", discount));
@@ -168,7 +223,7 @@ public class OrderSummaryActivity extends AppCompatActivity {
                 } else { // Fixed Amount
                     discount = selectedCoupon.getPrice();
                 }
-
+                
                 txtCouponStatus.setVisibility(View.VISIBLE);
                 txtCouponStatus.setText("Coupon applied! Discount: ₹" + String.format("%.2f", discount));
                 txtCouponStatus.setTextColor(getResources().getColor(R.color.green));

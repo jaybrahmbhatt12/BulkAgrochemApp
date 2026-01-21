@@ -38,14 +38,14 @@ public class OrderSummaryAdapter extends RecyclerView.Adapter<OrderSummaryAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         CartItem item = cartItems.get(position);
 
-        holder.txtName.setText(item.getProduct().getName());
+        holder.txtName.setText(item.getName());
         holder.txtQty.setText("Quantity: " + item.getQuantity());
         
-        double lineTotal = item.getProduct().getPrice() * item.getQuantity();
+        double lineTotal = item.getPrice() * item.getQuantity();
         holder.txtPrice.setText(String.format(Locale.getDefault(), "₹%.2f", lineTotal));
 
         Glide.with(context)
-                .load(item.getProduct().getImage())
+                .load(item.getImage())
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(holder.imgProduct);
     }
