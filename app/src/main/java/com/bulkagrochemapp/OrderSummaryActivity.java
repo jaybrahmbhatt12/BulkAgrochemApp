@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bulkagrochemapp.adapter.CouponAdapter;
 import com.bulkagrochemapp.adapter.OrderSummaryAdapter;
 import com.bulkagrochemapp.model.CartItem;
 import com.bulkagrochemapp.model.Coupon;
@@ -35,7 +36,7 @@ import retrofit2.Response;
 
 public class OrderSummaryActivity extends AppCompatActivity {
 
-    private RecyclerView rvOrderItems;
+    private RecyclerView rvOrderItems, rvCoupons;
     private EditText etCoupon;
     private Button btnApplyCoupon, btnPayNow;
     private ImageButton btnBack;
@@ -88,6 +89,7 @@ public class OrderSummaryActivity extends AppCompatActivity {
 
     private void initViews() {
         rvOrderItems = findViewById(R.id.rvOrderItems);
+        rvCoupons = findViewById(R.id.rvCoupons);
         etCoupon = findViewById(R.id.etCoupon);
         btnApplyCoupon = findViewById(R.id.btnApplyCoupon);
         btnPayNow = findViewById(R.id.btnPayNow);
@@ -106,6 +108,8 @@ public class OrderSummaryActivity extends AppCompatActivity {
         txtBottomTotal = findViewById(R.id.txtBottomTotal);
         txtCouponStatus = findViewById(R.id.txtCouponStatus);
         layoutDiscount = findViewById(R.id.layoutDiscount);
+
+        rvCoupons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
     }
 
     private void loadAddress() {
@@ -179,6 +183,10 @@ public class OrderSummaryActivity extends AppCompatActivity {
             public void onResponse(Call<CouponResponse> call, Response<CouponResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     availableCoupons = response.body().getData();
+                    if (availableCoupons != null) {
+                        CouponAdapter adapter = new CouponAdapter(OrderSummaryActivity.this, availableCoupons);
+                        rvCoupons.setAdapter(adapter);
+                    }
                 }
             }
 
@@ -210,27 +218,27 @@ public class OrderSummaryActivity extends AppCompatActivity {
         }
 
         if (selectedCoupon != null) {
-            // Check minimum purchase amount
+            // Check minimum purchase amount (above_price)
             if (subtotal < selectedCoupon.getAbovePrice()) {
                 txtCouponStatus.setVisibility(View.VISIBLE);
-                txtCouponStatus.setText("Minimum purchase of ₹" + selectedCoupon.getAbovePrice() + " required");
+                txtCouponStatus.setText("Minimum order of ₹" + String.format("%.0f", selectedCoupon.getAbovePrice()) + " required for this coupon");
                 txtCouponStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
                 discount = 0;
             } else {
-                // Apply discount logic
-                if (selectedCoupon.getType() == 1) { // Percentage
-                    discount = (subtotal * selectedCoupon.getPrice()) / 100;
-                } else { // Fixed Amount
+                // Apply discount logic: type 1 = fixed amount, type 0 = percentage
+                if (selectedCoupon.getType() == 1) { 
                     discount = selectedCoupon.getPrice();
+                } else { 
+                    discount = (subtotal * selectedCoupon.getPrice()) / 100;
                 }
                 
                 txtCouponStatus.setVisibility(View.VISIBLE);
-                txtCouponStatus.setText("Coupon applied! Discount: ₹" + String.format("%.2f", discount));
+                txtCouponStatus.setText(String.format(Locale.getDefault(), "Coupon applied! You saved ₹%.2f", discount));
                 txtCouponStatus.setTextColor(getResources().getColor(R.color.green));
             }
         } else {
             txtCouponStatus.setVisibility(View.VISIBLE);
-            txtCouponStatus.setText("Invalid coupon code");
+            txtCouponStatus.setText("Invalid or expired coupon code");
             txtCouponStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
             discount = 0;
         }
