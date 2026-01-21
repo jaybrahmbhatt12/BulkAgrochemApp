@@ -77,6 +77,12 @@ public class EditProfileActivity extends AppCompatActivity {
             etCountry.setText("India");
             etCountry.setEnabled(false);
         }
+        
+        // Disable editing for phone number
+        if (etPhone != null) {
+            etPhone.setEnabled(false);
+            etPhone.setFocusable(false);
+        }
     }
 
     private void setupToolbar() {
@@ -173,7 +179,7 @@ public class EditProfileActivity extends AppCompatActivity {
         }
 
         String name = etName.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim();
+        String phone = etPhone.getText().toString().trim(); // Still needed for API but read-only in UI
         String email = etEmail.getText().toString().trim();
         String country = "India";
         String state = actvState.getText().toString().trim();
