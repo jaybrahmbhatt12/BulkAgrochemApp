@@ -25,7 +25,7 @@
             android:id="@+id/nav_hot_sale"
             android:orderInCategory="400"
             android:title="Hot Sale"
-            android:icon="@drawable/ic_hot_sale"/>
+            android:icon="@drawable/ic_fire"/>
         <item
             android:id="@+id/nav_latest_product"
             android:orderInCategory="500"

@@ -10,7 +10,7 @@
         android:title="Cart" />
     <item
         android:id="@+id/nav_sale"
-        android:icon="@drawable/ic_hot_sale"
+        android:icon="@drawable/ic_fire"
         android:title="Sale" />
     <item
         android:id="@+id/nav_account"

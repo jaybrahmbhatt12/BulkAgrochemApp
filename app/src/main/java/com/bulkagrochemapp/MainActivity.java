@@ -1,5 +1,6 @@
 package com.bulkagrochemapp;
 
+import android.animation.ObjectAnimator;
 import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -85,7 +86,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private NestedScrollView nestedScrollView;
-    private TextView categoriesTitle, trendingProductsTitle, mostPopularTitle, hotSaleTitle, txtCouponsTitle;
+    private TextView categoriesTitle, trendingProductsTitle, mostPopularTitle, hotSaleTitle, txtCouponsTitle, txtLatestTitle, txtBigTitle, txtTopSellingTitle;
     private List<Category> categoryList = new ArrayList<>();
     private List<MenuItem> categoryMenuItems = new ArrayList<>();
     private boolean areCategoriesVisible = false;
@@ -105,6 +106,11 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         nestedScrollView = findViewById(R.id.main);
+
+        // Ensure icons show in their original colors
+        if (navigationView != null) {
+            navigationView.setItemIconTintList(null);
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.appBarLayout), (v, insets) -> {
             int top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
@@ -179,6 +185,9 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         mostPopularTitle = findViewById(R.id.most_popular_title);
         hotSaleTitle = findViewById(R.id.hot_sale_title);
         txtCouponsTitle = findViewById(R.id.txtCouponsTitle);
+        txtLatestTitle = findViewById(R.id.txtLatestProduct);
+        txtBigTitle = findViewById(R.id.txtBigProduct);
+        txtTopSellingTitle = findViewById(R.id.txtTopSelling);
 
         if (GoUp != null) {
             GoUp.setOnClickListener(v -> {
@@ -544,7 +553,76 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_categories_toggle) {
+            toggleCategoriesInMenu();
+            return true;
+        }
+
+        View targetView = null;
+
+        if (id == R.id.nav_trending_products) {
+            targetView = trendingProductsTitle;
+        } else if (id == R.id.nav_most_popular) {
+            targetView = mostPopularTitle;
+        } else if (id == R.id.nav_hot_sale) {
+            targetView = hotSaleTitle;
+        } else if (id == R.id.nav_latest_product) {
+            targetView = txtLatestTitle;
+        } else if (id == R.id.nav_big_product) {
+            targetView = txtBigTitle;
+        } else if (id == R.id.nav_top_selling) {
+            targetView = txtTopSellingTitle;
+        }
+
+        if (targetView != null) {
+            final View viewToScrollTo = targetView;
+            drawerLayout.closeDrawers();
+            new Handler().postDelayed(() -> {
+                if (nestedScrollView != null) {
+                    // Slower smooth scroll using ObjectAnimator for a better experience
+                    ObjectAnimator.ofInt(nestedScrollView, "scrollY", viewToScrollTo.getTop())
+                            .setDuration(1500) // 1.5 seconds for a smooth, slow scroll
+                            .start();
+                }
+            }, 300); // Small delay to allow drawer to close
+            return true;
+        }
+
+        // Check if it's a dynamic category item
+        for (Category cat : categoryList) {
+            if (id == cat.getId()) {
+                Intent intent = new Intent(this, ProductListActivity.class);
+                intent.putExtra("category_id", cat.getId());
+                intent.putExtra("category_name", cat.getName());
+                startActivity(intent);
+                drawerLayout.closeDrawers();
+                return true;
+            }
+        }
+
         drawerLayout.closeDrawers();
-        return true;
+        return false;
+    }
+
+    private void toggleCategoriesInMenu() {
+        Menu menu = navigationView.getMenu();
+        if (areCategoriesVisible) {
+            // Hide categories
+            for (MenuItem item : categoryMenuItems) {
+                menu.removeItem(item.getItemId());
+            }
+            categoryMenuItems.clear();
+        } else {
+            // Show categories
+            int order = 101;
+            for (Category cat : categoryList) {
+                MenuItem item = menu.add(R.id.nav_group, cat.getId(), order++, cat.getName());
+                // Removed icon from sub-categories as requested
+                categoryMenuItems.add(item);
+            }
+        }
+        areCategoriesVisible = !areCategoriesVisible;
     }
 }

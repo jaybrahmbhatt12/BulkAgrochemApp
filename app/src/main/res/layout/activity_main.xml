@@ -69,7 +69,7 @@
             android:layout_gravity="start"
             android:background="@android:color/white"
             app:headerLayout="@layout/nav_header_main"
-            app:itemIconTint="@color/black"
+            app:itemIconTint="@null"
             app:itemTextColor="@color/black"
             app:menu="@menu/drawer_menu"
             app:itemBackground="@drawable/menu_divider_bg"/>
