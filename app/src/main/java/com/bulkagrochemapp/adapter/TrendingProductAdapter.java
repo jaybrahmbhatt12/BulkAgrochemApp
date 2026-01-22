@@ -140,10 +140,10 @@ public class TrendingProductAdapter
             holder.btnWishlist.startAnimation(scaleAnim);
 
             if (WishlistManager.isInWishlist(product.getId())) {
-                WishlistManager.removeFromWishlist(product.getId());
+                WishlistManager.removeFromWishlistWithSync(context, product.getId());
                 Toast.makeText(context, product.getName() + " removed from wishlist", Toast.LENGTH_SHORT).show();
             } else {
-                WishlistManager.addToWishlist(product);
+                WishlistManager.addToWishlistWithSync(context, product);
                 Toast.makeText(context, product.getName() + " added to wishlist", Toast.LENGTH_SHORT).show();
             }
             updateWishlistIcon(holder.btnWishlist, product.getId());

@@ -122,4 +122,24 @@ public interface ApiService {
     Call<ResponseBody> getPageContent(
             @Query("slug") String slug
     );
+
+    @FormUrlEncoded
+    @POST("add_to_wishlist.php")
+    Call<ResponseBody> addToWishlist(
+            @Field("user_id") String userId,
+            @Field("product_id") int productId
+    );
+
+    @FormUrlEncoded
+    @POST("get_wishlist.php")
+    Call<ResponseBody> getWishlist(
+            @Field("user_id") String userId
+    );
+
+    @FormUrlEncoded
+    @POST("delete_wishlist_item.php")
+    Call<ResponseBody> removeFromWishlist(
+            @Field("user_id") String userId,
+            @Field("product_id") int productId
+    );
 }

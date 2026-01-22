@@ -70,7 +70,7 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
         });
 
         holder.btnRemove.setOnClickListener(v -> {
-            WishlistManager.removeFromWishlist(product.getId());
+            WishlistManager.removeFromWishlistWithSync(context, product.getId());
             int currentPos = holder.getAdapterPosition();
             if (currentPos != RecyclerView.NO_POSITION) {
                 wishlist.remove(currentPos);
@@ -97,7 +97,7 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
             CartManager.addToCart(context, cartItem);
 
             // Remove from Wishlist
-            WishlistManager.removeFromWishlist(product.getId());
+            WishlistManager.removeFromWishlistWithSync(context, product.getId());
             int currentPos = holder.getAdapterPosition();
             if (currentPos != RecyclerView.NO_POSITION) {
                 wishlist.remove(currentPos);

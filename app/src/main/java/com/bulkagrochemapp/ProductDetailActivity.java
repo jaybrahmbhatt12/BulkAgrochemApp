@@ -197,10 +197,10 @@ public class ProductDetailActivity extends BaseActivity {
                     btnWishlistDetail.startAnimation(scaleAnim);
 
                     if (WishlistManager.isInWishlist(product.getId())) {
-                        WishlistManager.removeFromWishlist(product.getId());
+                        WishlistManager.removeFromWishlistWithSync(this, product.getId());
                         Toast.makeText(this, product.getName() + " removed from wishlist", Toast.LENGTH_SHORT).show();
                     } else {
-                        WishlistManager.addToWishlist(product);
+                        WishlistManager.addToWishlistWithSync(this, product);
                         Toast.makeText(this, product.getName() + " added to wishlist", Toast.LENGTH_SHORT).show();
                     }
                     updateWishlistIcon();
@@ -247,7 +247,7 @@ public class ProductDetailActivity extends BaseActivity {
 
             // Remove from Wishlist if it exists there
             if (productId != 0) {
-                WishlistManager.removeFromWishlist(productId);
+                WishlistManager.removeFromWishlistWithSync(this, productId);
                 updateWishlistIcon();
             }
 
