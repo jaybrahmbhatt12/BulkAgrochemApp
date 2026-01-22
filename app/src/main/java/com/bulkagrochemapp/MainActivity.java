@@ -2,6 +2,7 @@ package com.bulkagrochemapp;
 
 import android.animation.ObjectAnimator;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -29,6 +31,7 @@ import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
@@ -77,6 +80,8 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
     private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults, rvHotSale, rvLatestProduct, rvBigProduct, rvTopSelling, rvCoupons;
     private View skeletonCategories, skeletonTrending, skeletonPopular, skeletonHotSale, skeletonLatest, skeletonBig, skeletonTopSelling, skeletonBanner;
     private EditText searchEditText;
+    private ImageButton btnClearSearch;
+    private View searchOverlay, searchResultContainer;
     private ViewPager2 bannerViewPager;
     private Handler bannerHandler = new Handler(Looper.getMainLooper());
     private Runnable bannerRunnable;
@@ -103,13 +108,14 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         nestedScrollView = findViewById(R.id.main);
 
-        // Ensure icons show in their original colors
         if (navigationView != null) {
             navigationView.setItemIconTintList(null);
         }
@@ -137,7 +143,44 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             });
         }
 
-        // Initialize Skeletons
+        initViews();
+        initSearch();
+        showAllSkeletons(true);
+
+        loadBanners();
+        loadProducts();
+        loadCategories();
+        loadTrendingProducts();
+        loadCoupons();
+        
+        CartManager.fetchCartFromDatabase(this, null);
+
+        if(btnWishlist != null) {
+            btnWishlist.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, WishlistActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        if (btnPlayVideo != null) {
+            btnPlayVideo.setOnClickListener(v -> showVideoPopup());
+        }
+
+        // Setup Back Press Handler
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (searchResultContainer != null && searchResultContainer.getVisibility() == View.VISIBLE) {
+                    hideSearchOverlay();
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
+    }
+
+    private void initViews() {
         skeletonBanner = findViewById(R.id.skeleton_banner);
         skeletonCategories = findViewById(R.id.skeleton_categories);
         skeletonTrending = findViewById(R.id.skeleton_trending);
@@ -174,11 +217,17 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         rvCoupons = findViewById(R.id.rvCoupons);
         rvCoupons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-
         rvSearchResults = findViewById(R.id.rvSearchResults);
         rvSearchResults.setLayoutManager(new LinearLayoutManager(this));
+        rvSearchResults.setNestedScrollingEnabled(true);
 
         searchEditText = findViewById(R.id.searchEditText);
+        btnClearSearch = findViewById(R.id.btnClearSearch);
+        searchOverlay = findViewById(R.id.searchOverlay);
+        searchResultContainer = findViewById(R.id.searchResultContainer);
+        btnWishlist = findViewById(R.id.btnWishlist);
+        btnPlayVideo = findViewById(R.id.btnPlayVideo);
+        
         fabWhatsapp = findViewById(R.id.fabWhatsapp);
         GoUp = findViewById(R.id.Go_up);
 
@@ -203,7 +252,6 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             String phoneNumber = "+919512017161";
             String message = "I need bulkagrochem product details.";
             String url = "https://api.whatsapp.com/send?phone=" + phoneNumber + "&text=" + message;
-
             try {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(url));
@@ -212,6 +260,11 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
                 Toast.makeText(this, "Whatsapp is not installed on this device", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void initSearch() {
+        suggestionAdapter = new SearchSuggestionAdapter(this, searchResults, this);
+        rvSearchResults.setAdapter(suggestionAdapter);
 
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -219,6 +272,9 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (btnClearSearch != null) {
+                    btnClearSearch.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+                }
                 searchProducts(s.toString());
             }
 
@@ -226,40 +282,63 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             public void afterTextChanged(Editable s) {}
         });
 
+        searchEditText.setOnClickListener(v -> {
+            String query = searchEditText.getText().toString();
+            if (!query.isEmpty()) {
+                showSearchOverlay(query);
+            }
+        });
+
+        searchEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                String query = searchEditText.getText().toString();
+                if (!query.isEmpty()) {
+                    showSearchOverlay(query);
+                }
+            }
+        });
+
+        if (btnClearSearch != null) {
+            btnClearSearch.setOnClickListener(v -> {
+                searchEditText.setText("");
+                hideSearchOverlay();
+            });
+        }
+
+        if (searchOverlay != null) {
+            searchOverlay.setOnClickListener(v -> hideSearchOverlay());
+        }
+
         searchEditText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                if (searchResults.size() == 1) {
+                if (!searchResults.isEmpty()) {
                     onSuggestionClick(searchResults.get(0));
                 }
+                hideKeyboard();
                 return true;
             }
             return false;
         });
+    }
 
-        showAllSkeletons(true);
+    private void showSearchOverlay(String query) {
+        searchProducts(query);
+        if (searchOverlay != null) searchOverlay.setVisibility(View.VISIBLE);
+    }
 
-        //====== API calls ======//
-        loadBanners(); // Fetch from PHP/MySQL
-        loadProducts(); // Load all products and filter
-        loadCategories();
-        loadTrendingProducts();
-        loadCoupons();
-        
-        // Initial fetch of cart items from database on relaunch
-        CartManager.fetchCartFromDatabase(this, null);
+    private void hideSearchOverlay() {
+        if (searchResultContainer != null) searchResultContainer.setVisibility(View.GONE);
+        if (searchOverlay != null) searchOverlay.setVisibility(View.GONE);
+        hideKeyboard();
+    }
 
-        btnWishlist = findViewById(R.id.btnWishlist);
-
-        if(btnWishlist != null) {
-            btnWishlist.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, WishlistActivity.class);
-                startActivity(intent);
-            });
-        }
-
-        btnPlayVideo = findViewById(R.id.btnPlayVideo);
-        if (btnPlayVideo != null) {
-            btnPlayVideo.setOnClickListener(v -> showVideoPopup());
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
         }
     }
 
@@ -267,7 +346,9 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_video_player);
-        dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        }
 
         WebView webView = dialog.findViewById(R.id.webViewVideo);
         Button btnClose = dialog.findViewById(R.id.btnCloseVideo);
@@ -280,12 +361,10 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         webView.setWebViewClient(new WebViewClient());
         webView.setWebChromeClient(new WebChromeClient());
 
-        // YouTube embed URL
         String videoId = "ok6XEDZfLHg";
         String embedUrl = "https://www.youtube.com/embed/" + videoId;
         String html = "<html><body style='margin:0;padding:0;'><iframe width=\"100%\" height=\"100%\" src=\"" + embedUrl + "\" frameborder=\"0\" allowfullscreen></iframe></body></html>";
 
-        // Use loadDataWithBaseURL to fix "Error 153" by providing a valid origin
         webView.loadDataWithBaseURL("https://youtu.be/ok6XEDZfLHg", html, "text/html", "utf-8", null);
 
         btnClose.setOnClickListener(v -> {
@@ -328,12 +407,14 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         bannerRunnable = new Runnable() {
             @Override
             public void run() {
-                int nextItem = bannerViewPager.getCurrentItem() + 1;
-                if (nextItem >= sliderList.size()) {
-                    nextItem = 0;
+                if (sliderList != null && !sliderList.isEmpty()) {
+                    int nextItem = bannerViewPager.getCurrentItem() + 1;
+                    if (nextItem >= sliderList.size()) {
+                        nextItem = 0;
+                    }
+                    bannerViewPager.setCurrentItem(nextItem, true);
+                    bannerHandler.postDelayed(this, 4000);
                 }
-                bannerViewPager.setCurrentItem(nextItem, true);
-                bannerHandler.postDelayed(this, 4000);
             }
         };
         bannerHandler.postDelayed(bannerRunnable, 4000);
@@ -365,7 +446,6 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
 
     private void showAllSkeletons(boolean show) {
         int skeletonVis = show ? View.VISIBLE : View.GONE;
-        int rvVis = show ? View.GONE : View.VISIBLE;
 
         skeletonBanner.setVisibility(skeletonVis);
         skeletonCategories.setVisibility(skeletonVis);
@@ -375,8 +455,6 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         skeletonLatest.setVisibility(skeletonVis);
         skeletonBig.setVisibility(skeletonVis);
         skeletonTopSelling.setVisibility(skeletonVis);
-
-        // Don't hide RVs here, visibility is managed in load methods
 
         if (show) {
             Animation pulseAnim = AnimationUtils.loadAnimation(this, R.anim.pulse);
@@ -389,7 +467,6 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             skeletonBig.startAnimation(pulseAnim);
             skeletonTopSelling.startAnimation(pulseAnim);
 
-            // Add shimmer to banner specifically
             View shimmerView = skeletonBanner.findViewById(R.id.skeleton_banner).findViewWithTag("shimmer");
             if (shimmerView != null) {
                 Animation shimmerAnim = AnimationUtils.loadAnimation(this, R.anim.shimmer_translate);
@@ -409,35 +486,38 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
 
     private void searchProducts(String query) {
         if (query.isEmpty()) {
-            rvSearchResults.setVisibility(View.GONE);
+            if (searchResultContainer != null) {
+                searchResultContainer.setVisibility(View.GONE);
+            }
             return;
         }
 
         searchResults.clear();
         for (Product product : allProducts) {
-            if (product.getName().toLowerCase().contains(query.toLowerCase())) {
+            if (product.getName() != null && product.getName().toLowerCase().contains(query.toLowerCase())) {
                 searchResults.add(product);
             }
         }
 
         if (searchResults.isEmpty()) {
-            rvSearchResults.setVisibility(View.GONE);
+            if (searchResultContainer != null) {
+                searchResultContainer.setVisibility(View.GONE);
+            }
         } else {
-            suggestionAdapter = new SearchSuggestionAdapter(this, searchResults, this);
-            rvSearchResults.setAdapter(suggestionAdapter);
-            rvSearchResults.setVisibility(View.VISIBLE);
+            if (suggestionAdapter != null) {
+                suggestionAdapter.notifyDataSetChanged();
+            }
+            if (searchResultContainer != null) {
+                searchResultContainer.setVisibility(View.VISIBLE);
+            }
         }
     }
 
-    // API //
-
-    // Fetch all products and filter for Popular and Trending
     private void loadProducts() {
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.getProducts().enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
-                // IMPORTANT: Hide ALL product skeletons when products are fetched
                 skeletonPopular.setVisibility(View.GONE); skeletonPopular.clearAnimation();
                 skeletonHotSale.setVisibility(View.GONE); skeletonHotSale.clearAnimation();
                 skeletonLatest.setVisibility(View.GONE); skeletonLatest.clearAnimation();
@@ -468,7 +548,6 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
                     rvBigProduct.setAdapter(new BigProductAdapter(MainActivity.this, bigList));
                     rvTopSelling.setAdapter(new TopSellingProductAdapter(MainActivity.this, topList));
                     
-                    // After products are loaded, re-fetch cart to update item details (name, image, etc.)
                     CartManager.fetchCartFromDatabase(MainActivity.this, () -> {
                         List<CartItem> cartItems = CartManager.getCartItems();
                         for (CartItem item : cartItems) {
@@ -489,7 +568,6 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             }
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
-                // Ensure skeletons hide even on failure
                 skeletonPopular.setVisibility(View.GONE); skeletonHotSale.setVisibility(View.GONE);
                 skeletonLatest.setVisibility(View.GONE); skeletonBig.setVisibility(View.GONE);
                 skeletonTopSelling.setVisibility(View.GONE);
@@ -617,16 +695,14 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             drawerLayout.closeDrawers();
             new Handler().postDelayed(() -> {
                 if (nestedScrollView != null) {
-                    // Slower smooth scroll using ObjectAnimator for a better experience
                     ObjectAnimator.ofInt(nestedScrollView, "scrollY", viewToScrollTo.getTop())
-                            .setDuration(1500) // 1.5 seconds for a smooth, slow scroll
+                            .setDuration(1500)
                             .start();
                 }
-            }, 300); // Small delay to allow drawer to close
+            }, 300);
             return true;
         }
 
-        // Check if it's a dynamic category item
         for (Category cat : categoryList) {
             if (id == cat.getId()) {
                 Intent intent = new Intent(this, ProductListActivity.class);
@@ -653,17 +729,14 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
     private void toggleCategoriesInMenu() {
         Menu menu = navigationView.getMenu();
         if (areCategoriesVisible) {
-            // Hide categories
             for (MenuItem item : categoryMenuItems) {
                 menu.removeItem(item.getItemId());
             }
             categoryMenuItems.clear();
         } else {
-            // Show categories
             int order = 101;
             for (Category cat : categoryList) {
                 MenuItem item = menu.add(R.id.nav_group, cat.getId(), order++, cat.getName());
-                // Removed icon from sub-categories as requested
                 categoryMenuItems.add(item);
             }
         }

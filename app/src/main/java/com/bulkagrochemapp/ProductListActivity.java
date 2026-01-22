@@ -1,15 +1,22 @@
 package com.bulkagrochemapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.SearchView;
+import androidx.activity.OnBackPressedCallback;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,14 +39,15 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
 
     RecyclerView rvProducts, rvProductSearchResults;
     TextView txtTitle;
-    SearchView searchView;
-    View searchContainer, skeletonLayout;
+    EditText searchEditText;
+    ImageButton btnClearSearch;
+    View searchContainer, skeletonLayout, searchOverlay, searchResultContainer;
 
     int categoryId;
     ProductAdapter adapter;
     SearchSuggestionAdapter suggestionAdapter;
     List<Product> productList = new ArrayList<>();
-    private List<Product> filteredProductList = new ArrayList<>();
+    private List<Product> searchResults = new ArrayList<>();
 
     private static final String TAG = "PRODUCT_LIST";
 
@@ -53,28 +61,28 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
         rvProducts = findViewById(R.id.rvProducts);
         rvProductSearchResults = findViewById(R.id.rvProductSearchResults);
         txtTitle = findViewById(R.id.txtTitle);
-        searchView = findViewById(R.id.searchView);
+        searchEditText = findViewById(R.id.searchEditText);
+        btnClearSearch = findViewById(R.id.btnClearSearch);
         searchContainer = findViewById(R.id.search_container);
         skeletonLayout = findViewById(R.id.skeleton_layout);
+        searchOverlay = findViewById(R.id.searchOverlay);
+        searchResultContainer = findViewById(R.id.searchResultContainer);
 
         rvProducts.setLayoutManager(new GridLayoutManager(this, 1));
         rvProductSearchResults.setLayoutManager(new LinearLayoutManager(this));
+        rvProductSearchResults.setNestedScrollingEnabled(true);
 
-        // Attach empty adapter first (important)
+        // Attach empty adapter first
         adapter = new ProductAdapter(this, productList, this);
         rvProducts.setAdapter(adapter);
 
-        suggestionAdapter = new SearchSuggestionAdapter(this, filteredProductList, this);
+        suggestionAdapter = new SearchSuggestionAdapter(this, searchResults, this);
         rvProductSearchResults.setAdapter(suggestionAdapter);
 
         // Get data from intent
         categoryId = getIntent().getIntExtra("category_id", 0);
         String categoryName = getIntent().getStringExtra("category_name");
 
-        Log.d(TAG, "Category ID = " + categoryId);
-        Log.d(TAG, "Category Name = " + categoryName);
-
-        // Allow loading without categoryId if it's a sale
         boolean isSale = getIntent().getBooleanExtra("is_sale", false);
 
         if (isSale) {
@@ -97,27 +105,102 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
             loadProductsByCategory();
         }
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        initSearch();
+
+        // Setup Back Press Handler
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                if (filteredProductList.size() == 1) {
-                    onSuggestionClick(filteredProductList.get(0));
+            public void handleOnBackPressed() {
+                if (searchResultContainer != null && searchResultContainer.getVisibility() == View.VISIBLE) {
+                    hideSearchOverlay();
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
                 }
-                return true;
+            }
+        });
+    }
+
+    private void initSearch() {
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (btnClearSearch != null) {
+                    btnClearSearch.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+                }
+                filter(s.toString());
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
-                filter(newText);
-                return true;
+            public void afterTextChanged(Editable s) {}
+        });
+
+        searchEditText.setOnClickListener(v -> {
+            String query = searchEditText.getText().toString();
+            if (!query.isEmpty()) {
+                showSearchOverlay(query);
             }
         });
+
+        searchEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                String query = searchEditText.getText().toString();
+                if (!query.isEmpty()) {
+                    showSearchOverlay(query);
+                }
+            }
+        });
+
+        if (btnClearSearch != null) {
+            btnClearSearch.setOnClickListener(v -> {
+                searchEditText.setText("");
+                hideSearchOverlay();
+            });
+        }
+
+        if (searchOverlay != null) {
+            searchOverlay.setOnClickListener(v -> hideSearchOverlay());
+        }
+
+        searchEditText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                if (!searchResults.isEmpty()) {
+                    onSuggestionClick(searchResults.get(0));
+                }
+                hideKeyboard();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void showSearchOverlay(String query) {
+        filter(query);
+        if (searchOverlay != null) searchOverlay.setVisibility(View.VISIBLE);
+    }
+
+    private void hideSearchOverlay() {
+        if (searchResultContainer != null) searchResultContainer.setVisibility(View.GONE);
+        if (searchOverlay != null) searchOverlay.setVisibility(View.GONE);
+        hideKeyboard();
+    }
+
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh the wishlist icons when returning to this activity
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
@@ -164,91 +247,51 @@ public class ProductListActivity extends BaseActivity implements ProductAdapter.
         });
     }
 
-    // Fetch products by category
-
     private void loadProductsByCategory() {
         showSkeleton(true);
-        Log.d(TAG, "Calling API for categoryId=" + categoryId);
-
-        ApiService apiService =
-                RetrofitClient.getClient().create(ApiService.class);
-
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.getProductsByCategory(categoryId)
                 .enqueue(new Callback<ProductResponse>() {
-
                     @Override
-                    public void onResponse(Call<ProductResponse> call,
-                                           Response<ProductResponse> response) {
+                    public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                         showSkeleton(false);
-                        Log.d(TAG, "HTTP Code = " + response.code());
-
                         if (!response.isSuccessful()) {
-                            Log.e(TAG, "API failed: HTTP " + response.code());
-                            Toast.makeText(
-                                    ProductListActivity.this,
-                                    "Server error",
-                                    Toast.LENGTH_SHORT
-                            ).show();
+                            Toast.makeText(ProductListActivity.this, "Server error", Toast.LENGTH_SHORT).show();
                             return;
                         }
-
-                        // Check if body is null
-
                         ProductResponse body = response.body();
-
-                        if (body == null) {
-                            Log.e(TAG, "Response body is NULL");
+                        if (body == null || body.getData() == null || body.getData().isEmpty()) {
+                            Toast.makeText(ProductListActivity.this, "No products found", Toast.LENGTH_SHORT).show();
                             return;
                         }
-
-                        if (body.getData() == null || body.getData().isEmpty()) {
-                            Log.w(TAG, "No products found");
-                            Toast.makeText(
-                                    ProductListActivity.this,
-                                    "No products found in this category",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                            return;
-                        }
-
-                        // ✅ Update adapter safely
                         productList.clear();
                         productList.addAll(body.getData());
                         adapter.notifyDataSetChanged();
-
-                        Log.d(TAG, "Products loaded: " + productList.size());
                     }
 
                     @Override
                     public void onFailure(Call<ProductResponse> call, Throwable t) {
                         showSkeleton(false);
-                        Log.e(TAG, "API ERROR", t);
-                        Toast.makeText(
-                                ProductListActivity.this,
-                                "Network error",
-                                Toast.LENGTH_SHORT
-                        ).show();
+                        Toast.makeText(ProductListActivity.this, "Network error", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void filter(String text) {
-        filteredProductList.clear();
+        searchResults.clear();
         if (text.isEmpty()) {
-            rvProductSearchResults.setVisibility(View.GONE);
-            txtTitle.setVisibility(View.VISIBLE);
-            rvProducts.setVisibility(View.VISIBLE);
+            if (searchResultContainer != null) searchResultContainer.setVisibility(View.GONE);
         } else {
-            rvProductSearchResults.setVisibility(View.VISIBLE);
-            txtTitle.setVisibility(View.GONE);
-            rvProducts.setVisibility(View.GONE);
             for (Product product : productList) {
                 if (product.getName().toLowerCase().contains(text.toLowerCase())) {
-                    filteredProductList.add(product);
+                    searchResults.add(product);
                 }
             }
+            suggestionAdapter.notifyDataSetChanged();
+            if (!searchResults.isEmpty() && searchResultContainer != null) {
+                searchResultContainer.setVisibility(View.VISIBLE);
+            }
         }
-        suggestionAdapter.notifyDataSetChanged();
     }
 
     @Override
