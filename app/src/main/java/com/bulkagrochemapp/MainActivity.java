@@ -583,6 +583,19 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             return true;
         }
 
+        if (id == R.id.nav_about_us){
+            openPage("about","about Us");
+            return true;
+        }
+        else if (id == R.id.nav_privacy_policy){
+            openPage("privacy","Privacy Policy");
+            return true;
+        }
+        else if (id == R.id.nav_terms_conditions){
+            openPage("terms","Terms & Conditions");
+            return true;
+        }
+
         View targetView = null;
 
         if (id == R.id.nav_trending_products) {
@@ -627,6 +640,14 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
 
         drawerLayout.closeDrawers();
         return false;
+    }
+
+    private void openPage(String slug, String title) {
+        Intent intent = new Intent(this, PageDetailActivity.class);
+        intent.putExtra("slug", slug);
+        intent.putExtra("title", title);
+        startActivity(intent);
+        drawerLayout.closeDrawers();
     }
 
     private void toggleCategoriesInMenu() {
