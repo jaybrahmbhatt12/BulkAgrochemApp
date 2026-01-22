@@ -1,7 +1,5 @@
 package com.bulkagrochemapp.adapter;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -17,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bulkagrochemapp.CartActivity;
+import com.bulkagrochemapp.ProductDetailActivity;
 import com.bulkagrochemapp.R;
 import com.bulkagrochemapp.model.CartItem;
 import com.bulkagrochemapp.model.Product;
@@ -43,7 +42,6 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_wishlist, parent, false);
-
         return new ViewHolder(view);
     }
 
@@ -52,34 +50,38 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
         Product product = wishlist.get(position);
 
         holder.txtName.setText(product.getName());
-        holder.txtPrice.setText("₹" + String.format("%.2f", product.getPrice()));
+        String priceText = "₹" + String.format("%.2f", product.getPrice());
+        if (product.getStocktype() != null && !product.getStocktype().isEmpty()) {
+            priceText += "/" + product.getStocktype();
+        }
+        holder.txtPrice.setText(priceText);
         Picasso.get().load(product.getImage()).placeholder(R.drawable.ic_launcher_foreground).into(holder.imgProduct);
 
-        final int[] qty = {product.getMinimumQty()};
-        holder.txtQty.setText(String.valueOf(qty[0]));
-
-        holder.btnPlus.setOnClickListener(v -> {
-            qty[0] += product.getMinimumQty();
-            holder.txtQty.setText(String.valueOf(qty[0]));
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ProductDetailActivity.class);
+            intent.putExtra("product", product);
+            context.startActivity(intent);
         });
 
-        holder.btnMinus.setOnClickListener(v -> {
-            if (qty[0] > product.getMinimumQty()) {
-                qty[0] -= product.getMinimumQty();
-                holder.txtQty.setText(String.valueOf(qty[0]));
-            }
+        holder.btnViewMore.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ProductDetailActivity.class);
+            intent.putExtra("product", product);
+            context.startActivity(intent);
         });
 
         holder.btnRemove.setOnClickListener(v -> {
             WishlistManager.removeFromWishlist(product.getId());
-            wishlist.remove(holder.getAdapterPosition());
-            notifyItemRemoved(holder.getAdapterPosition());
-            onListChanged.run();
-            Toast.makeText(context, "Removed from wishlist", Toast.LENGTH_SHORT).show();
+            int currentPos = holder.getAdapterPosition();
+            if (currentPos != RecyclerView.NO_POSITION) {
+                wishlist.remove(currentPos);
+                notifyItemRemoved(currentPos);
+                onListChanged.run();
+                Toast.makeText(context, "Removed from wishlist", Toast.LENGTH_SHORT).show();
+            }
         });
 
         holder.btnAddToCart.setOnClickListener(v -> {
-            // Create CartItem
+            // Create CartItem with minimum quantity
             CartItem cartItem = new CartItem(
                     product.getId(),
                     product.getName(),
@@ -89,7 +91,7 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
                     product.getStocktype(),
                     product.getTaxRate()
             );
-            cartItem.setQuantity(qty[0]);
+            cartItem.setQuantity(product.getMinimumQty());
 
             // Add to Cart
             CartManager.addToCart(context, cartItem);
@@ -108,13 +110,9 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
                     .setAction("GO TO CART", view -> {
                         Intent intent = new Intent(context, CartActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        intent.putExtra("flag",true);
+                        intent.putExtra("flag", true);
                         context.startActivity(intent);
                     }).show();
-        });
-
-        holder.btnCheckout.setOnClickListener(v -> {
-            Toast.makeText(context, "Redirecting to Pay Now page for " + product.getName() + " (" + qty[0] + " Qty)...", Toast.LENGTH_LONG).show();
         });
     }
 
@@ -125,21 +123,18 @@ public class WishlistAdapter extends RecyclerView.Adapter<WishlistAdapter.ViewHo
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imgProduct;
-        TextView txtName, txtPrice, txtQty, btnPlus, btnMinus;
+        TextView txtName, txtPrice;
         ImageButton btnRemove;
-        Button btnAddToCart, btnCheckout;
+        Button btnAddToCart, btnViewMore;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imgProduct = itemView.findViewById(R.id.imgProduct);
             txtName = itemView.findViewById(R.id.txtName);
             txtPrice = itemView.findViewById(R.id.txtPrice);
-            txtQty = itemView.findViewById(R.id.txtQty);
-            btnPlus = itemView.findViewById(R.id.btnPlus);
-            btnMinus = itemView.findViewById(R.id.btnMinus);
             btnRemove = itemView.findViewById(R.id.btnRemove);
             btnAddToCart = itemView.findViewById(R.id.btnAddToCart);
-            btnCheckout = itemView.findViewById(R.id.btnCheckout);
+            btnViewMore = itemView.findViewById(R.id.btnViewMore);
         }
     }
 }

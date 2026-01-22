@@ -245,6 +245,12 @@ public class ProductDetailActivity extends BaseActivity {
             cartItem.setQuantity(quantity);
             CartManager.addToCart(ProductDetailActivity.this, cartItem);
 
+            // Remove from Wishlist if it exists there
+            if (productId != 0) {
+                WishlistManager.removeFromWishlist(productId);
+                updateWishlistIcon();
+            }
+
             // Show Snackbar with "Go to Cart" action
             Snackbar snackbar = Snackbar.make(v, (product != null ? product.getName() : intentName) +" Added to cart", Snackbar.LENGTH_LONG);
             snackbar.setAction("GO TO CART", view -> {
@@ -260,8 +266,9 @@ public class ProductDetailActivity extends BaseActivity {
     }
 
     private void updateWishlistIcon() {
-        if (btnWishlistDetail != null && product != null) {
-            if (WishlistManager.isInWishlist(product.getId())) {
+        if (btnWishlistDetail != null) {
+            int idToCheck = (product != null) ? product.getId() : productId;
+            if (idToCheck != 0 && WishlistManager.isInWishlist(idToCheck)) {
                 btnWishlistDetail.setImageResource(R.drawable.ic_wishlist_filled);
             } else {
                 btnWishlistDetail.setImageResource(R.drawable.ic_wishlist_border);

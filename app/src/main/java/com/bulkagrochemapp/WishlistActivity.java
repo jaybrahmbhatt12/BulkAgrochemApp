@@ -26,7 +26,11 @@ public class WishlistActivity extends BaseActivity {
         rvWishlist = findViewById(R.id.rvWishlist);
 
         btnBack.setOnClickListener(v -> finish());
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         setupWishlist();
     }
 
