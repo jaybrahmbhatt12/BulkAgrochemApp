@@ -236,6 +236,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
 
+                            <!-- Help & Support -->
                             <LinearLayout
                                 android:id="@+id/btnHelpSupport"
                                 android:layout_width="match_parent"
@@ -260,6 +261,83 @@
                                     android:textColor="@color/static_text"
                                     android:layout_marginStart="16dp"/>
                             </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/static_divider"
+                                android:layout_marginStart="56dp"/>
+
+                            <!-- Refund and Returns Policy -->
+                            <LinearLayout
+                                android:id="@+id/btnRefundPolicy"
+                                android:layout_width="match_parent"
+                                android:layout_height="60dp"
+                                android:gravity="center_vertical"
+                                android:paddingStart="16dp"
+                                android:paddingEnd="16dp"
+                                android:background="?attr/selectableItemBackground"
+                                android:clickable="true"
+                                android:focusable="true">
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_refund"
+                                    app:tint="@color/orange_brand" />
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Refund and Returns Policy"
+                                    android:textSize="16sp"
+                                    android:textColor="@color/static_text"
+                                    android:layout_marginStart="16dp"/>
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:src="@drawable/ic_arrow_drop_down"
+                                    android:rotation="-90"
+                                    app:tint="@color/static_text_sec"/>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/static_divider"
+                                android:layout_marginStart="56dp"/>
+
+                            <!-- Shipping Policy -->
+                            <LinearLayout
+                                android:id="@+id/btnShippingPolicy"
+                                android:layout_width="match_parent"
+                                android:layout_height="60dp"
+                                android:gravity="center_vertical"
+                                android:paddingStart="16dp"
+                                android:paddingEnd="16dp"
+                                android:background="?attr/selectableItemBackground"
+                                android:clickable="true"
+                                android:focusable="true">
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_shipping"
+                                    app:tint="@color/orange_brand" />
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Shipping Policy"
+                                    android:textSize="16sp"
+                                    android:textColor="@color/static_text"
+                                    android:layout_marginStart="16dp"/>
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:src="@drawable/ic_arrow_drop_down"
+                                    android:rotation="-90"
+                                    app:tint="@color/static_text_sec"/>
+                            </LinearLayout>
+
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 

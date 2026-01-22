@@ -11,7 +11,7 @@ import android.widget.Toast;
 public class ProfileActivity extends BaseActivity {
 
     private TextView tvLoggedInNumber, tvUserName;
-    private View btnLogout, btnEditProfile, btnHelpSupport;
+    private View btnLogout, btnEditProfile, btnHelpSupport, btnRefundPolicy, btnShippingPolicy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +23,8 @@ public class ProfileActivity extends BaseActivity {
         btnLogout = findViewById(R.id.btnLogout);
         btnEditProfile = findViewById(R.id.btnEditProfile);
         btnHelpSupport = findViewById(R.id.btnHelpSupport);
+        btnRefundPolicy = findViewById(R.id.btnRefundPolicy);
+        btnShippingPolicy = findViewById(R.id.btnShippingPolicy);
 
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
         String phoneNumber = prefs.getString("phone", "");
@@ -53,13 +55,17 @@ public class ProfileActivity extends BaseActivity {
             }
         });
 
+        // Click listeners for dynamic pages
+        // IMPORTANT: Check your 'pages' table 'slug' column for Refund Policy
+        // If your database says "refund-returns", change "refund" below to "refund-returns"
+        btnRefundPolicy.setOnClickListener(v -> openPage("refund", "Refund and Returns Policy"));
+        btnShippingPolicy.setOnClickListener(v -> openPage("shipping-policy", "Shipping Policy"));
+
         btnLogout.setOnClickListener(v -> {
-            // Clear login state
             SharedPreferences.Editor editor = prefs.edit();
             editor.clear();
             editor.apply();
 
-            // Redirect to LoginActivity
             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -67,10 +73,16 @@ public class ProfileActivity extends BaseActivity {
         });
     }
 
+    private void openPage(String slug, String title) {
+        Intent intent = new Intent(this, PageDetailActivity.class);
+        intent.putExtra("slug", slug);
+        intent.putExtra("title", title);
+        startActivity(intent);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh data when returning from EditProfileActivity
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
         tvUserName.setText(prefs.getString("name", "User Name"));
         String phoneNumber = prefs.getString("phone", "");
