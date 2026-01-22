@@ -79,6 +79,14 @@ public interface ApiService {
             @Field("uid") String uid
     );
 
+    // Delete from Cart
+    @FormUrlEncoded
+    @POST("delete_from_cart.php")
+    Call<ResponseBody> deleteFromCart(
+            @Field("uid") String uid,
+            @Field("pid") int pid
+    );
+
     // Fetch India States and Cities from backend assets
     @GET("../assets/india_states_cities.json")
     Call<LocationResponse> getIndiaLocations();

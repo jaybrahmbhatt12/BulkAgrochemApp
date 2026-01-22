@@ -70,7 +70,8 @@ public class CartManager {
         boolean exists = false;
         for (CartItem item : cartItems) {
             if (item.getProductId() == newItem.getProductId()) {
-                item.increaseQty();
+                // Corrected: Add the specific quantity from newItem instead of just incrementing by minQuantity
+                item.setQuantity(item.getQuantity() + newItem.getQuantity());
                 exists = true;
                 saveCartToDatabase(context, item);
                 break;
@@ -88,6 +89,27 @@ public class CartManager {
     public static void updateCartItem(Context context, CartItem item) {
         saveCartToDatabase(context, item);
         notifyListeners();
+    }
+
+    public static void removeFromCartSync(Context context, int productId) {
+        SharedPreferences prefs = context.getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        String uid = prefs.getString("id", null);
+        if (uid == null) return;
+
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.deleteFromCart(uid, productId).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Log.d(TAG, "Item deleted from database cart for PID: " + productId);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e(TAG, "Error deleting from database: " + t.getMessage());
+            }
+        });
     }
 
     private static void saveCartToDatabase(Context context, CartItem item) {

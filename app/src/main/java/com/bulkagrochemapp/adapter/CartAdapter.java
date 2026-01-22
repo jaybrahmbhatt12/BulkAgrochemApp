@@ -16,6 +16,7 @@ import com.bulkagrochemapp.ProductDetailActivity;
 import com.bulkagrochemapp.R;
 import com.bulkagrochemapp.model.CartItem;
 import com.bulkagrochemapp.utils.CartManager;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
@@ -29,8 +30,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
     Context context;
     List<CartItem> cartList;
     Runnable totalUpdater;
-
-    private boolean flag=false;
 
     public CartAdapter(Context context, List<CartItem> cartList, Runnable totalUpdater) {
         this.context = context;
@@ -99,15 +98,14 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
 
         // ➖ Decrease Quantity
         holder.btnMinus.setOnClickListener(v -> {
-            item.decreaseQty();
-
             int currentPos = holder.getAdapterPosition();
-            if (item.getQuantity() <= 0) {
-                // Reset to minimum quantity so that if UNDO is clicked, 
-                // the item returns with its base minimum quantity instead of 0.
-                item.setQuantity(item.getMinQuantity());
+            if (currentPos == RecyclerView.NO_POSITION) return;
+
+            if (item.getQuantity() <= item.getMinQuantity()) {
+                // Remove if it's already at minimum or user tries to decrease further
                 removeItemWithUndo(holder.itemView, currentPos);
             } else {
+                item.decreaseQty();
                 notifyItemChanged(currentPos);
                 totalUpdater.run();
                 CartManager.updateCartItem(context, item);
@@ -128,24 +126,31 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
         CartItem deletedItem = cartList.get(position);
         int deletedPosition = position;
 
-        // Temporarily remove
+        // Temporarily remove locally
         cartList.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, cartList.size());
         totalUpdater.run();
 
-        // Note: For full production, you'd likely want a delete API call here too.
-        // But since the user only provided add and fetch, we'll stick to those.
-
         // Show Snackbar with Undo option
-        Snackbar.make(view, deletedItem.getName() + " removed", 5000)
-                .setAction("UNDO", v -> {
-                    cartList.add(deletedPosition, deletedItem);
-                    notifyItemInserted(deletedPosition);
-                    notifyItemRangeChanged(deletedPosition, cartList.size());
-                    totalUpdater.run();
-                    CartManager.updateCartItem(context, deletedItem);
-                }).show();
+        Snackbar snackbar = Snackbar.make(view, deletedItem.getName() + " removed", 5000);
+        snackbar.setAction("UNDO", v -> {
+            cartList.add(deletedPosition, deletedItem);
+            notifyItemInserted(deletedPosition);
+            notifyItemRangeChanged(deletedPosition, cartList.size());
+            totalUpdater.run();
+        });
+
+        snackbar.addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+            @Override
+            public void onDismissed(Snackbar transientBottomBar, int event) {
+                if (event != DISMISS_EVENT_ACTION) {
+                    // Actual deletion from database if UNDO was not clicked
+                    CartManager.removeFromCartSync(context, deletedItem.getProductId());
+                }
+            }
+        });
+        snackbar.show();
     }
 
 
