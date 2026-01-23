@@ -7,11 +7,14 @@ import com.bulkagrochemapp.model.OrderResponse;
 import com.bulkagrochemapp.model.ProductResponse;
 import com.bulkagrochemapp.model.SliderResponse;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
@@ -151,6 +154,11 @@ public interface ApiService {
             @Field("user_id") String userId,
             @Field("product_id") int productId
     );
+
+    @Headers("Content-Type: application/json")
+    @POST("place_order.php")
+    Call<ResponseBody> placeOrder(@Body RequestBody body);
+
 
     @FormUrlEncoded
     @POST("order_history.php")
