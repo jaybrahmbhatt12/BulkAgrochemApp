@@ -2,6 +2,7 @@ package com.bulkagrochemapp.model;
 
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
+import java.util.List;
 
 public class Order implements Serializable {
     private int id;
@@ -36,6 +37,8 @@ public class Order implements Serializable {
     private String shippingName;
     @SerializedName("shipping_address")
     private String shippingAddress;
+    
+    private String date;
     private String status;
     @SerializedName("created_at")
     private String createdAt;
@@ -44,6 +47,10 @@ public class Order implements Serializable {
     private double tax;
     @SerializedName("total_prices")
     private double totalPrice;
+    private double total;
+
+    @SerializedName("order_items")
+    private List<CartItem> items;
 
     // Getters
     public int getId() { return id; }
@@ -65,9 +72,15 @@ public class Order implements Serializable {
     public String getCustomerZip() { return customerZip; }
     public String getShippingName() { return shippingName; }
     public String getShippingAddress() { return shippingAddress; }
+
+    public String getDate() { return date; }
     public String getStatus() { return status; }
     public String getCreatedAt() { return createdAt; }
     public double getShippingCost() { return shippingCost; }
     public double getTax() { return tax; }
     public double getTotalPrice() { return totalPrice; }
+    public double getTotal() { return total; }
+    public List<CartItem> getItems() { return items; }
+
+    public void setStatus(String status) { this.status = status; }
 }

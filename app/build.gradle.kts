@@ -4,14 +4,12 @@ plugins {
 
 android {
     namespace = "com.bulkagrochemapp"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.bulkagrochemapp"
-        minSdk = 34
-        targetSdk = 36
+        minSdk = 26
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -48,4 +46,5 @@ dependencies {
     annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
     implementation("com.squareup.picasso:picasso:2.8")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
+    implementation(libs.razorpay)
 }
