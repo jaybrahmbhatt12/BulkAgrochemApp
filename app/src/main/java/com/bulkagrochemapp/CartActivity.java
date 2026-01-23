@@ -123,7 +123,8 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
         // Redirect to Orders Activity
         if (btnOrders != null) {
             btnOrders.setOnClickListener(v -> {
-                Snackbar.make(v, "Orders feature coming soon", Snackbar.LENGTH_SHORT).show();
+                Intent intent = new Intent(CartActivity.this, MyOrdersActivity.class);
+                startActivity(intent);
             });
         }
 

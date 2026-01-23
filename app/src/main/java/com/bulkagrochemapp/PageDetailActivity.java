@@ -49,16 +49,16 @@ public class PageDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(intentTitle);
+            getSupportActionBar().setTitle(intentTitle != null ? intentTitle : "Page");
         }
         toolbar.setNavigationOnClickListener(v -> finish());
 
         setupWebView();
 
-        if (slug != null) {
+        if (slug != null && !slug.trim().isEmpty()) {
             fetchPageData();
         } else {
-            showError("Invalid Page Link");
+            showError("Invalid Page Link: Slug is missing");
         }
     }
 
@@ -66,7 +66,10 @@ public class PageDetailActivity extends AppCompatActivity {
         WebSettings webSettings = webViewContent.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
-        webSettings.setDefaultFontSize(15);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setDatabaseEnabled(true);
+        webSettings.setDefaultFontSize(16);
         webViewContent.setWebViewClient(new WebViewClient());
     }
 
@@ -74,47 +77,55 @@ public class PageDetailActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         
-        Log.d("PAGE_API", "Requesting Slug: " + slug);
+        final String searchSlug = slug.trim();
+        Log.d("PAGE_API", "Requesting content for slug: [" + searchSlug + "]");
 
-        apiService.getPageContent(slug).enqueue(new Callback<ResponseBody>() {
+        apiService.getPageContent(searchSlug).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     try {
                         String jsonResponse = response.body().string();
-                        Log.d("PAGE_API", "Raw JSON: " + jsonResponse);
+                        Log.d("PAGE_API", "Response received, parsing...");
                         
                         JSONObject jsonObject = new JSONObject(jsonResponse);
+                        boolean status = jsonObject.optBoolean("status", false);
                         
-                        if (jsonObject.optBoolean("status", false)) {
+                        if (status) {
                             JSONObject selectedPage = null;
-                            Object dataObj = jsonObject.get("data");
+                            Object data = jsonObject.opt("data");
 
-                            if (dataObj instanceof JSONArray) {
-                                JSONArray dataArray = (JSONArray) dataObj;
-                                for (int i = 0; i < dataArray.length(); i++) {
-                                    JSONObject page = dataArray.getJSONObject(i);
-                                    if (page.optString("slug").equalsIgnoreCase(slug)) {
-                                        selectedPage = page;
+                            if (data instanceof JSONObject) {
+                                selectedPage = (JSONObject) data;
+                            } else if (data instanceof JSONArray) {
+                                JSONArray array = (JSONArray) data;
+                                for (int i = 0; i < array.length(); i++) {
+                                    JSONObject item = array.getJSONObject(i);
+                                    if (item.optString("slug").equalsIgnoreCase(searchSlug)) {
+                                        selectedPage = item;
                                         break;
                                     }
                                 }
-                            } else if (dataObj instanceof JSONObject) {
-                                selectedPage = (JSONObject) dataObj;
                             }
 
                             if (selectedPage != null) {
-                                renderPage(selectedPage);
+                                String details = selectedPage.optString("details", "");
+                                if (!details.isEmpty() && !details.equalsIgnoreCase("null")) {
+                                    renderPage(selectedPage);
+                                } else {
+                                    showError("The page was found but its 'details' content is missing from the server.");
+                                }
                             } else {
-                                showError("Page not found in database (Slug: " + slug + ")");
+                                showError("Page not found in system (Slug: " + searchSlug + ")");
                             }
                         } else {
-                            showError(jsonObject.optString("message", "Server reported error"));
+                            String msg = jsonObject.optString("message", "Error fetching page data");
+                            showError(msg);
                         }
                     } catch (Exception e) {
-                        Log.e("PAGE_API", "Error: ", e);
-                        showError("Data Error: " + e.getMessage());
+                        Log.e("PAGE_API", "Parsing error", e);
+                        showError("Data Error: Unable to process response.");
                     }
                 } else {
                     showError("Server Error: " + response.code());
@@ -124,7 +135,7 @@ public class PageDetailActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                showError("Network connection failed");
+                showError("Network error: Please check your connection");
             }
         });
     }
@@ -140,28 +151,49 @@ public class PageDetailActivity extends AppCompatActivity {
 
         if (!photo.isEmpty() && !photo.equals("null")) {
             imgPage.setVisibility(View.VISIBLE);
-            Picasso.get().load(ApiService.BANNER_IMAGE_URL + photo).into(imgPage);
+            Picasso.get().load(ApiService.BANNER_IMAGE_URL + photo)
+                    .placeholder(R.drawable.banner_placeholder)
+                    .error(R.drawable.ic_image_error)
+                    .into(imgPage);
+        } else {
+            imgPage.setVisibility(View.GONE);
         }
 
-        // Check if visible text is empty
-        if (details.replaceAll("<[^>]*>", "").trim().isEmpty()) {
-            details = "<div style='text-align:center; margin-top:50px; font-family:sans-serif; color:#666;'>" +
-                    "<h3>Coming Soon</h3><p>We are currently updating our " + dbTitle + ". Please check back later.</p></div>";
-        }
-
+        // AGGRESSIVE CSS RESET: Forces visibility and responsiveness for complex Elementor HTML
         String styledHtml = "<html><head>" +
-                "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" +
-                "<style>body{font-family: 'sans-serif'; color: #333; line-height: 1.6; padding: 10px;} " +
-                "img{max-width: 100% !important; height: auto !important;} " +
-                "div, section, table { max-width: 100% !important; width: auto !important; height: auto !important; }</style>" +
-                "</head><body>" + details + "</body></html>";
+                "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\">" +
+                "<style>" +
+                "body { font-family: 'Poppins', sans-serif, Arial; color: #333; line-height: 1.8; padding: 15px; margin: 0; } " +
+                "img { max-width: 100% !important; height: auto !important; border-radius: 8px; margin: 10px 0; } " +
+                "h1, h2, h3, h4 { color: #2E7D32; font-weight: 600; margin-top: 15px; } " +
+                "p { margin-bottom: 12px; } " +
+                "/* Force responsiveness and visibility for Elementor layouts */ " +
+                "div, section, article, table, td, h1, h2, h3, p, span, a { " +
+                "   max-width: 100% !important; " +
+                "   width: auto !important; " +
+                "   height: auto !important; " +
+                "   position: static !important; " +
+                "   float: none !important; " +
+                "   margin-left: 0 !important; " +
+                "   margin-right: 0 !important; " +
+                "   left: 0 !important; " +
+                "   top: 0 !important; " +
+                "   overflow-wrap: break-word !important; " +
+                "   box-sizing: border-box !important; " +
+                "   visibility: visible !important; " +
+                "   opacity: 1 !important; " +
+                "} " +
+                ".elementor-widget-container { padding: 0 !important; } " +
+                "</style></head><body>" + details + "</body></html>";
         
-        webViewContent.loadDataWithBaseURL(null, styledHtml, "text/html", "UTF-8", null);
+        // Critical: Set BANNER_IMAGE_URL as baseUrl so relative image paths in the HTML can resolve
+        webViewContent.loadDataWithBaseURL(ApiService.BANNER_IMAGE_URL, styledHtml, "text/html", "UTF-8", null);
     }
 
     private void showError(String message) {
-        String errorHtml = "<html><body><div style='text-align:center; margin-top:50px; font-family:sans-serif; color:red;'>" +
-                "<h4>Error</h4><p>" + message + "</p></div></body></html>";
+        String errorHtml = "<html><body><div style='text-align:center; margin-top:80px; font-family:sans-serif; color:#D32F2F;'>" +
+                "<h3 style='margin-bottom:10px;'>Error</h3><p>" + message + "</p>" +
+                "<button onclick='location.reload()' style='background:#2E7D32; color:white; border:none; padding:10px 20px; border-radius:4px; margin-top:20px;'>Retry</button></div></body></html>";
         webViewContent.loadDataWithBaseURL(null, errorHtml, "text/html", "UTF-8", null);
     }
 }

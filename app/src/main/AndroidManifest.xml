@@ -35,6 +35,7 @@
         <activity android:name=".ChangeAddressActivity" />
         <activity android:name=".PageDetailActivity" />
         <activity android:name=".WishlistActivity" android:parentActivityName=".MainActivity" />
+        <activity android:name=".MyOrdersActivity" android:parentActivityName=".ProfileActivity" />
 
         <!-- LoginActivity -->
         <activity

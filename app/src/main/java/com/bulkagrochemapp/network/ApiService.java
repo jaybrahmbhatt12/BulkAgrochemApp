@@ -3,6 +3,7 @@ package com.bulkagrochemapp.network;
 import com.bulkagrochemapp.model.CategoryResponse;
 import com.bulkagrochemapp.model.CouponResponse;
 import com.bulkagrochemapp.model.LocationResponse;
+import com.bulkagrochemapp.model.OrderResponse;
 import com.bulkagrochemapp.model.ProductResponse;
 import com.bulkagrochemapp.model.SliderResponse;
 
@@ -16,7 +17,6 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
-    // All Products Images
     String IMAGE_URL = "https://bulkapi.tiffinworld.com/api/";
     String BANNER_IMAGE_URL = "https://bulkapi.tiffinworld.com/assets/";
 
@@ -149,5 +149,18 @@ public interface ApiService {
     Call<ResponseBody> removeFromWishlist(
             @Field("user_id") String userId,
             @Field("product_id") int productId
+    );
+
+    @FormUrlEncoded
+    @POST("fetch_orders.php")
+    Call<OrderResponse> fetchOrders(
+            @Field("user_id") String userId
+    );
+
+    @FormUrlEncoded
+    @POST("cancel_order.php")
+    Call<ResponseBody> cancelOrder(
+            @Field("order_id") int orderId,
+            @Field("user_id") String userId
     );
 }
