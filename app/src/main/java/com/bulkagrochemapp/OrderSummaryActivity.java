@@ -28,6 +28,8 @@ import com.bulkagrochemapp.network.ApiService;
 import com.bulkagrochemapp.network.RetrofitClient;
 import com.bulkagrochemapp.utils.CartManager;
 import com.google.gson.Gson;
+import com.razorpay.Checkout;
+import com.razorpay.PaymentResultListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,7 +45,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class OrderSummaryActivity extends AppCompatActivity {
+public class OrderSummaryActivity extends AppCompatActivity implements PaymentResultListener {
 
     private RecyclerView rvOrderItems, rvCoupons;
     private EditText etCoupon;
@@ -75,6 +77,8 @@ public class OrderSummaryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_summary);
 
+        Checkout.preload(getApplicationContext());
+
         initViews();
         loadAddress();
         setupOrderList();
@@ -85,7 +89,11 @@ public class OrderSummaryActivity extends AppCompatActivity {
         
         btnApplyCoupon.setOnClickListener(v -> applyCoupon());
 
-        btnPayNow.setOnClickListener(v -> placeOrder());
+        btnPayNow.setOnClickListener(v -> {
+            if (validateDetails()) {
+                startPayment();
+            }
+        });
 
         btnChangeAddress.setOnClickListener(v -> {
             Intent intent = new Intent(OrderSummaryActivity.this, ChangeAddressActivity.class);
@@ -223,7 +231,6 @@ public class OrderSummaryActivity extends AppCompatActivity {
         }
 
         if (selectedCoupon != null) {
-            // Check minimum purchase amount (above_price)
             if (subtotal < selectedCoupon.getAbovePrice()) {
                 txtCouponStatus.setVisibility(View.VISIBLE);
                 txtCouponStatus.setText("Minimum order of ₹" + String.format("%.0f", selectedCoupon.getAbovePrice()) + " required for this coupon");
@@ -231,7 +238,6 @@ public class OrderSummaryActivity extends AppCompatActivity {
                 discount = 0;
                 appliedCouponCode = "";
             } else {
-                // Apply discount logic: type 1 = fixed amount, type 0 = percentage
                 if (selectedCoupon.getType() == 1) { 
                     discount = selectedCoupon.getPrice();
                 } else { 
@@ -254,7 +260,7 @@ public class OrderSummaryActivity extends AppCompatActivity {
         updateUI();
     }
 
-    private void placeOrder() {
+    private boolean validateDetails() {
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
         String uid = prefs.getString("id", "");
         String name = prefs.getString("name", "");
@@ -267,27 +273,76 @@ public class OrderSummaryActivity extends AppCompatActivity {
 
         if (uid.isEmpty()) {
             Toast.makeText(this, "Please login to place order", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
 
         if (address.isEmpty() || city.isEmpty() || state.isEmpty() || email.isEmpty() || name.isEmpty() || phone.isEmpty()) {
             Toast.makeText(this, "Please update your full profile (Email, Address, City, State) to place an order", Toast.LENGTH_LONG).show();
-            return;
+            return false;
         }
+
+        if (CartManager.getCartItems().isEmpty()) {
+            Toast.makeText(this, "Your cart is empty", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private void startPayment() {
+        Checkout checkout = new Checkout();
+        checkout.setKeyID("rzp_test_RZEWfckatMa4lh");
+
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        String name = prefs.getString("name", "User");
+        String email = prefs.getString("email", "");
+        String phone = prefs.getString("phone", "");
+
+        try {
+            JSONObject options = new JSONObject();
+            options.put("name", "BulkAgrochem");
+            options.put("description", "Order Payment");
+            options.put("image", "https://bulkapi.tiffinworld.com/assets/logo_bulkagro.png");
+            options.put("currency", "INR");
+            options.put("amount", Math.round(grandTotal * 100)); // Amount in paisa
+
+            JSONObject prefill = new JSONObject();
+            prefill.put("email", email);
+            prefill.put("contact", phone);
+            options.put("prefill", prefill);
+
+            checkout.open(this, options);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error in starting Razorpay: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onPaymentSuccess(String razorpayPaymentID) {
+        placeOrder(razorpayPaymentID);
+    }
+
+    @Override
+    public void onPaymentError(int code, String response) {
+        Toast.makeText(this, "Payment Failed: " + response, Toast.LENGTH_SHORT).show();
+    }
+
+    private void placeOrder(String paymentId) {
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        String uid = prefs.getString("id", "");
+        String name = prefs.getString("name", "");
+        String email = prefs.getString("email", "");
+        String phone = prefs.getString("phone", "");
+        String address = prefs.getString("address", "");
+        String city = prefs.getString("district", "");
+        String state = prefs.getString("state", "");
+        String zip = prefs.getString("zip", "");
 
         List<CartItem> cartItems = CartManager.getCartItems();
-        if (cartItems.isEmpty()) {
-            Toast.makeText(this, "Your cart is empty", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         int totalQty = 0;
         for (CartItem item : cartItems) {
             totalQty += item.getQuantity();
         }
 
-        // Use a consistent field name for ID in JSON to match PHP's expectations
-        // Your PHP script uses $item['id'] ?? $item['product_id']
         String cartJson = new Gson().toJson(cartItems);
 
         btnPayNow.setEnabled(false);
@@ -297,7 +352,8 @@ public class OrderSummaryActivity extends AppCompatActivity {
         try {
             orderJson.put("user_id", uid);
             orderJson.put("cart", cartJson);
-            orderJson.put("method", "Cash On Delivery");
+            orderJson.put("method", "Razorpay");
+            orderJson.put("payment_id", paymentId);
             orderJson.put("shipping", "shipto");
             orderJson.put("totalQty", totalQty);
             orderJson.put("pay_amount", grandTotal);
@@ -334,20 +390,16 @@ public class OrderSummaryActivity extends AppCompatActivity {
                         String result = response.body().string();
                         JSONObject jsonObject = new JSONObject(result);
                         String status = jsonObject.optString("status");
-                        String message = jsonObject.optString("message");
 
                         if ("success".equalsIgnoreCase(status)) {
-                            Toast.makeText(OrderSummaryActivity.this, "Order Placed Successfully!", Toast.LENGTH_LONG).show();
                             CartManager.clearCart();
-                            Intent intent = new Intent(OrderSummaryActivity.this, MainActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            Intent intent = new Intent(OrderSummaryActivity.this, PaymentSuccessActivity.class);
                             startActivity(intent);
                             finish();
                         } else {
                             btnPayNow.setEnabled(true);
                             btnPayNow.setText("Pay Now");
-                            Toast.makeText(OrderSummaryActivity.this, "Server Error: " + message, Toast.LENGTH_LONG).show();
-                            Log.e("OrderError", "PHP Error Message: " + message);
+                            Toast.makeText(OrderSummaryActivity.this, "Server Error: " + jsonObject.optString("message"), Toast.LENGTH_LONG).show();
                         }
                     } catch (IOException | JSONException e) {
                         btnPayNow.setEnabled(true);
@@ -357,17 +409,7 @@ public class OrderSummaryActivity extends AppCompatActivity {
                 } else {
                     btnPayNow.setEnabled(true);
                     btnPayNow.setText("Pay Now");
-                    try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown Error";
-                        Log.e("OrderError", "Error Response: " + errorBody);
-                        
-                        // Parse error message if possible
-                        JSONObject jsonError = new JSONObject(errorBody);
-                        String errorMsg = jsonError.optString("message", "Validation failed");
-                        Toast.makeText(OrderSummaryActivity.this, "Error: " + errorMsg, Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(OrderSummaryActivity.this, "Failed to place order. Error Code: " + response.code(), Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(OrderSummaryActivity.this, "Failed to place order", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -376,7 +418,6 @@ public class OrderSummaryActivity extends AppCompatActivity {
                 btnPayNow.setEnabled(true);
                 btnPayNow.setText("Pay Now");
                 Toast.makeText(OrderSummaryActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("OrderError", "Connection Failure: ", t);
             }
         });
     }

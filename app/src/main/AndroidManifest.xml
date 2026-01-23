@@ -36,6 +36,7 @@
         <activity android:name=".PageDetailActivity" />
         <activity android:name=".WishlistActivity" android:parentActivityName=".MainActivity" />
         <activity android:name=".OrderHistoryActivity" android:parentActivityName=".ProfileActivity" />
+        <activity android:name=".PaymentSuccessActivity" />
 
         <!-- LoginActivity -->
         <activity
