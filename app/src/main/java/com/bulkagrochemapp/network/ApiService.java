@@ -3,6 +3,7 @@ package com.bulkagrochemapp.network;
 import com.bulkagrochemapp.model.CategoryResponse;
 import com.bulkagrochemapp.model.CouponResponse;
 import com.bulkagrochemapp.model.LocationResponse;
+import com.bulkagrochemapp.model.OrderResponse;
 import com.bulkagrochemapp.model.ProductResponse;
 import com.bulkagrochemapp.model.SliderResponse;
 
@@ -149,5 +150,26 @@ public interface ApiService {
     Call<ResponseBody> removeFromWishlist(
             @Field("user_id") String userId,
             @Field("product_id") int productId
+    );
+
+    @FormUrlEncoded
+    @POST("order_history.php")
+    Call<OrderResponse> getOrderHistory(
+            @Field("uid") String uid
+    );
+
+    @FormUrlEncoded
+    @POST("cancel_order.php")
+    Call<ResponseBody> cancelOrder(
+            @Field("order_id") String orderId,
+            @Field("uid") String uid
+    );
+
+    @FormUrlEncoded
+    @POST("return_order.php")
+    Call<ResponseBody> returnOrder(
+            @Field("order_id") String orderId,
+            @Field("uid") String uid,
+            @Field("reason") String reason
     );
 }

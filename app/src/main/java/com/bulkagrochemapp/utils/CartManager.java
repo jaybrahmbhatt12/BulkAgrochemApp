@@ -66,6 +66,22 @@ public class CartManager {
         }
     }
 
+    public static void addItem(CartItem newItem) {
+        boolean exists = false;
+        for (CartItem item : cartItems) {
+            if (item.getProductId() == newItem.getProductId()) {
+                item.setQuantity(item.getQuantity() + newItem.getQuantity());
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists) {
+            cartItems.add(newItem);
+        }
+        notifyListeners();
+    }
+
     public static void addToCart(Context context, CartItem newItem) {
         boolean exists = false;
         for (CartItem item : cartItems) {

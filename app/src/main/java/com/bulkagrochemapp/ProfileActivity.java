@@ -11,7 +11,7 @@ import android.widget.Toast;
 public class ProfileActivity extends BaseActivity {
 
     private TextView tvLoggedInNumber, tvUserName;
-    private View btnLogout, btnEditProfile, btnHelpSupport, btnRefundPolicy, btnShippingPolicy;
+    private View btnLogout, btnEditProfile, btnHelpSupport, btnRefundPolicy, btnShippingPolicy, btnMyOrders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +25,7 @@ public class ProfileActivity extends BaseActivity {
         btnHelpSupport = findViewById(R.id.btnHelpSupport);
         btnRefundPolicy = findViewById(R.id.btnRefundPolicy);
         btnShippingPolicy = findViewById(R.id.btnShippingPolicy);
+        btnMyOrders = findViewById(R.id.btnMyOrders);
 
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
         String phoneNumber = prefs.getString("phone", "");
@@ -35,6 +36,11 @@ public class ProfileActivity extends BaseActivity {
         }
         
         tvUserName.setText(userName);
+
+        btnMyOrders.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, OrderHistoryActivity.class);
+            startActivity(intent);
+        });
 
         btnEditProfile.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, EditProfileActivity.class);
@@ -55,9 +61,6 @@ public class ProfileActivity extends BaseActivity {
             }
         });
 
-        // Click listeners for dynamic pages
-        // IMPORTANT: Check your 'pages' table 'slug' column for Refund Policy
-        // If your database says "refund-returns", change "refund" below to "refund-returns"
         btnRefundPolicy.setOnClickListener(v -> openPage("refund", "Refund and Returns Policy"));
         btnShippingPolicy.setOnClickListener(v -> openPage("shipping-policy", "Shipping Policy"));
 
