@@ -392,7 +392,9 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
                         String status = jsonObject.optString("status");
 
                         if ("success".equalsIgnoreCase(status)) {
-                            CartManager.clearCart();
+                            // Clear cart locally and on server
+                            CartManager.clearCart(OrderSummaryActivity.this);
+
                             Intent intent = new Intent(OrderSummaryActivity.this, PaymentSuccessActivity.class);
                             startActivity(intent);
                             finish();

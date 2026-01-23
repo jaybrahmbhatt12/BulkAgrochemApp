@@ -91,6 +91,13 @@ public interface ApiService {
             @Field("pid") int pid
     );
 
+    // Clear Cart
+    @FormUrlEncoded
+    @POST("clear_cart.php")
+    Call<ResponseBody> clearCart(
+            @Field("uid") String uid
+    );
+
     // Fetch India States and Cities from backend assets
     @GET("../assets/india_states_cities.json")
     Call<LocationResponse> getIndiaLocations();

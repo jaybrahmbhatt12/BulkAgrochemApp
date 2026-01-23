@@ -86,7 +86,6 @@ public class CartManager {
         boolean exists = false;
         for (CartItem item : cartItems) {
             if (item.getProductId() == newItem.getProductId()) {
-                // Corrected: Add the specific quantity from newItem instead of just incrementing by minQuantity
                 item.setQuantity(item.getQuantity() + newItem.getQuantity());
                 exists = true;
                 saveCartToDatabase(context, item);
@@ -192,11 +191,13 @@ public class CartManager {
                                     item.setQuantity(qty);
                                     cartItems.add(item);
                                 }
-                                // Try to sync with cache immediately if available
                                 if (!cachedProducts.isEmpty()) {
                                     syncWithProducts(cachedProducts);
                                 }
                             }
+                        } else {
+                            // If status is not success (e.g., cart empty), clear local list
+                            cartItems.clear();
                         }
                     } catch (IOException | JSONException e) {
                         Log.e(TAG, "Error parsing cart JSON: " + e.getMessage());
@@ -220,7 +221,6 @@ public class CartManager {
         
         boolean changed = false;
         for (CartItem item : cartItems) {
-            // Only update if it's still in "Loading..." state or missing details
             if (item.getName().equals("Loading...") || item.getImage().isEmpty()) {
                 for (Product p : allProducts) {
                     if (p.getId() == item.getProductId()) {
@@ -241,16 +241,10 @@ public class CartManager {
         }
     }
 
-    public static List<Product> getCachedProducts() {
-        return cachedProducts;
-    }
-
-    // Get cart items
     public static List<CartItem> getCartItems() {
         return cartItems;
     }
 
-    // Grand Total (Sum of all item subtotals including tax)
     public static double getTotalAmount() {
         double total = 0;
         for (CartItem item : cartItems) {
@@ -259,7 +253,6 @@ public class CartManager {
         return total;
     }
 
-    // Sum of all items Price * Qty (before tax)
     public static double getSubtotalBeforeTax() {
         double total = 0;
         for (CartItem item : cartItems) {
@@ -268,7 +261,6 @@ public class CartManager {
         return total;
     }
 
-    // Sum of all tax amounts
     public static double getTotalTaxAmount() {
         double total = 0;
         for (CartItem item : cartItems) {
@@ -277,8 +269,44 @@ public class CartManager {
         return total;
     }
 
-    // Clear cart
-    public static void clearCart() {
+    /**
+     * Clears the cart locally and calls the server to delete all items.
+     * Uses the provided delete_from_cart.php logic for each item.
+     */
+    public static void clearCart(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        String uid = prefs.getString("id", null);
+        
+        if (uid != null) {
+            ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+            
+            // Loop through a copy of the current items to delete them from server
+            List<CartItem> itemsToClear = new ArrayList<>(cartItems);
+            for (CartItem item : itemsToClear) {
+                apiService.deleteFromCart(uid, item.getProductId()).enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        Log.d(TAG, "Item removed from server cart: " + item.getProductId());
+                    }
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Log.e(TAG, "Failed to remove item " + item.getProductId() + ": " + t.getMessage());
+                    }
+                });
+            }
+
+            // Also call clear_cart.php if it exists as a fallback
+            apiService.clearCart(uid).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    Log.d(TAG, "Full clear_cart.php called on server");
+                }
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {}
+            });
+        }
+
+        // Clear local list and update UI
         cartItems.clear();
         notifyListeners();
     }
