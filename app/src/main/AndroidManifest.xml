@@ -38,6 +38,8 @@
         <activity android:name=".MyOrdersActivity" android:parentActivityName=".ProfileActivity" />
         <activity android:name=".OrderHistoryActivity" android:parentActivityName=".ProfileActivity" />
         <activity android:name=".PaymentSuccessActivity" />
+        <activity android:name=".PaymentFailureActivity" />
+        <activity android:name=".RegisterSuccessActivity" />
 
         <!-- LoginActivity -->
         <activity

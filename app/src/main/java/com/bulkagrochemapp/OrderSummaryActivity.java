@@ -323,7 +323,9 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
 
     @Override
     public void onPaymentError(int code, String response) {
-        Toast.makeText(this, "Payment Failed: " + response, Toast.LENGTH_SHORT).show();
+        // Show Payment Failure Page
+        Intent intent = new Intent(OrderSummaryActivity.this, PaymentFailureActivity.class);
+        startActivity(intent);
     }
 
     private void placeOrder(String paymentId) {
