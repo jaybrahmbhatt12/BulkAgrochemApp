@@ -210,8 +210,8 @@ public class RegisterActivity extends AppCompatActivity {
                         String message = jsonObject.optString("message");
 
                         if ("success".equalsIgnoreCase(status)) {
-                            Toast.makeText(RegisterActivity.this, "Registration Successful! Please login.", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                            // Redirect to RegisterSuccessActivity instead of directly to LoginActivity
+                            Intent intent = new Intent(RegisterActivity.this, RegisterSuccessActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                             finish();

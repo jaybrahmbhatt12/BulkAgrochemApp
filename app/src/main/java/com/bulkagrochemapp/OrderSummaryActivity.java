@@ -134,7 +134,11 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         String name = prefs.getString("name", "User Name");
         String phone = prefs.getString("phone", "Phone Number");
         String address = prefs.getString("address", "");
+        
+        // Fix: Check for both 'district' and 'city' keys
         String city = prefs.getString("district", "");
+        if (city.isEmpty()) city = prefs.getString("city", "");
+        
         String state = prefs.getString("state", "");
         String zip = prefs.getString("zip", "");
 
@@ -288,7 +292,11 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         String email = prefs.getString("email", "");
         String phone = prefs.getString("phone", "");
         String address = prefs.getString("address", "");
+        
+        // Fix: Check for both 'district' and 'city'
         String city = prefs.getString("district", "");
+        if (city.isEmpty()) city = prefs.getString("city", "");
+        
         String state = prefs.getString("state", "");
         String zip = prefs.getString("zip", "");
 
@@ -344,7 +352,9 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
 
     @Override
     public void onPaymentError(int code, String response) {
-        Toast.makeText(this, "Payment Failed: " + response, Toast.LENGTH_SHORT).show();
+        // Show Payment Failure Page
+        Intent intent = new Intent(OrderSummaryActivity.this, PaymentFailureActivity.class);
+        startActivity(intent);
     }
 
     private void placeOrder(String paymentId) {
@@ -354,7 +364,11 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         String email = prefs.getString("email", "");
         String phone = prefs.getString("phone", "");
         String address = prefs.getString("address", "");
+        
+        // Fix: Use district/city fallback
         String city = prefs.getString("district", "");
+        if (city.isEmpty()) city = prefs.getString("city", "");
+
         String state = prefs.getString("state", "");
         String zip = prefs.getString("zip", "");
 
