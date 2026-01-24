@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -48,6 +50,7 @@ import retrofit2.Response;
 public class OrderSummaryActivity extends AppCompatActivity implements PaymentResultListener {
 
     private RecyclerView rvOrderItems, rvCoupons;
+    private View skeletonCoupons;
     private EditText etCoupon;
     private Button btnApplyCoupon, btnPayNow;
     private ImageButton btnBack;
@@ -104,6 +107,7 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
     private void initViews() {
         rvOrderItems = findViewById(R.id.rvOrderItems);
         rvCoupons = findViewById(R.id.rvCoupons);
+        skeletonCoupons = findViewById(R.id.skeleton_coupons);
         etCoupon = findViewById(R.id.etCoupon);
         btnApplyCoupon = findViewById(R.id.btnApplyCoupon);
         btnPayNow = findViewById(R.id.btnPayNow);
@@ -190,10 +194,23 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
     }
 
     private void loadCoupons() {
+        if (skeletonCoupons != null) {
+            skeletonCoupons.setVisibility(View.VISIBLE);
+            Animation pulseAnim = AnimationUtils.loadAnimation(this, R.anim.pulse);
+            skeletonCoupons.startAnimation(pulseAnim);
+        }
+        if (rvCoupons != null) rvCoupons.setVisibility(View.GONE);
+
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.getCoupons().enqueue(new Callback<CouponResponse>() {
             @Override
             public void onResponse(Call<CouponResponse> call, Response<CouponResponse> response) {
+                if (skeletonCoupons != null) {
+                    skeletonCoupons.clearAnimation();
+                    skeletonCoupons.setVisibility(View.GONE);
+                }
+                if (rvCoupons != null) rvCoupons.setVisibility(View.VISIBLE);
+
                 if (response.isSuccessful() && response.body() != null) {
                     availableCoupons = response.body().getData();
                     if (availableCoupons != null) {
@@ -205,6 +222,10 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
 
             @Override
             public void onFailure(Call<CouponResponse> call, Throwable t) {
+                if (skeletonCoupons != null) {
+                    skeletonCoupons.clearAnimation();
+                    skeletonCoupons.setVisibility(View.GONE);
+                }
                 // Silently fail or log
             }
         });

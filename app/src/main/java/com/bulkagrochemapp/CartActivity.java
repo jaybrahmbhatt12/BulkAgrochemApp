@@ -44,7 +44,7 @@ import retrofit2.Response;
 public class CartActivity extends BaseActivity implements CartManager.OnCartDataChangedListener {
 
     RecyclerView rvCart, rvRecommended, rvCoupons;
-    View skeletonRecommended;
+    View skeletonRecommended, skeletonCoupons;
     TextView txtTotal;
     TextView txtEmptyCart;
     ImageButton btnOrders;
@@ -78,6 +78,7 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
         rvRecommended = findViewById(R.id.rvRecommended);
         skeletonRecommended = findViewById(R.id.skeleton_recommended);
         rvCoupons = findViewById(R.id.rvCoupons);
+        skeletonCoupons = findViewById(R.id.skeleton_coupons);
         
         // Initialize summary views
         cardCartTotals = findViewById(R.id.cardCartTotals);
@@ -310,10 +311,23 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
     }
 
     private void loadCoupons() {
+        if (skeletonCoupons != null) {
+            skeletonCoupons.setVisibility(View.VISIBLE);
+            Animation pulseAnim = AnimationUtils.loadAnimation(this, R.anim.pulse);
+            skeletonCoupons.startAnimation(pulseAnim);
+        }
+        if (rvCoupons != null) rvCoupons.setVisibility(View.GONE);
+
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.getCoupons().enqueue(new Callback<CouponResponse>() {
             @Override
             public void onResponse(Call<CouponResponse> call, Response<CouponResponse> response) {
+                if (skeletonCoupons != null) {
+                    skeletonCoupons.clearAnimation();
+                    skeletonCoupons.setVisibility(View.GONE);
+                }
+                if (rvCoupons != null) rvCoupons.setVisibility(View.VISIBLE);
+
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     rvCoupons.setAdapter(new CouponAdapter(CartActivity.this, response.body().getData()));
                 }
@@ -321,6 +335,10 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
 
             @Override
             public void onFailure(Call<CouponResponse> call, Throwable t) {
+                if (skeletonCoupons != null) {
+                    skeletonCoupons.clearAnimation();
+                    skeletonCoupons.setVisibility(View.GONE);
+                }
                 Log.e("COUPON_API", "Error loading coupons: " + t.getMessage());
             }
         });

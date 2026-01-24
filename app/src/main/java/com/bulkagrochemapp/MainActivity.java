@@ -78,7 +78,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
 
     private static final String TAG = "API_TEST";
     private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults, rvHotSale, rvLatestProduct, rvBigProduct, rvTopSelling, rvCoupons;
-    private View skeletonCategories, skeletonTrending, skeletonPopular, skeletonHotSale, skeletonLatest, skeletonBig, skeletonTopSelling, skeletonBanner;
+    private View skeletonCategories, skeletonTrending, skeletonPopular, skeletonHotSale, skeletonLatest, skeletonBig, skeletonTopSelling, skeletonBanner, skeletonCoupons;
     private EditText searchEditText;
     private ImageButton btnClearSearch;
     private View searchOverlay, searchResultContainer;
@@ -189,6 +189,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         skeletonLatest = findViewById(R.id.skeleton_latest);
         skeletonBig = findViewById(R.id.skeleton_big);
         skeletonTopSelling = findViewById(R.id.skeleton_topselling);
+        skeletonCoupons = findViewById(R.id.skeleton_coupons);
 
         bannerViewPager = findViewById(R.id.bannerViewPager);
         bannerViewPager.setOffscreenPageLimit(7);
@@ -455,6 +456,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         skeletonLatest.setVisibility(skeletonVis);
         skeletonBig.setVisibility(skeletonVis);
         skeletonTopSelling.setVisibility(skeletonVis);
+        skeletonCoupons.setVisibility(skeletonVis);
 
         if (show) {
             Animation pulseAnim = AnimationUtils.loadAnimation(this, R.anim.pulse);
@@ -466,6 +468,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             skeletonLatest.startAnimation(pulseAnim);
             skeletonBig.startAnimation(pulseAnim);
             skeletonTopSelling.startAnimation(pulseAnim);
+            skeletonCoupons.startAnimation(pulseAnim);
 
             View shimmerView = skeletonBanner.findViewById(R.id.skeleton_banner).findViewWithTag("shimmer");
             if (shimmerView != null) {
@@ -481,6 +484,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             skeletonLatest.clearAnimation();
             skeletonBig.clearAnimation();
             skeletonTopSelling.clearAnimation();
+            skeletonCoupons.clearAnimation();
         }
     }
 
@@ -621,6 +625,8 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         apiService.getCoupons().enqueue(new Callback<CouponResponse>() {
             @Override
             public void onResponse(Call<CouponResponse> call, Response<CouponResponse> response) {
+                skeletonCoupons.setVisibility(View.GONE);
+                skeletonCoupons.clearAnimation();
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                     List coupons = response.body().getData();
                     if (coupons == null || coupons.isEmpty()) {
@@ -639,6 +645,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             @Override
             public void onFailure(Call<CouponResponse> call, Throwable t) {
                 Log.e("COUPON_API", "Error loading coupons: " + t.getMessage());
+                skeletonCoupons.setVisibility(View.GONE);
                 if (rvCoupons != null) rvCoupons.setVisibility(View.GONE);
                 if (txtCouponsTitle != null) txtCouponsTitle.setVisibility(View.GONE);
             }
