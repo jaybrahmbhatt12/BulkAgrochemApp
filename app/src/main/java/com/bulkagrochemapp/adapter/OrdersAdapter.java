@@ -32,7 +32,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -166,16 +168,37 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
 
         // Action Button Logic
         if (status.equals("pending") || status.equals("processing")) {
-            holder.btnPrimary.setVisibility(View.VISIBLE);
-            holder.btnPrimary.setText("CANCEL ORDER");
-            holder.btnPrimary.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.red)));
-            holder.btnPrimary.setOnClickListener(v -> showConfirmationDialog("CANCEL", orderIds));
+            // Check if 24 hours have passed
+            if (isWithin24Hours(mainOrder.getCreatedAt())) {
+                holder.btnPrimary.setVisibility(View.VISIBLE);
+                holder.btnPrimary.setText("CANCEL ORDER");
+                holder.btnPrimary.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.red)));
+                holder.btnPrimary.setOnClickListener(v -> showConfirmationDialog("CANCEL", orderIds));
+            } else {
+                holder.btnPrimary.setVisibility(View.GONE);
+            }
         } else if (status.equals("completed")) {
             holder.btnPrimary.setVisibility(View.VISIBLE);
             holder.btnPrimary.setText("REORDER");
             holder.btnPrimary.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green)));
             holder.btnPrimary.setOnClickListener(v -> reorder());
         }
+    }
+
+    private boolean isWithin24Hours(String createdAt) {
+        if (createdAt == null || createdAt.isEmpty()) return false;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            Date createdDate = sdf.parse(createdAt);
+            if (createdDate != null) {
+                long diff = System.currentTimeMillis() - createdDate.getTime();
+                long hours = diff / (1000 * 60 * 60);
+                return hours < 24;
+            }
+        } catch (Exception e) {
+            Log.e("OrdersAdapter", "Date parse error: " + e.getMessage());
+        }
+        return false;
     }
 
     private void showConfirmationDialog(String action, List<Integer> orderIds) {
