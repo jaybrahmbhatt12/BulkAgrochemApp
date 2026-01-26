@@ -1,5 +1,6 @@
 package com.bulkagrochemapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -57,6 +58,10 @@ public class EditProfileActivity extends AppCompatActivity {
         fabEditPhoto.setOnClickListener(v -> {
             Toast.makeText(this, "Select Image", Toast.LENGTH_SHORT).show();
         });
+
+        if (getIntent().getBooleanExtra("is_first_time", false)) {
+            Toast.makeText(this, "Please complete your profile to continue", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void initViews() {
@@ -78,7 +83,6 @@ public class EditProfileActivity extends AppCompatActivity {
             etCountry.setEnabled(false);
         }
         
-        // Disable editing for phone number
         if (etPhone != null) {
             etPhone.setEnabled(false);
             etPhone.setFocusable(false);
@@ -104,8 +108,6 @@ public class EditProfileActivity extends AppCompatActivity {
                     indianStates = response.body().getStates();
                     setupStateSpinner();
                     loadUserData();
-                } else {
-                    Log.e("EditProfile", "Response Error: " + response.code());
                 }
             }
 
@@ -149,11 +151,19 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void loadUserData() {
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-        etName.setText(prefs.getString("name", ""));
-        etPhone.setText(prefs.getString("phone", ""));
-        etEmail.setText(prefs.getString("email", ""));
         
-        String savedState = prefs.getString("state", "");
+        // Helper method to sanitize strings and remove "null" or default values
+        String name = sanitize(prefs.getString("name", ""));
+        if (name.equalsIgnoreCase("New User")) name = "";
+        etName.setText(name);
+
+        etPhone.setText(sanitize(prefs.getString("phone", "")));
+
+        String email = sanitize(prefs.getString("email", ""));
+        if (email.equalsIgnoreCase("user@example.com")) email = "";
+        etEmail.setText(email);
+
+        String savedState = sanitize(prefs.getString("state", ""));
         if (!savedState.isEmpty()) {
             actvState.setText(savedState, false);
             for (State s : indianStates) {
@@ -162,24 +172,32 @@ public class EditProfileActivity extends AppCompatActivity {
                     break;
                 }
             }
+        } else {
+            actvState.setText("", false);
         }
-        
-        actvDistrict.setText(prefs.getString("district", ""), false);
-        etZip.setText(prefs.getString("zip", ""));
-        etAddress.setText(prefs.getString("address", ""));
+
+        // Standardize key to "city" to match LoginActivity and server response
+        String city = sanitize(prefs.getString("city", ""));
+        if (city.isEmpty()) city = sanitize(prefs.getString("district", ""));
+        actvDistrict.setText(city, false);
+
+        etZip.setText(sanitize(prefs.getString("zip", "")));
+        etAddress.setText(sanitize(prefs.getString("address", "")));
+    }
+
+    private String sanitize(String input) {
+        if (input == null || input.trim().equalsIgnoreCase("null") || input.isEmpty()) {
+            return "";
+        }
+        return input.trim();
     }
 
     private void updateProfile() {
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
         String userId = prefs.getString("id", "");
         
-        if (userId.isEmpty()) {
-            Toast.makeText(this, "User ID not found. Please login again.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         String name = etName.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim(); // Still needed for API but read-only in UI
+        String phone = etPhone.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String country = "India";
         String state = actvState.getText().toString().trim();
@@ -187,13 +205,8 @@ public class EditProfileActivity extends AppCompatActivity {
         String zip = etZip.getText().toString().trim();
         String address = etAddress.getText().toString().trim();
 
-        if (name.isEmpty() || phone.isEmpty() || email.isEmpty()) {
-            Toast.makeText(this, "Please fill required fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (zip.length() != 6) {
-            etZip.setError("ZIP Code must be 6 digits");
+        if (name.isEmpty() || email.isEmpty()) {
+            Toast.makeText(this, "Name and Email are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -205,39 +218,31 @@ public class EditProfileActivity extends AppCompatActivity {
                     try {
                         String jsonString = response.body().string();
                         JSONObject jsonObject = new JSONObject(jsonString);
-                        String status = jsonObject.optString("status");
-                        String message = jsonObject.optString("message");
-
-                        if ("success".equalsIgnoreCase(status)) {
-                            // Update local SharedPreferences
+                        if ("success".equalsIgnoreCase(jsonObject.optString("status"))) {
                             SharedPreferences.Editor editor = prefs.edit();
                             editor.putString("name", name);
-                            editor.putString("phone", phone);
                             editor.putString("email", email);
-                            editor.putString("country", country);
                             editor.putString("state", state);
-                            editor.putString("district", city);
+                            editor.putString("city", city); // Consistent with LoginActivity
+                            editor.putString("district", city); // Keep district for compatibility if needed elsewhere
                             editor.putString("zip", zip);
                             editor.putString("address", address);
                             editor.apply();
 
-                            Toast.makeText(EditProfileActivity.this, "Profile Updated Successfully!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditProfileActivity.this, "Profile Updated!", Toast.LENGTH_SHORT).show();
+                            
+                            if (getIntent().getBooleanExtra("is_first_time", false)) {
+                                startActivity(new Intent(EditProfileActivity.this, MainActivity.class));
+                            }
                             finish();
-                        } else {
-                            Toast.makeText(EditProfileActivity.this, message, Toast.LENGTH_SHORT).show();
                         }
-                    } catch (IOException | JSONException e) {
-                        e.printStackTrace();
-                        Toast.makeText(EditProfileActivity.this, "Error parsing response", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(EditProfileActivity.this, "Update failed. Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) { e.printStackTrace(); }
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(EditProfileActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditProfileActivity.this, "Update failed", Toast.LENGTH_SHORT).show();
             }
         });
     }
