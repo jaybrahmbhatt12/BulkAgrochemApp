@@ -38,8 +38,10 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -49,23 +51,21 @@ public class ProductDetailActivity extends BaseActivity {
     private static final String TAG = "ProductDetailActivity";
 
     ImageView imgProduct;
-    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount, txtReviews, txtMaxQtyPriceInfo, tvRelated;
+    TextView txtName, txtPrice, txtStock, txtQty, txtDetails, txtDescription, txtOriginalPrice, txtDiscount, txtReviews, txtMaxQtyPriceInfo, tvRelated, txtQtySubtotal;
     TextView btnPlus, btnMinus;
     View layoutQtySelector;
     Button btnAddToCart, btnReturnToCart;
     ImageButton btnBackHeader, btnWishlistDetail;
     RatingBar ratingBar;
     TableLayout tablePriceRange;
-    View skeletonDescription, skeletonTable, skeletonPrice, skeletonDiscount, skeletonRelated;
+    View skeletonPrice, skeletonDiscount, skeletonDescription, skeletonTable, skeletonRelated;
 
     // Related Products
     RecyclerView rvRelatedProducts;
     TrendingProductAdapter relatedProductAdapter;
 
-    // Primary Shimmers
-    View shimmerTable1, shimmerTable2, shimmerTable3, shimmerDesc1, shimmerDesc2, shimmerDesc3, shimmerPrice, shimmerDiscount;
-    // Secondary Shimmers (for overlapping effect)
-    View shimmerTable1_2, shimmerTable2_2, shimmerTable3_2, shimmerDesc1_2, shimmerDesc2_2, shimmerDesc3_2;
+    // Shimmer views
+    View shimmerPrice, shimmerDiscount, shimmerDesc1, shimmerDesc2, shimmerTable1;
 
     int quantity = 0;
     int initialQuantity = 0;
@@ -96,7 +96,8 @@ public class ProductDetailActivity extends BaseActivity {
         txtQty = findViewById(R.id.txtQty);
         btnPlus = findViewById(R.id.btnPlus);
         btnMinus = findViewById(R.id.btnMinus);
-        layoutQtySelector = (View) btnPlus.getParent();
+        txtQtySubtotal = findViewById(R.id.txtQtySubtotal);
+        layoutQtySelector = findViewById(R.id.qty_stepper_container);
         btnAddToCart = findViewById(R.id.btnAddToCart);
         btnReturnToCart = findViewById(R.id.btnReturnToCart);
         btnBackHeader = findViewById(R.id.btnBack);
@@ -110,29 +111,19 @@ public class ProductDetailActivity extends BaseActivity {
         tvRelated = findViewById(R.id.tvRelated);
         rvRelatedProducts = findViewById(R.id.rvRelatedProducts);
 
-        skeletonDescription = findViewById(R.id.skeletonDescription);
-        skeletonTable = findViewById(R.id.skeletonTable);
+        // Skeleton containers
         skeletonPrice = findViewById(R.id.skeletonPrice);
         skeletonDiscount = findViewById(R.id.skeletonDiscount);
+        skeletonDescription = findViewById(R.id.skeletonDescription);
+        skeletonTable = findViewById(R.id.skeletonTable);
         skeletonRelated = findViewById(R.id.skeleton_related);
 
-        // Bind Primary Shimmer views
-        shimmerTable1 = findViewById(R.id.shimmerTable1);
-        shimmerTable2 = findViewById(R.id.shimmerTable2);
-        shimmerTable3 = findViewById(R.id.shimmerTable3);
-        shimmerDesc1 = findViewById(R.id.shimmerDesc1);
-        shimmerDesc2 = findViewById(R.id.shimmerDesc2);
-        shimmerDesc3 = findViewById(R.id.shimmerDesc3);
+        // Shimmer views
         shimmerPrice = findViewById(R.id.shimmerPrice);
         shimmerDiscount = findViewById(R.id.shimmerDiscount);
-
-        // Bind Secondary Shimmer views
-        shimmerTable1_2 = findViewById(R.id.shimmerTable1_2);
-        shimmerTable2_2 = findViewById(R.id.shimmerTable2_2);
-        shimmerTable3_2 = findViewById(R.id.shimmerTable3_2);
-        shimmerDesc1_2 = findViewById(R.id.shimmerDesc1_2);
-        shimmerDesc2_2 = findViewById(R.id.shimmerDesc2_2);
-        shimmerDesc3_2 = findViewById(R.id.shimmerDesc3_2);
+        shimmerDesc1 = findViewById(R.id.shimmerDesc1);
+        shimmerDesc2 = findViewById(R.id.shimmerDesc2);
+        shimmerTable1 = findViewById(R.id.shimmerTable1);
 
         // Setup Related Products RecyclerView
         if (rvRelatedProducts != null) {
@@ -151,7 +142,11 @@ public class ProductDetailActivity extends BaseActivity {
         isComingFromCart = getIntent().getBooleanExtra("is_from_cart", false);
 
         if (isComingFromCart) {
-            if (layoutQtySelector != null) layoutQtySelector.setVisibility(View.GONE);
+            if (layoutQtySelector != null) {
+                // Hide the whole quantity card
+                View parentCard = (View) layoutQtySelector.getParent().getParent();
+                if (parentCard != null) parentCard.setVisibility(View.GONE);
+            }
             if (btnAddToCart != null) btnAddToCart.setVisibility(View.GONE);
             if (btnReturnToCart != null) btnReturnToCart.setVisibility(View.VISIBLE);
         }
@@ -169,13 +164,13 @@ public class ProductDetailActivity extends BaseActivity {
             productId = product.getId();
             updateUI(product);
         } else {
-            txtName.setText(intentName != null ? intentName : "");
-            txtPrice.setText("₹" + intentPrice + "/" + (intentStocktype != null ? intentStocktype : ""));
-            txtStock.setText("In Stock");
+            if (txtName != null) txtName.setText(intentName != null ? intentName : "");
+            if (txtPrice != null) txtPrice.setText("₹" + intentPrice + "/" + (intentStocktype != null ? intentStocktype : ""));
+            if (txtStock != null) txtStock.setText("In Stock");
 
             initialQuantity = intentMinQty;
             quantity = initialQuantity;
-            txtQty.setText(String.valueOf(quantity));
+            if (txtQty != null) txtQty.setText(String.valueOf(quantity));
 
             if (intentImage != null && !intentImage.isEmpty()) {
                 Picasso.get().load(intentImage).placeholder(R.drawable.ic_launcher_foreground).into(imgProduct);
@@ -184,7 +179,8 @@ public class ProductDetailActivity extends BaseActivity {
             if (txtMaxQtyPriceInfo != null) {
                 txtMaxQtyPriceInfo.setText("₹" + intentPrice + " (If you buy " + quantity + " QTY)+ GST (Rates are Per Kg/Per Liter)");
             }
-
+            
+            updatePriceForQuantity(quantity);
             showSkeletons(true);
         }
 
@@ -211,58 +207,60 @@ public class ProductDetailActivity extends BaseActivity {
         }
 
         int reviewsCount = random.nextInt(91) + 10;
-        txtReviews.setText(reviewsCount + " Reviews");
+        if (txtReviews != null) txtReviews.setText(reviewsCount + " Reviews");
 
         if (productId != 0) {
             fetchFullProductDetails(productId);
         }
 
-        btnPlus.setOnClickListener(v -> {
-            if (initialQuantity > 0) {
-                quantity += initialQuantity;
-                txtQty.setText(String.valueOf(quantity));
-                updatePriceForQuantity(quantity);
-            }
-        });
-
-        btnMinus.setOnClickListener(v -> {
-            if (initialQuantity > 0 && quantity > initialQuantity) {
-                quantity -= initialQuantity;
-                txtQty.setText(String.valueOf(quantity));
-                updatePriceForQuantity(quantity);
-            }
-        });
-
-        btnAddToCart.setOnClickListener(v -> {
-            double currentUnitPrice = calculateTieredPrice(quantity);
-            CartItem cartItem;
-            if (product != null) {
-                cartItem = new CartItem(product.getId(), product.getName(), product.getImage(), currentUnitPrice, product.getMinimumQty(), product.getStocktype(), product.getTaxRate());
-            } else {
-                // Pass default 18.0 tax rate if full product object is not available
-                cartItem = new CartItem(productId, intentName, intentImage, currentUnitPrice, intentMinQty, intentStocktype, 18.0);
-            }
-            cartItem.setQuantity(quantity);
-            CartManager.addToCart(ProductDetailActivity.this, cartItem);
-
-            // Remove from Wishlist if it exists there
-            if (productId != 0) {
-                WishlistManager.removeFromWishlistWithSync(this, productId);
-                updateWishlistIcon();
-            }
-
-            // Show Snackbar with "Go to Cart" action
-            Snackbar snackbar = Snackbar.make(v, (product != null ? product.getName() : intentName) +" Added to cart", Snackbar.LENGTH_LONG);
-            snackbar.setAction("GO TO CART", view -> {
-                Intent intent = new Intent(ProductDetailActivity.this, CartActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                // Standard slide transition: Enter from left, exit to right
-                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-                finish();
+        if (btnPlus != null) {
+            btnPlus.setOnClickListener(v -> {
+                if (initialQuantity > 0) {
+                    quantity += initialQuantity;
+                    txtQty.setText(String.valueOf(quantity));
+                    updatePriceForQuantity(quantity);
+                }
             });
-            snackbar.show();
-        });
+        }
+
+        if (btnMinus != null) {
+            btnMinus.setOnClickListener(v -> {
+                if (initialQuantity > 0 && quantity > initialQuantity) {
+                    quantity -= initialQuantity;
+                    txtQty.setText(String.valueOf(quantity));
+                    updatePriceForQuantity(quantity);
+                }
+            });
+        }
+
+        if (btnAddToCart != null) {
+            btnAddToCart.setOnClickListener(v -> {
+                double currentUnitPrice = calculateTieredPrice(quantity);
+                CartItem cartItem;
+                if (product != null) {
+                    cartItem = new CartItem(product.getId(), product.getName(), product.getImage(), currentUnitPrice, product.getMinimumQty(), product.getStocktype(), product.getTaxRate());
+                } else {
+                    cartItem = new CartItem(productId, intentName, intentImage, currentUnitPrice, intentMinQty, intentStocktype, 18.0);
+                }
+                cartItem.setQuantity(quantity);
+                CartManager.addToCart(ProductDetailActivity.this, cartItem);
+
+                if (productId != 0) {
+                    WishlistManager.removeFromWishlistWithSync(this, productId);
+                    updateWishlistIcon();
+                }
+
+                Snackbar snackbar = Snackbar.make(v, (product != null ? product.getName() : intentName) + " Added to cart", Snackbar.LENGTH_LONG);
+                snackbar.setAction("GO TO CART", view -> {
+                    Intent intent = new Intent(ProductDetailActivity.this, CartActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                    finish();
+                });
+                snackbar.show();
+            });
+        }
     }
 
     private void updateWishlistIcon() {
@@ -296,42 +294,31 @@ public class ProductDetailActivity extends BaseActivity {
 
     private void showSkeletons(boolean show) {
         runOnUiThread(() -> {
-            if (skeletonDescription != null) skeletonDescription.setVisibility(show ? View.VISIBLE : View.GONE);
-            if (skeletonTable != null) skeletonTable.setVisibility(show ? View.VISIBLE : View.GONE);
             if (skeletonPrice != null) skeletonPrice.setVisibility(show ? View.VISIBLE : View.GONE);
             if (skeletonDiscount != null) skeletonDiscount.setVisibility(show ? View.VISIBLE : View.GONE);
+            if (skeletonDescription != null) skeletonDescription.setVisibility(show ? View.VISIBLE : View.GONE);
+            if (skeletonTable != null) skeletonTable.setVisibility(show ? View.VISIBLE : View.GONE);
+            if (skeletonRelated != null) skeletonRelated.setVisibility(show ? View.VISIBLE : View.GONE);
 
             if (show) {
-                Animation shimmerAnim1 = AnimationUtils.loadAnimation(this, R.anim.shimmer_translate);
-                Animation shimmerAnim2 = AnimationUtils.loadAnimation(this, R.anim.shimmer_translate);
+                Animation shimmerAnim = AnimationUtils.loadAnimation(this, R.anim.shimmer_translate);
+                startShimmer(shimmerPrice, shimmerAnim);
+                startShimmer(shimmerDiscount, shimmerAnim);
+                startShimmer(shimmerDesc1, shimmerAnim);
+                startShimmer(shimmerDesc2, shimmerAnim);
+                startShimmer(shimmerTable1, shimmerAnim);
                 
-                startShimmer(shimmerTable1, shimmerAnim1);
-                startShimmer(shimmerTable2, shimmerAnim1);
-                startShimmer(shimmerTable3, shimmerAnim1);
-                startShimmer(shimmerDesc1, shimmerAnim1);
-                startShimmer(shimmerDesc2, shimmerAnim1);
-                startShimmer(shimmerDesc3, shimmerAnim1);
-                startShimmer(shimmerPrice, shimmerAnim1);
-                startShimmer(shimmerDiscount, shimmerAnim1);
-
-                handler.postDelayed(() -> {
-                    startShimmer(shimmerTable1_2, shimmerAnim2);
-                    startShimmer(shimmerTable2_2, shimmerAnim2);
-                    startShimmer(shimmerTable3_2, shimmerAnim2);
-                    startShimmer(shimmerDesc1_2, shimmerAnim2);
-                    startShimmer(shimmerDesc2_2, shimmerAnim2);
-                    startShimmer(shimmerDesc3_2, shimmerAnim2);
-                }, 600); 
-                
+                if (skeletonRelated != null) {
+                    Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
+                    skeletonRelated.startAnimation(pulse);
+                }
             } else {
-                stopShimmer(shimmerTable1); stopShimmer(shimmerTable1_2);
-                stopShimmer(shimmerTable2); stopShimmer(shimmerTable2_2);
-                stopShimmer(shimmerTable3); stopShimmer(shimmerTable3_2);
-                stopShimmer(shimmerDesc1); stopShimmer(shimmerDesc1_2);
-                stopShimmer(shimmerDesc2); stopShimmer(shimmerDesc2_2);
-                stopShimmer(shimmerDesc3); stopShimmer(shimmerDesc3_2);
                 stopShimmer(shimmerPrice);
                 stopShimmer(shimmerDiscount);
+                stopShimmer(shimmerDesc1);
+                stopShimmer(shimmerDesc2);
+                stopShimmer(shimmerTable1);
+                if (skeletonRelated != null) skeletonRelated.clearAnimation();
             }
         });
     }
@@ -438,18 +425,17 @@ public class ProductDetailActivity extends BaseActivity {
                         }
 
                         if (!relatedList.isEmpty()) {
-                            // Using item_product_horizontal_cart layout for related products
                             relatedProductAdapter = new TrendingProductAdapter(ProductDetailActivity.this, relatedList, R.layout.item_product_horizontal_cart);
                             rvRelatedProducts.setAdapter(relatedProductAdapter);
-                            tvRelated.setVisibility(View.VISIBLE);
-                            rvRelatedProducts.setVisibility(View.VISIBLE);
+                            if (tvRelated != null) tvRelated.setVisibility(View.VISIBLE);
+                            if (rvRelatedProducts != null) rvRelatedProducts.setVisibility(View.VISIBLE);
                         } else {
-                            tvRelated.setVisibility(View.GONE);
-                            rvRelatedProducts.setVisibility(View.GONE);
+                            if (tvRelated != null) tvRelated.setVisibility(View.GONE);
+                            if (rvRelatedProducts != null) rvRelatedProducts.setVisibility(View.GONE);
                         }
                     } else {
-                        tvRelated.setVisibility(View.GONE);
-                        rvRelatedProducts.setVisibility(View.GONE);
+                        if (tvRelated != null) tvRelated.setVisibility(View.GONE);
+                        if (rvRelatedProducts != null) rvRelatedProducts.setVisibility(View.GONE);
                     }
                 }
             }
@@ -473,54 +459,62 @@ public class ProductDetailActivity extends BaseActivity {
             if (skeletonPrice != null) skeletonPrice.setVisibility(View.GONE);
             if (skeletonDiscount != null) skeletonDiscount.setVisibility(View.GONE);
 
-            txtName.setText(p.getName());
+            if (txtName != null) txtName.setText(p.getName());
             
-            // Sync quantity logic
             initialQuantity = p.getMinimumQty();
             if (quantity == 0 || quantity < initialQuantity) {
                  quantity = initialQuantity;
             }
-            txtQty.setText(String.valueOf(quantity));
+            if (txtQty != null) txtQty.setText(String.valueOf(quantity));
 
             if (p.getOriginalPrice() > p.getPrice()) {
-                txtOriginalPrice.setText("₹" + String.format("%.2f", p.getOriginalPrice()));
-                txtOriginalPrice.setPaintFlags(txtOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                txtOriginalPrice.setVisibility(View.VISIBLE);
+                if (txtOriginalPrice != null) {
+                    txtOriginalPrice.setText("₹" + String.format(Locale.getDefault(), "%.2f", p.getOriginalPrice()));
+                    txtOriginalPrice.setPaintFlags(txtOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    txtOriginalPrice.setVisibility(View.VISIBLE);
+                }
             } else {
-                txtOriginalPrice.setVisibility(View.GONE);
+                if (txtOriginalPrice != null) txtOriginalPrice.setVisibility(View.GONE);
             }
 
             if (p.getDiscountPercent() > 0) {
-                txtDiscount.setText(p.getDiscountPercent() + "% OFF");
-                txtDiscount.setVisibility(View.VISIBLE);
+                if (txtDiscount != null) {
+                    txtDiscount.setText(p.getDiscountPercent() + "% OFF");
+                    txtDiscount.setVisibility(View.VISIBLE);
+                }
             } else {
-                txtDiscount.setVisibility(View.GONE);
+                if (txtDiscount != null) txtDiscount.setVisibility(View.GONE);
             }
 
             if (p.getDescription() != null && !p.getDescription().isEmpty()) {
-                txtDescription.setText(HtmlUtil.fromHtml(p.getDescription()));
-                txtDescription.setVisibility(View.VISIBLE);
+                if (txtDescription != null) {
+                    txtDescription.setText(HtmlUtil.fromHtml(p.getDescription()));
+                    txtDescription.setVisibility(View.VISIBLE);
+                }
             } else {
-                txtDescription.setVisibility(View.GONE);
+                if (txtDescription != null) txtDescription.setVisibility(View.GONE);
             }
 
             if (p.getDetails() != null && !p.getDetails().isEmpty()) {
-                txtDetails.setText(HtmlUtil.fromHtml(p.getDetails()));
-                txtDetails.setVisibility(View.VISIBLE);
+                if (txtDetails != null) {
+                    txtDetails.setText(HtmlUtil.fromHtml(p.getDetails()));
+                    txtDetails.setVisibility(View.VISIBLE);
+                }
             } else {
-                txtDetails.setVisibility(View.GONE);
+                if (txtDetails != null) txtDetails.setVisibility(View.GONE);
             }
 
-            Picasso.get()
-                    .load(p.getImage())
-                    .placeholder(R.drawable.ic_launcher_foreground)
-                    .into(imgProduct);
+            if (imgProduct != null) {
+                Picasso.get()
+                        .load(p.getImage())
+                        .placeholder(R.drawable.ic_launcher_foreground)
+                        .into(imgProduct);
+            }
 
             setupWholesaleTable(p);
             updatePriceForQuantity(quantity);
             updateWishlistIcon();
 
-            // Fetch related products from the same category
             fetchRelatedProducts(p.getCategoryId());
         });
     }
@@ -594,14 +588,18 @@ public class ProductDetailActivity extends BaseActivity {
     }
 
     private void updatePriceForQuantity(int qty) {
-        double currentPrice = calculateTieredPrice(qty);
+        double currentUnitPrice = calculateTieredPrice(qty);
+        double totalSubtotal = currentUnitPrice * qty;
         String unit = (product != null) ? product.getStocktype() : intentStocktype;
-        
+
         if (txtPrice != null) {
-            txtPrice.setText("₹" + currentPrice + "/" + (unit != null ? unit : ""));
+            txtPrice.setText("₹" + currentUnitPrice + "/" + (unit != null ? unit : ""));
         }
         if (txtMaxQtyPriceInfo != null) {
-            txtMaxQtyPriceInfo.setText("₹" + currentPrice + " (If you buy " + qty + " QTY)+ GST (Rates are Per Kg/Per Liter)");
+            txtMaxQtyPriceInfo.setText("₹" + currentUnitPrice + " (If you buy " + qty + " QTY)+ GST (Rates are Per Kg/Per Liter)");
+        }
+        if (txtQtySubtotal != null) {
+            txtQtySubtotal.setText(String.format(Locale.getDefault(), "₹%.2f", totalSubtotal));
         }
     }
 }

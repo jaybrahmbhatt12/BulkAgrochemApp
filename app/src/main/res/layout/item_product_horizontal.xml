@@ -140,6 +140,8 @@
                 android:layout_height="19dp"
                 android:isIndicator="true"
                 android:numStars="5"
+                android:progressTint="@color/blue"
+                android:secondaryProgressTint="@color/blue"
                 android:rating="5"
                 android:stepSize="0.5"/>
 
