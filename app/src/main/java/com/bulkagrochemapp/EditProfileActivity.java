@@ -55,9 +55,12 @@ public class EditProfileActivity extends AppCompatActivity {
         fetchLocationData();
         
         btnUpdateProfile.setOnClickListener(v -> updateProfile());
-        fabEditPhoto.setOnClickListener(v -> {
-            Toast.makeText(this, "Select Image", Toast.LENGTH_SHORT).show();
-        });
+        
+        if (fabEditPhoto != null) {
+            fabEditPhoto.setOnClickListener(v -> {
+                Toast.makeText(this, "Select Image", Toast.LENGTH_SHORT).show();
+            });
+        }
 
         if (getIntent().getBooleanExtra("is_first_time", false)) {
             Toast.makeText(this, "Please complete your profile to continue", Toast.LENGTH_LONG).show();
@@ -67,7 +70,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         ivProfileImage = findViewById(R.id.ivProfileImage);
-        //fabEditPhoto = findViewById(R.id.fabEditPhoto);
+        fabEditPhoto = findViewById(R.id.fabEditPhoto);
         etName = findViewById(R.id.etName);
         etPhone = findViewById(R.id.etPhone);
         etEmail = findViewById(R.id.etEmail);

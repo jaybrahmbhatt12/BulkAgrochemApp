@@ -65,7 +65,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- Camera Action Button -->
-        <!--     <com.google.android.material.floatingactionbutton.FloatingActionButton
+                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fabEditPhoto"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -77,7 +77,7 @@
                     app:elevation="10dp"
                     app:fabCustomSize="44dp"
                     app:tint="@color/white"
-                    app:borderWidth="0dp" />  -->
+                    app:borderWidth="0dp" />
             </FrameLayout>
 
             <!-- Personal Information -->
