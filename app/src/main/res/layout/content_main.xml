@@ -126,6 +126,16 @@
                     android:visibility="gone"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
+                <!-- 🎯 Campaigns Section -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvCampaigns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:visibility="gone" />
+
                 <TextView
                     android:id="@+id/trending_products_title"
                     android:layout_width="wrap_content"
@@ -192,10 +202,11 @@
                 <ImageView
                     android:id="@+id/banner_middle"
                     android:layout_width="match_parent"
-                    android:layout_height="204dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:src="@drawable/banner_one"
                     android:scaleType="fitCenter"
+                    android:adjustViewBounds="true"
                     android:background="@drawable/bg_coupon_card"
                     android:clipToOutline="true" />
 
@@ -434,153 +445,153 @@
                         android:layout_margin="4dp"/>
 
                 </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:gravity="center_horizontal">
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/humic_nutri"
-                    android:scaleType="fitCenter"
-                    android:layout_margin="4dp"/>
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/urjiva"
-                    android:scaleType="fitCenter"
-                    android:layout_margin="4dp"/>
-            </LinearLayout>
-
-            <!-- Contact Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:padding="8dp"
-                android:background="#F8F9FA">
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
-                    <View
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_horizontal">
+                    <ImageView
                         android:layout_width="0dp"
-                        android:layout_height="1dp"
+                        android:layout_height="50dp"
                         android:layout_weight="1"
-                        android:background="#D1D1D1" />
-                    <TextView
-                        android:layout_width="wrap_content"
+                        android:src="@drawable/humic_nutri"
+                        android:scaleType="fitCenter"
+                        android:layout_margin="4dp"/>
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/urjiva"
+                        android:scaleType="fitCenter"
+                        android:layout_margin="4dp"/>
+                </LinearLayout>
+
+                <!-- Contact Section -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:padding="8dp"
+                    android:background="#F8F9FA">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Contact"
-                        android:textColor="#2E7D32"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="#D1D1D1" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Contact"
+                            android:textColor="#2E7D32"
+                            android:textStyle="bold"
+                            android:layout_marginHorizontal="16dp"/>
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="#D1D1D1" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginBottom="8dp">
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_call"
+                            app:tint="#424242"
+                            android:layout_marginEnd="8dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+91 9512017161"
+                            android:textColor="#424242"
+                            android:textSize="14sp"/>
+
+                        <ImageView
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:paddingLeft="18dp"
+                            android:src="@drawable/outline_contact_mail_24"
+                            app:tint="#424242"
+                            android:layout_marginEnd="8dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="sales@bulkagrochem.com"
+                            android:textColor="#424242"
+                            android:textSize="14sp"/>
+                    </LinearLayout>
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Address:"
                         android:textStyle="bold"
-                        android:layout_marginHorizontal="16dp"/>
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1"
-                        android:background="#D1D1D1" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginBottom="8dp">
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_call"
-                        app:tint="#424242"
-                        android:layout_marginEnd="8dp"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="+91 9512017161"
                         android:textColor="#424242"
-                        android:textSize="14sp"/>
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:layout_marginBottom="4dp"/>
 
-                    <ImageView
-                        android:layout_width="38dp"
-                        android:layout_height="38dp"
-                        android:paddingLeft="18dp"
-                        android:src="@drawable/outline_contact_mail_24"
-                        app:tint="#424242"
-                        android:layout_marginEnd="8dp"/>
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="sales@bulkagrochem.com"
-                        android:textColor="#424242"
-                        android:textSize="14sp"/>
-                </LinearLayout>
-
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Address:"
-                    android:textStyle="bold"
-                    android:textColor="#424242"
-                    android:gravity="center"
-                    android:textSize="14sp"
-                    android:layout_marginBottom="4dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="225, 2th floor Orchid Plaza, Behind McDonalds, Near sama water canal, Sama- Savli road, Vadodara-390008 Gujarat, India"
-                    android:textColor="#616161"
-                    android:textSize="13sp"
-                    android:gravity="center"
-                    android:lineSpacingExtra="2dp"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginTop="16dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Follow us on"
+                        android:text="225, 2th floor Orchid Plaza, Behind McDonalds, Near sama water canal, Sama- Savli road, Vadodara-390008 Gujarat, India"
                         android:textColor="#616161"
-                        android:textSize="12sp"
-                        android:layout_marginEnd="12dp"/>
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_instagram"
-                        android:layout_marginHorizontal="6dp"/>
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_facebook"
-                        android:layout_marginHorizontal="6dp"/>
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_twitter_x"
-                        android:layout_marginHorizontal="6dp"/>
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_youtube"
-                        android:layout_marginHorizontal="6dp"/>
+                        android:textSize="13sp"
+                        android:gravity="center"
+                        android:lineSpacingExtra="2dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="16dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Follow us on"
+                            android:textColor="#616161"
+                            android:textSize="12sp"
+                            android:layout_marginEnd="12dp"/>
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_instagram"
+                            android:layout_marginHorizontal="6dp"/>
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_facebook"
+                            android:layout_marginHorizontal="6dp"/>
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_twitter_x"
+                            android:layout_marginHorizontal="6dp"/>
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_youtube"
+                            android:layout_marginHorizontal="6dp"/>
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 

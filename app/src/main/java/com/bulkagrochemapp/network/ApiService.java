@@ -1,5 +1,6 @@
 package com.bulkagrochemapp.network;
 
+import com.bulkagrochemapp.model.CampaignResponse;
 import com.bulkagrochemapp.model.CategoryResponse;
 import com.bulkagrochemapp.model.CouponResponse;
 import com.bulkagrochemapp.model.LocationResponse;
@@ -26,6 +27,10 @@ public interface ApiService {
     // Sliders
     @GET("sliders.php")
     Call<SliderResponse> getSliders();
+
+    // Campaigns
+    @GET("fetch_campaigns.php")
+    Call<CampaignResponse> getCampaigns();
 
     // All Products
     @GET("products.php")

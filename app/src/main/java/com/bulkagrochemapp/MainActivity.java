@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,10 +12,13 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
@@ -45,6 +49,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.bulkagrochemapp.adapter.BannerAdapter;
 import com.bulkagrochemapp.adapter.BigProductAdapter;
+import com.bulkagrochemapp.adapter.CampaignAdapter;
 import com.bulkagrochemapp.adapter.CategoryAdapter;
 import com.bulkagrochemapp.adapter.CouponAdapter;
 import com.bulkagrochemapp.adapter.HotProductAdapter;
@@ -53,6 +58,8 @@ import com.bulkagrochemapp.adapter.MostPopularProductAdapter;
 import com.bulkagrochemapp.adapter.SearchSuggestionAdapter;
 import com.bulkagrochemapp.adapter.TopSellingProductAdapter;
 import com.bulkagrochemapp.adapter.TrendingProductAdapter;
+import com.bulkagrochemapp.model.Campaign;
+import com.bulkagrochemapp.model.CampaignResponse;
 import com.bulkagrochemapp.model.CartItem;
 import com.bulkagrochemapp.model.Category;
 import com.bulkagrochemapp.model.CategoryResponse;
@@ -77,7 +84,7 @@ import retrofit2.Response;
 public class MainActivity extends BaseActivity implements SearchSuggestionAdapter.OnSuggestionClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "API_TEST";
-    private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults, rvHotSale, rvLatestProduct, rvBigProduct, rvTopSelling, rvCoupons;
+    private RecyclerView rvCategories, rvTrending, rvPopular, rvSearchResults, rvHotSale, rvLatestProduct, rvBigProduct, rvTopSelling, rvCoupons, rvCampaigns;
     private View skeletonCategories, skeletonTrending, skeletonPopular, skeletonHotSale, skeletonLatest, skeletonBig, skeletonTopSelling, skeletonBanner, skeletonCoupons;
     private EditText searchEditText;
     private ImageButton btnClearSearch;
@@ -100,6 +107,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
 
     private ImageButton btnWishlist;
     private View btnPlayVideo;
+    private ImageView bannerMiddle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,10 +152,12 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         }
 
         initViews();
+        setupDynamicBannerHeight();
         initSearch();
         showAllSkeletons(true);
 
         loadBanners();
+        loadCampaigns();
         loadProducts();
         loadCategories();
         loadTrendingProducts();
@@ -180,6 +190,29 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         });
     }
 
+    private void setupDynamicBannerHeight() {
+        if (bannerMiddle != null) {
+            WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+            Display display = wm.getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            int screenWidth = size.x;
+            
+            // Assuming the banner image has a specific aspect ratio, e.g., 16:9
+            // Height = Width * (9 / 16)
+            // Subtracting padding (15dp on each side = 30dp total)
+            float density = getResources().getDisplayMetrics().density;
+            int paddingPx = (int) (30 * density);
+            int availableWidth = screenWidth - paddingPx;
+            
+            int targetHeight = (int) (availableWidth * (9.0f / 16.0f));
+            
+            ViewGroup.LayoutParams params = bannerMiddle.getLayoutParams();
+            params.height = targetHeight;
+            bannerMiddle.setLayoutParams(params);
+        }
+    }
+
     private void initViews() {
         skeletonBanner = findViewById(R.id.skeleton_banner);
         skeletonCategories = findViewById(R.id.skeleton_categories);
@@ -196,6 +229,9 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
 
         rvCategories = findViewById(R.id.rvCategories);
         rvCategories.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        rvCampaigns = findViewById(R.id.rvCampaigns);
+        rvCampaigns.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         rvTrending = findViewById(R.id.rvTrending);
         rvTrending.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -228,7 +264,8 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         searchResultContainer = findViewById(R.id.searchResultContainer);
         btnWishlist = findViewById(R.id.btnWishlist);
         btnPlayVideo = findViewById(R.id.btnPlayVideo);
-        
+        bannerMiddle = findViewById(R.id.banner_middle);
+
         fabWhatsapp = findViewById(R.id.fabWhatsapp);
         GoUp = findViewById(R.id.Go_up);
 
@@ -399,6 +436,27 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             public void onFailure(Call<SliderResponse> call, Throwable t) {
                 skeletonBanner.setVisibility(View.GONE);
                 Log.e(TAG, "Banner API Failure: " + t.getMessage());
+            }
+        });
+    }
+
+    private void loadCampaigns() {
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.getCampaigns().enqueue(new Callback<CampaignResponse>() {
+            @Override
+            public void onResponse(Call<CampaignResponse> call, Response<CampaignResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getCampaigns() != null) {
+                    List<Campaign> campaigns = response.body().getCampaigns();
+                    if (!campaigns.isEmpty()) {
+                        rvCampaigns.setVisibility(View.VISIBLE);
+                        rvCampaigns.setAdapter(new CampaignAdapter(MainActivity.this, campaigns));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CampaignResponse> call, Throwable t) {
+                Log.e(TAG, "Campaign API Failure: " + t.getMessage());
             }
         });
     }
