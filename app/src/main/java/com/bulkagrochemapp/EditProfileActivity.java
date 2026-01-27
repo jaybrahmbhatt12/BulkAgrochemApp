@@ -55,9 +55,12 @@ public class EditProfileActivity extends AppCompatActivity {
         fetchLocationData();
         
         btnUpdateProfile.setOnClickListener(v -> updateProfile());
-        fabEditPhoto.setOnClickListener(v -> {
-            Toast.makeText(this, "Select Image", Toast.LENGTH_SHORT).show();
-        });
+        
+        if (fabEditPhoto != null) {
+            fabEditPhoto.setOnClickListener(v -> {
+                Toast.makeText(this, "Select Image", Toast.LENGTH_SHORT).show();
+            });
+        }
 
         if (getIntent().getBooleanExtra("is_first_time", false)) {
             Toast.makeText(this, "Please complete your profile to continue", Toast.LENGTH_LONG).show();

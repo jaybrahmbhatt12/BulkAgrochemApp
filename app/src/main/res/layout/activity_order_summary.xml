@@ -170,7 +170,7 @@
                         <EditText
                             android:id="@+id/etCoupon"
                             android:layout_width="0dp"
-                            android:layout_height="48dp"
+                            android:layout_height="40dp"
                             android:layout_weight="1"
                             android:background="@drawable/bg_skeleton"
                             android:hint="Enter coupon code"
@@ -180,7 +180,7 @@
                         <Button
                             android:id="@+id/btnApplyCoupon"
                             android:layout_width="wrap_content"
-                            android:layout_height="48dp"
+                            android:layout_height="50dp"
                             android:layout_marginStart="8dp"
                             android:backgroundTint="@color/orange_brand"
                             android:text="Apply"

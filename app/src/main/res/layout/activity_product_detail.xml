@@ -212,8 +212,6 @@
                             android:numStars="5"
                             android:stepSize="0.5"
                             android:rating="5"
-                            android:progressTint="@color/blue"
-                            android:secondaryProgressTint="@color/blue"
                             android:progressBackgroundTint="#CCCCCC"
                             android:theme="@style/Widget.AppCompat.RatingBar.Small"/>
 
