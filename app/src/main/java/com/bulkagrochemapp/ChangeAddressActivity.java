@@ -123,13 +123,20 @@ public class ChangeAddressActivity extends AppCompatActivity {
         actvDistrict.setText("", false);
     }
 
+    private String sanitize(String input) {
+        if (input == null || input.trim().equalsIgnoreCase("null") || input.isEmpty()) {
+            return "";
+        }
+        return input.trim();
+    }
+
     private void loadUserData() {
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-        etName.setText(prefs.getString("name", ""));
-        etPhone.setText(prefs.getString("phone", ""));
-        currentEmail = prefs.getString("email", "");
+        etName.setText(sanitize(prefs.getString("name", "")));
+        etPhone.setText(sanitize(prefs.getString("phone", "")));
+        currentEmail = sanitize(prefs.getString("email", ""));
         
-        String savedState = prefs.getString("state", "");
+        String savedState = sanitize(prefs.getString("state", ""));
         if (!savedState.isEmpty()) {
             actvState.setText(savedState, false);
             for (State s : indianStates) {
@@ -140,16 +147,19 @@ public class ChangeAddressActivity extends AppCompatActivity {
             }
         }
         
-        actvDistrict.setText(prefs.getString("district", ""), false);
-        etZip.setText(prefs.getString("zip", ""));
-        etAddress.setText(prefs.getString("address", ""));
+        String city = sanitize(prefs.getString("city", ""));
+        if (city.isEmpty()) city = sanitize(prefs.getString("district", ""));
+        actvDistrict.setText(city, false);
+        
+        etZip.setText(sanitize(prefs.getString("zip", "")));
+        etAddress.setText(sanitize(prefs.getString("address", "")));
     }
 
     private void updateAddress() {
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
         String userId = prefs.getString("id", "");
         
-        if (userId.isEmpty()) {
+        if (userId == null || userId.isEmpty()) {
             Toast.makeText(this, "User ID not found.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -176,7 +186,10 @@ public class ChangeAddressActivity extends AppCompatActivity {
                         JSONObject jsonObject = new JSONObject(jsonString);
                         if ("success".equalsIgnoreCase(jsonObject.optString("status"))) {
                             SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString("name", name);
+                            editor.putString("phone", phone);
                             editor.putString("state", state);
+                            editor.putString("city", city);
                             editor.putString("district", city);
                             editor.putString("zip", zip);
                             editor.putString("address", address);

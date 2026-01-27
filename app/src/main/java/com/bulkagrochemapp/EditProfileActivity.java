@@ -67,7 +67,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         ivProfileImage = findViewById(R.id.ivProfileImage);
-        fabEditPhoto = findViewById(R.id.fabEditPhoto);
+        //fabEditPhoto = findViewById(R.id.fabEditPhoto);
         etName = findViewById(R.id.etName);
         etPhone = findViewById(R.id.etPhone);
         etEmail = findViewById(R.id.etEmail);

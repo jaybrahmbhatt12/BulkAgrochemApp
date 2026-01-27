@@ -29,15 +29,7 @@ public class ProfileActivity extends BaseActivity {
         btnShippingPolicy = findViewById(R.id.btnShippingPolicy);
         btnMyOrders = findViewById(R.id.btnMyOrders);
 
-        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-        String phoneNumber = prefs.getString("phone", "");
-        String userName = prefs.getString("name", "User Name");
-
-        if (!phoneNumber.isEmpty()) {
-            tvLoggedInNumber.setText("+91 " + phoneNumber);
-        }
-        
-        tvUserName.setText(userName);
+        updateProfileUI();
 
         btnMyOrders.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, MyOrdersActivity.class);
@@ -71,7 +63,7 @@ public class ProfileActivity extends BaseActivity {
                     .setTitle("Logout")
                     .setMessage("Are you sure you want to logout?")
                     .setPositiveButton("Logout", (dialog, which) -> {
-                        SharedPreferences.Editor editor = prefs.edit();
+                        SharedPreferences.Editor editor = getSharedPreferences("user_session", MODE_PRIVATE).edit();
                         editor.clear();
                         editor.apply();
 
@@ -92,14 +84,31 @@ public class ProfileActivity extends BaseActivity {
         startActivity(intent);
     }
 
+    private String sanitize(String input) {
+        if (input == null || input.trim().equalsIgnoreCase("null") || input.isEmpty()) {
+            return "";
+        }
+        return input.trim();
+    }
+
+    private void updateProfileUI() {
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        String name = sanitize(prefs.getString("name", ""));
+        String phoneNumber = sanitize(prefs.getString("phone", ""));
+
+        if (name.isEmpty()) name = "User Name";
+        tvUserName.setText(name);
+
+        if (!phoneNumber.isEmpty()) {
+            tvLoggedInNumber.setText("+91 " + phoneNumber);
+        } else {
+            tvLoggedInNumber.setText("Phone Number");
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-        tvUserName.setText(prefs.getString("name", "User Name"));
-        String phoneNumber = prefs.getString("phone", "");
-        if (!phoneNumber.isEmpty()) {
-            tvLoggedInNumber.setText("+91 " + phoneNumber);
-        }
+        updateProfileUI();
     }
 }

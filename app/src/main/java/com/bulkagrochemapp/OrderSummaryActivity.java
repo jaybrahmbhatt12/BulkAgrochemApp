@@ -29,6 +29,7 @@ import com.bulkagrochemapp.model.CouponResponse;
 import com.bulkagrochemapp.network.ApiService;
 import com.bulkagrochemapp.network.RetrofitClient;
 import com.bulkagrochemapp.utils.CartManager;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.razorpay.Checkout;
 import com.razorpay.PaymentResultListener;
@@ -129,18 +130,27 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         rvCoupons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
     }
 
+    private String sanitize(String input) {
+        if (input == null || input.trim().equalsIgnoreCase("null") || input.isEmpty()) {
+            return "";
+        }
+        return input.trim();
+    }
+
     private void loadAddress() {
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-        String name = prefs.getString("name", "User Name");
-        String phone = prefs.getString("phone", "Phone Number");
-        String address = prefs.getString("address", "");
+        String name = sanitize(prefs.getString("name", "User Name"));
+        String phone = sanitize(prefs.getString("phone", "Phone Number"));
+        String address = sanitize(prefs.getString("address", ""));
         
-        // Fix: Check for both 'district' and 'city' keys
-        String city = prefs.getString("district", "");
-        if (city.isEmpty()) city = prefs.getString("city", "");
+        String city = sanitize(prefs.getString("district", ""));
+        if (city.isEmpty()) city = sanitize(prefs.getString("city", ""));
         
-        String state = prefs.getString("state", "");
-        String zip = prefs.getString("zip", "");
+        String state = sanitize(prefs.getString("state", ""));
+        String zip = sanitize(prefs.getString("zip", ""));
+
+        if (name.isEmpty() || name.equalsIgnoreCase("New User")) name = "User Name";
+        if (phone.isEmpty()) phone = "Phone Number";
 
         txtAddressName.setText(name);
         txtAddressPhone.setText(phone);
@@ -162,8 +172,10 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
 
         if (fullAddress.length() > 0) {
             txtAddressDetails.setText(fullAddress.toString());
+            txtAddressDetails.setTextColor(getResources().getColor(R.color.black));
         } else {
             txtAddressDetails.setText("Please update your address in profile");
+            txtAddressDetails.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
         }
     }
 
@@ -287,26 +299,25 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
 
     private boolean validateDetails() {
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-        String uid = prefs.getString("id", "");
-        String name = prefs.getString("name", "");
-        String email = prefs.getString("email", "");
-        String phone = prefs.getString("phone", "");
-        String address = prefs.getString("address", "");
+        String uid = sanitize(prefs.getString("id", ""));
+        String name = sanitize(prefs.getString("name", ""));
+        String email = sanitize(prefs.getString("email", ""));
+        String phone = sanitize(prefs.getString("phone", ""));
+        String address = sanitize(prefs.getString("address", ""));
         
-        // Fix: Check for both 'district' and 'city'
-        String city = prefs.getString("district", "");
-        if (city.isEmpty()) city = prefs.getString("city", "");
+        String city = sanitize(prefs.getString("district", ""));
+        if (city.isEmpty()) city = sanitize(prefs.getString("city", ""));
         
-        String state = prefs.getString("state", "");
-        String zip = prefs.getString("zip", "");
+        String state = sanitize(prefs.getString("state", ""));
+        String zip = sanitize(prefs.getString("zip", ""));
 
         if (uid.isEmpty()) {
             Toast.makeText(this, "Please login to place order", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if (address.isEmpty() || city.isEmpty() || state.isEmpty() || email.isEmpty() || name.isEmpty() || phone.isEmpty()) {
-            Toast.makeText(this, "Please update your full profile (Email, Address, City, State) to place an order", Toast.LENGTH_LONG).show();
+        if (address.isEmpty() || city.isEmpty() || state.isEmpty() || zip.isEmpty() || email.isEmpty() || name.isEmpty() || name.equalsIgnoreCase("New User") || phone.isEmpty()) {
+            showErrorSnackbar("Please complete your profile (Email, Address, City, State, ZIP) to place an order");
             return false;
         }
 
@@ -317,14 +328,24 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         return true;
     }
 
+    private void showErrorSnackbar(String message) {
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("Update Now", v -> {
+            Intent intent = new Intent(OrderSummaryActivity.this, EditProfileActivity.class);
+            changeAddressLauncher.launch(intent);
+        });
+        snackbar.setActionTextColor(getResources().getColor(R.color.orange_brand));
+        snackbar.show();
+    }
+
     private void startPayment() {
         Checkout checkout = new Checkout();
         checkout.setKeyID("rzp_test_RZEWfckatMa4lh");
 
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-        String name = prefs.getString("name", "User");
-        String email = prefs.getString("email", "");
-        String phone = prefs.getString("phone", "");
+        String name = sanitize(prefs.getString("name", "User"));
+        String email = sanitize(prefs.getString("email", ""));
+        String phone = sanitize(prefs.getString("phone", ""));
 
         try {
             JSONObject options = new JSONObject();
@@ -359,18 +380,17 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
 
     private void placeOrder(String paymentId) {
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
-        String uid = prefs.getString("id", "");
-        String name = prefs.getString("name", "");
-        String email = prefs.getString("email", "");
-        String phone = prefs.getString("phone", "");
-        String address = prefs.getString("address", "");
+        String uid = sanitize(prefs.getString("id", ""));
+        String name = sanitize(prefs.getString("name", ""));
+        String email = sanitize(prefs.getString("email", ""));
+        String phone = sanitize(prefs.getString("phone", ""));
+        String address = sanitize(prefs.getString("address", ""));
         
-        // Fix: Use district/city fallback
-        String city = prefs.getString("district", "");
-        if (city.isEmpty()) city = prefs.getString("city", "");
+        String city = sanitize(prefs.getString("district", ""));
+        if (city.isEmpty()) city = sanitize(prefs.getString("city", ""));
 
-        String state = prefs.getString("state", "");
-        String zip = prefs.getString("zip", "");
+        String state = sanitize(prefs.getString("state", ""));
+        String zip = sanitize(prefs.getString("zip", ""));
 
         List<CartItem> cartItems = CartManager.getCartItems();
         int totalQty = 0;

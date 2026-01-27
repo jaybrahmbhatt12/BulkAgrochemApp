@@ -221,20 +221,27 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private String sanitize(String input) {
+        if (input == null || input.trim().equalsIgnoreCase("null") || input.isEmpty()) {
+            return "";
+        }
+        return input.trim();
+    }
+
     private void saveUserSession(JSONObject userData) {
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("is_logged_in", true);
         if (userData != null) {
-            editor.putString("id", userData.optString("id"));
-            editor.putString("name", userData.optString("name"));
-            editor.putString("email", userData.optString("email"));
-            editor.putString("phone", userData.optString("phone"));
-            editor.putString("country", userData.optString("country", ""));
-            editor.putString("state", userData.optString("state", ""));
-            editor.putString("city", userData.optString("city", ""));
-            editor.putString("zip", userData.optString("zip", ""));
-            editor.putString("address", userData.optString("address", ""));
+            editor.putString("id", sanitize(userData.optString("id")));
+            editor.putString("name", sanitize(userData.optString("name")));
+            editor.putString("email", sanitize(userData.optString("email")));
+            editor.putString("phone", sanitize(userData.optString("phone")));
+            editor.putString("country", sanitize(userData.optString("country", "")));
+            editor.putString("state", sanitize(userData.optString("state", "")));
+            editor.putString("city", sanitize(userData.optString("city", "")));
+            editor.putString("zip", sanitize(userData.optString("zip", "")));
+            editor.putString("address", sanitize(userData.optString("address", "")));
         }
         editor.apply();
     }
