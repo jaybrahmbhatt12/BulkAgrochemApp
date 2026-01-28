@@ -29,6 +29,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         void onTrack(Order order);
         void onCancel(Order order);
         void onReturn(Order order);
+        void onInvoice(Order order);
     }
 
     public OrderAdapter(Context context, List<Order> orderList, OnOrderActionListener listener) {
@@ -53,13 +54,25 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         holder.txtTotalAmount.setText(String.format(Locale.getDefault(), "₹%.2f", order.getTotal()));
         holder.txtOrderStatus.setText(order.getStatus());
 
-        // Update status color
-        if ("Delivered".equalsIgnoreCase(order.getStatus())) {
+        // Update status color and button visibility
+        String status = order.getStatus() != null ? order.getStatus() : "";
+        
+        // Invoice button visibility: only for pending, processing, completed
+        if (status.equalsIgnoreCase("Pending") || 
+            status.equalsIgnoreCase("Processing") || 
+            status.equalsIgnoreCase("Completed") ||
+            status.equalsIgnoreCase("Delivered")) { // Delivered usually maps to completed in some systems
+            holder.btnInvoice.setVisibility(View.VISIBLE);
+        } else {
+            holder.btnInvoice.setVisibility(View.GONE);
+        }
+
+        if ("Delivered".equalsIgnoreCase(status) || "Completed".equalsIgnoreCase(status)) {
             holder.txtOrderStatus.setTextColor(context.getResources().getColor(android.R.color.holo_green_dark));
             holder.btnReturn.setVisibility(View.VISIBLE);
             holder.btnCancel.setVisibility(View.GONE);
             holder.btnTrack.setVisibility(View.VISIBLE);
-        } else if ("Cancelled".equalsIgnoreCase(order.getStatus())) {
+        } else if ("Cancelled".equalsIgnoreCase(status)) {
             holder.txtOrderStatus.setTextColor(context.getResources().getColor(android.R.color.holo_red_dark));
             holder.btnReturn.setVisibility(View.GONE);
             holder.btnCancel.setVisibility(View.GONE);
@@ -88,6 +101,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         holder.btnTrack.setOnClickListener(v -> listener.onTrack(order));
         holder.btnCancel.setOnClickListener(v -> listener.onCancel(order));
         holder.btnReturn.setOnClickListener(v -> listener.onReturn(order));
+        holder.btnInvoice.setOnClickListener(v -> listener.onInvoice(order));
     }
 
     @Override
@@ -98,7 +112,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     public static class OrderViewHolder extends RecyclerView.ViewHolder {
         TextView txtOrderId, txtOrderStatus, txtOrderDate, txtTotalAmount;
         LinearLayout layoutItems;
-        Button btnReorder, btnTrack, btnCancel, btnReturn;
+        Button btnReorder, btnTrack, btnCancel, btnReturn, btnInvoice;
 
         public OrderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -111,6 +125,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             btnTrack = itemView.findViewById(R.id.btnTrack);
             btnCancel = itemView.findViewById(R.id.btnCancel);
             btnReturn = itemView.findViewById(R.id.btnReturn);
+            btnInvoice = itemView.findViewById(R.id.btnInvoice);
         }
     }
 }

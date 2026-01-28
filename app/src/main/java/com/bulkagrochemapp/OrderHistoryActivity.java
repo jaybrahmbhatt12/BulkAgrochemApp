@@ -23,6 +23,7 @@ import com.bulkagrochemapp.model.OrderResponse;
 import com.bulkagrochemapp.network.ApiService;
 import com.bulkagrochemapp.network.RetrofitClient;
 import com.bulkagrochemapp.utils.CartManager;
+import com.bulkagrochemapp.utils.InvoiceGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +119,6 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderAdap
 
     @Override
     public void onTrack(Order order) {
-        // Implement tracking logic or open a web view/activity
         Toast.makeText(this, "Tracking feature coming soon for Order #" + order.getId(), Toast.LENGTH_SHORT).show();
     }
 
@@ -161,7 +161,7 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderAdap
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Return Order")
                 .setView(etReason)
-                .setPositiveButton("Submit Return", null) // Set null to override later
+                .setPositiveButton("Submit Return", null)
                 .setNegativeButton("Cancel", null)
                 .create();
 
@@ -178,7 +178,6 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderAdap
         });
         
         dialog.show();
-        // Add padding to the EditText inside the dialog
         ((View) etReason.getParent()).setPadding(padding, padding, padding, padding);
     }
 
@@ -200,5 +199,10 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderAdap
                 Toast.makeText(OrderHistoryActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onInvoice(Order order) {
+        InvoiceGenerator.generateInvoice(this, order);
     }
 }
