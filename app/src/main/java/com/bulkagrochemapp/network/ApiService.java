@@ -176,6 +176,12 @@ public interface ApiService {
     @POST("place_order.php")
     Call<ResponseBody> placeOrder(@Body RequestBody body);
 
+    @FormUrlEncoded
+    @POST("place_order.php")
+    Call<ResponseBody> updatePaymentStatus(
+            @Field("order_id") int orderId,
+            @Field("payment_status") String paymentStatus
+    );
 
     @FormUrlEncoded
     @POST("order_history.php")

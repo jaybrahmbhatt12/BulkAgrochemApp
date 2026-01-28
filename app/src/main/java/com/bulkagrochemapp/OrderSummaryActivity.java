@@ -409,6 +409,7 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
             orderJson.put("cart", cartJson);
             orderJson.put("method", "Razorpay");
             orderJson.put("payment_id", paymentId);
+            orderJson.put("payment_status", "Completed");
             orderJson.put("shipping", "shipto");
             orderJson.put("totalQty", totalQty);
             orderJson.put("pay_amount", grandTotal);
