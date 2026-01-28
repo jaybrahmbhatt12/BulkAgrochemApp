@@ -49,6 +49,11 @@ public class Order implements Serializable {
     private double totalPrice;
     private double total;
 
+    @SerializedName("coupon_code")
+    private String couponCode;
+    @SerializedName("coupon_discount")
+    private double couponDiscount;
+
     @SerializedName("order_items")
     private List<CartItem> items;
 
@@ -81,6 +86,9 @@ public class Order implements Serializable {
     public double getTotalPrice() { return totalPrice; }
     public double getTotal() { return total; }
     public List<CartItem> getItems() { return items; }
+
+    public String getCouponCode() { return couponCode; }
+    public double getCouponDiscount() { return couponDiscount; }
 
     public void setStatus(String status) { this.status = status; }
 }

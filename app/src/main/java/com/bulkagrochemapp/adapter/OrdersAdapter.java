@@ -26,6 +26,7 @@ import com.bulkagrochemapp.R;
 import com.bulkagrochemapp.model.Order;
 import com.bulkagrochemapp.network.ApiService;
 import com.bulkagrochemapp.network.RetrofitClient;
+import com.bulkagrochemapp.utils.InvoiceGenerator;
 import com.google.android.material.button.MaterialButton;
 
 import org.json.JSONArray;
@@ -70,7 +71,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         if (orderGroup == null || orderGroup.isEmpty()) return;
 
         Order mainOrder = orderGroup.get(0);
-        String status = mainOrder.getStatus().toLowerCase();
+        String status = mainOrder.getStatus() != null ? mainOrder.getStatus().toLowerCase() : "";
         
         // Map 'declined' to 'cancelled' for UI display
         if (status.equals("declined")) {
@@ -163,6 +164,13 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         // Reset buttons
         holder.btnPrimary.setVisibility(View.GONE);
         holder.btnSecondary.setVisibility(View.GONE);
+        holder.btnInvoice.setVisibility(View.GONE);
+
+        // Invoice button visibility: pending, processing, completed
+        if (status.equals("pending") || status.equals("processing") || status.equals("completed")) {
+            holder.btnInvoice.setVisibility(View.VISIBLE);
+            holder.btnInvoice.setOnClickListener(v -> InvoiceGenerator.generateInvoice(context, mainOrder));
+        }
 
         // Action Button Logic
         if (status.equals("pending")) {
@@ -244,7 +252,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         TextView txtStatus, txtDate, txtAddress, txtTotalQty, txtTotalPrice;
         View viewStatusDot;
         LinearLayout productsContainer;
-        MaterialButton btnPrimary, btnSecondary;
+        MaterialButton btnPrimary, btnSecondary, btnInvoice;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -257,6 +265,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             productsContainer = itemView.findViewById(R.id.productsContainer);
             btnPrimary = itemView.findViewById(R.id.btnPrimary);
             btnSecondary = itemView.findViewById(R.id.btnSecondary);
+            btnInvoice = itemView.findViewById(R.id.btnInvoice);
         }
     }
 }
