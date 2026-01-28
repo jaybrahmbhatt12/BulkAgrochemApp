@@ -35,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etMobile, etOtp;
     private Button btnSendOtp, btnVerifyOtp;
     private TextView tvSubtitle, tvResendOtp;
+    private View loadingOverlay;
     private String serverOtp;
     private boolean isNewUser = false;
     private JSONObject existingUserData;
@@ -82,12 +83,21 @@ public class LoginActivity extends AppCompatActivity {
         btnVerifyOtp = findViewById(R.id.btnVerifyOtp);
         tvSubtitle = findViewById(R.id.tvSubtitle);
         tvResendOtp = findViewById(R.id.tvResendOtp);
+        loadingOverlay = findViewById(R.id.loadingOverlay);
         
         // Hide unused fields for this flow
         if (findViewById(R.id.tilName) != null) findViewById(R.id.tilName).setVisibility(View.GONE);
         if (findViewById(R.id.tilEmail) != null) findViewById(R.id.tilEmail).setVisibility(View.GONE);
         TextView txtSwitch = findViewById(R.id.txtSwitch);
         if (txtSwitch != null) txtSwitch.setVisibility(View.GONE);
+    }
+
+    private void showLoading(boolean show) {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+        btnSendOtp.setEnabled(!show);
+        btnVerifyOtp.setEnabled(!show);
     }
 
     private boolean validatePhoneNumber(String phone) {
@@ -100,6 +110,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void checkUserAndSendOtp(String phone) {
+        showLoading(true);
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.login(phone).enqueue(new Callback<ResponseBody>() {
             @Override
@@ -126,6 +137,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                showLoading(false);
                 Toast.makeText(LoginActivity.this, "Network error", Toast.LENGTH_SHORT).show();
             }
         });
@@ -136,6 +148,7 @@ public class LoginActivity extends AppCompatActivity {
         apiService.sendOtp(phone).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                showLoading(false);
                 try {
                     if (response.isSuccessful() && response.body() != null) {
                         JSONObject jsonObject = new JSONObject(response.body().string());
@@ -149,6 +162,8 @@ public class LoginActivity extends AppCompatActivity {
                             tvResendOtp.setVisibility(View.VISIBLE);
                             tilMobile.setEnabled(false);
                             tvSubtitle.setText("Enter the OTP sent to +91 " + phone);
+                        } else {
+                            Toast.makeText(LoginActivity.this, jsonObject.optString("message", "Failed to send OTP"), Toast.LENGTH_SHORT).show();
                         }
                     }
                 } catch (Exception e) { e.printStackTrace(); }
@@ -156,6 +171,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                showLoading(false);
                 Toast.makeText(LoginActivity.this, "Failed to send OTP", Toast.LENGTH_SHORT).show();
             }
         });
@@ -164,10 +180,12 @@ public class LoginActivity extends AppCompatActivity {
     private void verifyOtp() {
         String enteredOtp = etOtp.getText().toString().trim();
         if (serverOtp != null && enteredOtp.equals(serverOtp)) {
+            showLoading(true);
             if (isNewUser) {
                 registerNewUserAndRedirect(etMobile.getText().toString().trim());
             } else {
                 saveUserSession(existingUserData);
+                showLoading(false);
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 finish();
             }
@@ -185,12 +203,14 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     fetchUserDataAndRedirect(phone);
                 } else {
+                    showLoading(false);
                     Toast.makeText(LoginActivity.this, "Registration failed", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                showLoading(false);
                 Toast.makeText(LoginActivity.this, "Network error", Toast.LENGTH_SHORT).show();
             }
         });
@@ -201,6 +221,7 @@ public class LoginActivity extends AppCompatActivity {
         apiService.login(phone).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                showLoading(false);
                 try {
                     if (response.isSuccessful() && response.body() != null) {
                         JSONObject jsonObject = new JSONObject(response.body().string());
@@ -217,7 +238,9 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {}
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                showLoading(false);
+            }
         });
     }
 
