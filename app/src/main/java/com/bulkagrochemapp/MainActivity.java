@@ -160,7 +160,6 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         loadCampaigns();
         loadProducts();
         loadCategories();
-        loadTrendingProducts();
         loadCoupons();
         
         CartManager.fetchCartFromDatabase(this, null);
@@ -580,12 +579,14 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
         apiService.getProducts().enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                skeletonTrending.setVisibility(View.GONE); skeletonTrending.clearAnimation();
                 skeletonPopular.setVisibility(View.GONE); skeletonPopular.clearAnimation();
                 skeletonHotSale.setVisibility(View.GONE); skeletonHotSale.clearAnimation();
                 skeletonLatest.setVisibility(View.GONE); skeletonLatest.clearAnimation();
                 skeletonBig.setVisibility(View.GONE); skeletonBig.clearAnimation();
                 skeletonTopSelling.setVisibility(View.GONE); skeletonTopSelling.clearAnimation();
 
+                rvTrending.setVisibility(View.VISIBLE);
                 rvPopular.setVisibility(View.VISIBLE);
                 rvHotSale.setVisibility(View.VISIBLE);
                 rvLatestProduct.setVisibility(View.VISIBLE);
@@ -604,6 +605,7 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
                         if (p.getIsTop() >= 1) topList.add(p);
                         if (p.getIsTrending() >= 1) trendList.add(p);
                     }
+                    rvTrending.setAdapter(new TrendingProductAdapter(MainActivity.this, trendList));
                     rvPopular.setAdapter(new MostPopularProductAdapter(MainActivity.this, popularList));
                     rvHotSale.setAdapter(new HotProductAdapter(MainActivity.this, hotList));
                     rvLatestProduct.setAdapter(new LatestProductAdapter(MainActivity.this, latestList));
@@ -630,30 +632,10 @@ public class MainActivity extends BaseActivity implements SearchSuggestionAdapte
             }
             @Override
             public void onFailure(Call<ProductResponse> call, Throwable t) {
+                skeletonTrending.setVisibility(View.GONE);
                 skeletonPopular.setVisibility(View.GONE); skeletonHotSale.setVisibility(View.GONE);
                 skeletonLatest.setVisibility(View.GONE); skeletonBig.setVisibility(View.GONE);
                 skeletonTopSelling.setVisibility(View.GONE);
-            }
-        });
-    }
-
-    private void loadTrendingProducts() {
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-        apiService.getTrendingProducts().enqueue(new Callback<ProductResponse>() {
-            @Override
-            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
-                skeletonTrending.setVisibility(View.GONE);
-                skeletonTrending.clearAnimation();
-                rvTrending.setVisibility(View.VISIBLE);
-                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    List<Product> trendList = new ArrayList<>();
-                    for (Product p : response.body().getData()) if (p.getIsTrending() >= 1) trendList.add(p);
-                    rvTrending.setAdapter(new TrendingProductAdapter(MainActivity.this, trendList));
-                }
-            }
-            @Override
-            public void onFailure(Call<ProductResponse> call, Throwable t) {
-                skeletonTrending.setVisibility(View.GONE);
             }
         });
     }
