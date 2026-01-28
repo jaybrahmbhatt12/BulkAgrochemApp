@@ -42,6 +42,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private FloatingActionButton fabEditPhoto;
     private Button btnUpdateProfile;
     private MaterialToolbar toolbar;
+    private View loadingOverlay;
 
     private List<State> indianStates = new ArrayList<>();
 
@@ -80,6 +81,7 @@ public class EditProfileActivity extends AppCompatActivity {
         etZip = findViewById(R.id.etZip);
         etAddress = findViewById(R.id.etAddress);
         btnUpdateProfile = findViewById(R.id.btnUpdateProfile);
+        loadingOverlay = findViewById(R.id.loadingOverlay);
         
         if (etCountry != null) {
             etCountry.setText("India");
@@ -102,11 +104,13 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void fetchLocationData() {
+        if (loadingOverlay != null) loadingOverlay.setVisibility(View.VISIBLE);
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
 
         apiService.getIndiaLocations().enqueue(new Callback<LocationResponse>() {
             @Override
             public void onResponse(Call<LocationResponse> call, Response<LocationResponse> response) {
+                if (loadingOverlay != null) loadingOverlay.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     indianStates = response.body().getStates();
                     setupStateSpinner();
@@ -116,6 +120,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<LocationResponse> call, Throwable t) {
+                if (loadingOverlay != null) loadingOverlay.setVisibility(View.GONE);
                 Log.e("EditProfile", "Fetch Error: " + t.getMessage());
             }
         });
@@ -213,10 +218,12 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
+        if (loadingOverlay != null) loadingOverlay.setVisibility(View.VISIBLE);
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.updateProfile(userId, name, email, phone, country, state, city, zip, address).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (loadingOverlay != null) loadingOverlay.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     try {
                         String jsonString = response.body().string();
@@ -238,13 +245,18 @@ public class EditProfileActivity extends AppCompatActivity {
                                 startActivity(new Intent(EditProfileActivity.this, MainActivity.class));
                             }
                             finish();
+                        } else {
+                            Toast.makeText(EditProfileActivity.this, jsonObject.optString("message", "Update failed"), Toast.LENGTH_SHORT).show();
                         }
                     } catch (Exception e) { e.printStackTrace(); }
+                } else {
+                    Toast.makeText(EditProfileActivity.this, "Update failed", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                if (loadingOverlay != null) loadingOverlay.setVisibility(View.GONE);
                 Toast.makeText(EditProfileActivity.this, "Update failed", Toast.LENGTH_SHORT).show();
             }
         });
