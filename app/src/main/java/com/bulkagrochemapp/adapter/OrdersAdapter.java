@@ -1,5 +1,6 @@
 package com.bulkagrochemapp.adapter;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -73,14 +75,12 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         Order mainOrder = orderGroup.get(0);
         String status = mainOrder.getStatus() != null ? mainOrder.getStatus().toLowerCase() : "";
         
-        // Map 'declined' to 'cancelled' for UI display
         if (status.equals("declined")) {
             holder.txtStatus.setText("cancelled");
         } else {
             holder.txtStatus.setText(status);
         }
         
-        // Set dot color
         int dotColor = Color.GRAY;
         switch (status) {
             case "pending": dotColor = Color.parseColor("#FFC107"); break;
@@ -96,7 +96,6 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         shape.setColor(dotColor);
         holder.viewStatusDot.setBackground(shape);
 
-        // Remove time from view, only show date
         String fullDateTime = mainOrder.getCreatedAt();
         if (fullDateTime != null && fullDateTime.contains(" ")) {
             holder.txtDate.setText(fullDateTime.split(" ")[0]);
@@ -112,8 +111,10 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         holder.productsContainer.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        // Collect all IDs for cancellation
         List<Integer> orderIds = new ArrayList<>();
+        int displayedProductCount = 0;
+        final int MAX_DISPLAYED_PRODUCTS = 2;
+        boolean hasMoreProducts = false;
 
         for (int i = 0; i < orderGroup.size(); i++) {
             Order order = orderGroup.get(i);
@@ -126,31 +127,14 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             try {
                 JSONArray cartArray = new JSONArray(order.getCart());
                 for (int j = 0; j < cartArray.length(); j++) {
-                    JSONObject cartObj = cartArray.getJSONObject(j);
-                    
-                    View productView = inflater.inflate(R.layout.item_order_product, holder.productsContainer, false);
-                    ImageView imgProduct = productView.findViewById(R.id.imgProduct);
-                    TextView txtName = productView.findViewById(R.id.txtProductName);
-
-                    txtName.setText(cartObj.optString("name"));
-
-                    String imgUrl = cartObj.optString("image");
-                    if (!imgUrl.startsWith("http")) {
-                        imgUrl = ApiService.IMAGE_URL + imgUrl;
-                    }
-
-                    Glide.with(context)
-                            .load(imgUrl)
-                            .placeholder(R.drawable.ic_quick_order)
-                            .into(imgProduct);
-
-                    holder.productsContainer.addView(productView);
-
-                    if (j < cartArray.length() - 1 || i < orderGroup.size() - 1) {
-                        View divider = new View(context);
-                        divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
-                        divider.setBackgroundColor(Color.parseColor("#EEEEEE"));
-                        holder.productsContainer.addView(divider);
+                    if (displayedProductCount < MAX_DISPLAYED_PRODUCTS) {
+                        JSONObject cartObj = cartArray.getJSONObject(j);
+                        View productView = inflater.inflate(R.layout.item_order_product, holder.productsContainer, false);
+                        setupProductView(productView, cartObj);
+                        holder.productsContainer.addView(productView);
+                        displayedProductCount++;
+                    } else {
+                        hasMoreProducts = true;
                     }
                 }
             } catch (JSONException e) {
@@ -158,23 +142,26 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             }
         }
 
+        if (hasMoreProducts) {
+            holder.btnViewAll.setVisibility(View.VISIBLE);
+            holder.btnViewAll.setOnClickListener(v -> showAllProductsDialog(orderGroup));
+        } else {
+            holder.btnViewAll.setVisibility(View.GONE);
+        }
+
         holder.txtTotalQty.setText("Total Quantity: " + totalQty);
         holder.txtTotalPrice.setText("Grand Total: ₹" + String.format(Locale.getDefault(), "%.2f", grandTotal));
 
-        // Reset buttons
         holder.btnPrimary.setVisibility(View.GONE);
         holder.btnSecondary.setVisibility(View.GONE);
         holder.btnInvoice.setVisibility(View.GONE);
 
-        // Invoice button visibility: pending, processing, completed
         if (status.equals("pending") || status.equals("processing") || status.equals("completed")) {
             holder.btnInvoice.setVisibility(View.VISIBLE);
             holder.btnInvoice.setOnClickListener(v -> InvoiceGenerator.generateInvoice(context, mainOrder));
         }
 
-        // Action Button Logic
         if (status.equals("pending")) {
-            // Show CANCEL ORDER only when status is pending
             holder.btnPrimary.setVisibility(View.VISIBLE);
             holder.btnPrimary.setText("CANCEL ORDER");
             holder.btnPrimary.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.red)));
@@ -185,6 +172,54 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             holder.btnPrimary.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green)));
             holder.btnPrimary.setOnClickListener(v -> reorder());
         }
+    }
+
+    private void setupProductView(View view, JSONObject cartObj) {
+        ImageView imgProduct = view.findViewById(R.id.imgProduct);
+        TextView txtName = view.findViewById(R.id.txtProductName);
+        txtName.setText(cartObj.optString("name"));
+        String imgUrl = cartObj.optString("image");
+        if (!imgUrl.startsWith("http")) {
+            imgUrl = ApiService.IMAGE_URL + imgUrl;
+        }
+        Glide.with(context).load(imgUrl).placeholder(R.drawable.ic_quick_order).into(imgProduct);
+    }
+
+    private void showAllProductsDialog(List<Order> orderGroup) {
+        Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_order_products);
+        if (dialog.getWindow() != null) {
+            // Set width to 90% of screen to make it look like a popup
+            int width = (int)(context.getResources().getDisplayMetrics().widthPixels * 0.90);
+            dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        LinearLayout container = dialog.findViewById(R.id.productsContainer);
+        View btnClose = dialog.findViewById(R.id.btnClose);
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+
+        LayoutInflater inflater = LayoutInflater.from(context);
+        for (Order order : orderGroup) {
+            try {
+                JSONArray cartArray = new JSONArray(order.getCart());
+                for (int i = 0; i < cartArray.length(); i++) {
+                    JSONObject cartObj = cartArray.getJSONObject(i);
+                    View productView = inflater.inflate(R.layout.item_order_product, container, false);
+                    setupProductView(productView, cartObj);
+                    container.addView(productView);
+
+                    View divider = new View(context);
+                    divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
+                    divider.setBackgroundColor(Color.parseColor("#EEEEEE"));
+                    container.addView(divider);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        dialog.show();
     }
 
     private void showConfirmationDialog(String action, List<Integer> orderIds) {
@@ -249,7 +284,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView txtStatus, txtDate, txtAddress, txtTotalQty, txtTotalPrice;
+        TextView txtStatus, txtDate, txtAddress, txtTotalQty, txtTotalPrice, btnViewAll;
         View viewStatusDot;
         LinearLayout productsContainer;
         MaterialButton btnPrimary, btnSecondary, btnInvoice;
@@ -266,6 +301,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             btnPrimary = itemView.findViewById(R.id.btnPrimary);
             btnSecondary = itemView.findViewById(R.id.btnSecondary);
             btnInvoice = itemView.findViewById(R.id.btnInvoice);
+            btnViewAll = itemView.findViewById(R.id.btnViewAll);
         }
     }
 }
