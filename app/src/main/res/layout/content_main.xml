@@ -404,68 +404,68 @@
                     tools:listitem="@layout/item_coupon" />
 
                 <!-- Sponsors Section -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Sponsors"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:layout_marginTop="24dp"
-                    android:gravity="center" />
+<!--                <TextView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Sponsors"-->
+<!--                    android:textSize="18sp"-->
+<!--                    android:textStyle="bold"-->
+<!--                    android:textColor="@color/black"-->
+<!--                    android:layout_marginTop="24dp"-->
+<!--                    android:gravity="center" />-->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="12dp"
-                    android:gravity="center"
-                    android:paddingBottom="12dp">
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="horizontal"-->
+<!--                    android:layout_marginTop="12dp"-->
+<!--                    android:gravity="center"-->
+<!--                    android:paddingBottom="12dp">-->
 
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="60dp"
-                        android:layout_weight="1"
-                        android:src="@drawable/vise_organic"
-                        android:scaleType="fitCenter"
-                        android:layout_margin="4dp"/>
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="60dp"
-                        android:layout_weight="1"
-                        android:src="@drawable/tfl"
-                        android:scaleType="fitCenter"
-                        android:layout_margin="4dp"/>
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="60dp"
-                        android:layout_weight="1"
-                        android:src="@drawable/unicrop"
-                        android:scaleType="fitCenter"
-                        android:layout_margin="4dp"/>
+<!--                    <ImageView-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="60dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:src="@drawable/vise_organic"-->
+<!--                        android:scaleType="fitCenter"-->
+<!--                        android:layout_margin="4dp"/>-->
+<!--                    <ImageView-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="60dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:src="@drawable/tfl"-->
+<!--                        android:scaleType="fitCenter"-->
+<!--                        android:layout_margin="4dp"/>-->
+<!--                    <ImageView-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="60dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:src="@drawable/unicrop"-->
+<!--                        android:scaleType="fitCenter"-->
+<!--                        android:layout_margin="4dp"/>-->
 
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_horizontal">
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="50dp"
-                        android:layout_weight="1"
-                        android:src="@drawable/humic_nutri"
-                        android:scaleType="fitCenter"
-                        android:layout_margin="4dp"/>
-                    <ImageView
-                        android:layout_width="0dp"
-                        android:layout_height="50dp"
-                        android:layout_weight="1"
-                        android:src="@drawable/urjiva"
-                        android:scaleType="fitCenter"
-                        android:layout_margin="4dp"/>
-                </LinearLayout>
+<!--                </LinearLayout>-->
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="horizontal"-->
+<!--                    android:layout_marginTop="8dp"-->
+<!--                    android:gravity="center_horizontal">-->
+<!--                    <ImageView-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="50dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:src="@drawable/humic_nutri"-->
+<!--                        android:scaleType="fitCenter"-->
+<!--                        android:layout_margin="4dp"/>-->
+<!--                    <ImageView-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="50dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:src="@drawable/urjiva"-->
+<!--                        android:scaleType="fitCenter"-->
+<!--                        android:layout_margin="4dp"/>-->
+<!--                </LinearLayout>-->
 
                 <!-- Contact Section -->
                 <LinearLayout
@@ -475,7 +475,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:padding="8dp"
-                    android:background="#F8F9FA">
+                    android:background="@color/static_bg">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -506,35 +506,26 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
+                        android:orientation="vertical"
                         android:gravity="center"
                         android:layout_marginBottom="8dp">
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:src="@drawable/ic_call"
-                            app:tint="#424242"
-                            android:layout_marginEnd="8dp"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="+91 9512017161"
-                            android:textColor="#424242"
-                            android:textSize="14sp"/>
 
-                        <ImageView
-                            android:layout_width="38dp"
-                            android:layout_height="38dp"
-                            android:paddingLeft="18dp"
-                            android:src="@drawable/outline_contact_mail_24"
-                            app:tint="#424242"
-                            android:layout_marginEnd="8dp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:drawableStart="@drawable/ic_call"
+                            android:text="+91 9512017161"
+                            android:textColor="@color/black"
+                            android:textSize="15dp"
+                            android:layout_marginBottom="5dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:drawableStart="@drawable/ic_mail"
                             android:text="sales@bulkagrochem.com"
-                            android:textColor="#424242"
-                            android:textSize="14sp"/>
+                            android:textColor="@color/black"
+                            android:textSize="15dp" />
                     </LinearLayout>
 
 
