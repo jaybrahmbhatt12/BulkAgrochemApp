@@ -8,7 +8,6 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -30,7 +29,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MyOrdersActivity extends AppCompatActivity implements OrdersAdapter.OnOrderActionListener {
+public class MyOrdersActivity extends BaseActivity implements OrdersAdapter.OnOrderActionListener {
 
     private RecyclerView rvOrders;
     private SwipeRefreshLayout swipeRefresh;

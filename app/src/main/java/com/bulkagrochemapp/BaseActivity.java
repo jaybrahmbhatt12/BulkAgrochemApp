@@ -15,9 +15,11 @@ public abstract class BaseActivity extends AppCompatActivity {
             // Remove listener before setting checked item to prevent recursive calls or misfiring
             bottomNavigationView.setOnItemSelectedListener(null);
 
-            // Visibility Logic: Show only on primary tabs
+            // Visibility Logic: Show only on primary tabs, product detail, and my orders
             boolean isSale = getIntent().getBooleanExtra("is_sale", false);
-            if (this instanceof MainActivity || this instanceof CartActivity || this instanceof ProfileActivity || (this instanceof ProductListActivity && isSale)) {
+            if (this instanceof MainActivity || this instanceof CartActivity || this instanceof ProfileActivity || 
+                (this instanceof ProductListActivity && isSale) || this instanceof ProductDetailActivity || 
+                this instanceof MyOrdersActivity) {
                 bottomNavigationView.setVisibility(View.VISIBLE);
             } else {
                 bottomNavigationView.setVisibility(View.GONE);
@@ -28,7 +30,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 bottomNavigationView.setSelectedItemId(R.id.nav_home);
             } else if (this instanceof CartActivity) {
                 bottomNavigationView.setSelectedItemId(R.id.nav_cart);
-            } else if (this instanceof ProfileActivity) {
+            } else if (this instanceof ProfileActivity || this instanceof MyOrdersActivity) {
                 bottomNavigationView.setSelectedItemId(R.id.nav_account);
             } else if (this instanceof ProductListActivity) {
                 if (isSale) {
@@ -39,10 +41,11 @@ public abstract class BaseActivity extends AppCompatActivity {
             bottomNavigationView.setOnItemSelectedListener(item -> {
                 int id = item.getItemId();
 
-                // If the user clicks the already selected item, do nothing
-                if (id == bottomNavigationView.getSelectedItemId()) {
-                    return true;
-                }
+                // If the user clicks the already selected item AND they are on that activity, do nothing
+                if (id == R.id.nav_home && this instanceof MainActivity) return true;
+                if (id == R.id.nav_cart && this instanceof CartActivity) return true;
+                if (id == R.id.nav_account && this instanceof ProfileActivity) return true;
+                if (id == R.id.nav_sale && (this instanceof ProductListActivity && isSale)) return true;
 
                 Intent intent = null;
 
