@@ -40,6 +40,7 @@
         <activity android:name=".PaymentSuccessActivity" />
         <activity android:name=".PaymentFailureActivity" />
         <activity android:name=".RegisterSuccessActivity" />
+        <activity android:name=".AllProductsActivity" android:exported="false" />
 
         <!-- LoginActivity -->
         <activity

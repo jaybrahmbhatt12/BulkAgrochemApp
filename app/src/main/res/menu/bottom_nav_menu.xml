@@ -9,9 +9,9 @@
         android:icon="@drawable/outline_add_shopping_cart_24"
         android:title="Cart" />
     <item
-        android:id="@+id/nav_sale"
-        android:icon="@drawable/ic_fire"
-        android:title="Sale" />
+        android:id="@+id/nav_products"
+        android:icon="@drawable/ic_products"
+        android:title="Products" />
     <item
         android:id="@+id/nav_account"
         android:icon="@drawable/ic_profile"

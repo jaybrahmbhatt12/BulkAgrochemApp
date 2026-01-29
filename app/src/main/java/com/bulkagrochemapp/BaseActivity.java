@@ -16,8 +16,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             bottomNavigationView.setOnItemSelectedListener(null);
 
             // Visibility Logic: Show only on primary tabs
-            boolean isSale = getIntent().getBooleanExtra("is_sale", false);
-            if (this instanceof MainActivity || this instanceof CartActivity || this instanceof ProfileActivity || (this instanceof ProductListActivity && isSale)) {
+            if (this instanceof MainActivity || this instanceof CartActivity || this instanceof ProfileActivity || this instanceof AllProductsActivity) {
                 bottomNavigationView.setVisibility(View.VISIBLE);
             } else {
                 bottomNavigationView.setVisibility(View.GONE);
@@ -30,10 +29,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                 bottomNavigationView.setSelectedItemId(R.id.nav_cart);
             } else if (this instanceof ProfileActivity) {
                 bottomNavigationView.setSelectedItemId(R.id.nav_account);
-            } else if (this instanceof ProductListActivity) {
-                if (isSale) {
-                    bottomNavigationView.setSelectedItemId(R.id.nav_sale);
-                }
+            } else if (this instanceof AllProductsActivity) {
+                bottomNavigationView.setSelectedItemId(R.id.nav_products);
             }
 
             bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -50,10 +47,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                     intent = new Intent(this, MainActivity.class);
                 } else if (id == R.id.nav_cart) {
                     intent = new Intent(this, CartActivity.class);
-                } else if (id == R.id.nav_sale) {
-                    intent = new Intent(this, ProductListActivity.class);
-                    intent.putExtra("category_name", "Hot Sale");
-                    intent.putExtra("is_sale", true);
+                } else if (id == R.id.nav_products) {
+                    intent = new Intent(this, AllProductsActivity.class);
                 } else if (id == R.id.nav_account) {
                     intent = new Intent(this, ProfileActivity.class);
                 }
