@@ -15,8 +15,11 @@ public abstract class BaseActivity extends AppCompatActivity {
             // Remove listener before setting checked item to prevent recursive calls or misfiring
             bottomNavigationView.setOnItemSelectedListener(null);
 
-            // Visibility Logic: Show only on primary tabs
-            if (this instanceof MainActivity || this instanceof CartActivity || this instanceof ProfileActivity || this instanceof AllProductsActivity) {
+            // Visibility Logic: Show only on primary tabs, product detail, and my orders
+
+            if (this instanceof MainActivity || this instanceof CartActivity || this instanceof ProfileActivity ||
+                    this instanceof AllProductsActivity || this instanceof ProductDetailActivity ||
+                this instanceof MyOrdersActivity) {
                 bottomNavigationView.setVisibility(View.VISIBLE);
             } else {
                 bottomNavigationView.setVisibility(View.GONE);
@@ -27,7 +30,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 bottomNavigationView.setSelectedItemId(R.id.nav_home);
             } else if (this instanceof CartActivity) {
                 bottomNavigationView.setSelectedItemId(R.id.nav_cart);
-            } else if (this instanceof ProfileActivity) {
+            } else if (this instanceof ProfileActivity || this instanceof MyOrdersActivity) {
                 bottomNavigationView.setSelectedItemId(R.id.nav_account);
             } else if (this instanceof AllProductsActivity) {
                 bottomNavigationView.setSelectedItemId(R.id.nav_products);
