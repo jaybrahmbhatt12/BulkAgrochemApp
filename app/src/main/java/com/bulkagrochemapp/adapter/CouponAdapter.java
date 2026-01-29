@@ -25,10 +25,21 @@ public class CouponAdapter extends RecyclerView.Adapter<CouponAdapter.CouponView
 
     private Context context;
     private List<Coupon> couponList;
+    private OnCouponClickListener listener;
+
+    public interface OnCouponClickListener {
+        void onCouponClick(Coupon coupon);
+    }
 
     public CouponAdapter(Context context, List<Coupon> couponList) {
         this.context = context;
         this.couponList = couponList;
+    }
+
+    public CouponAdapter(Context context, List<Coupon> couponList, OnCouponClickListener listener) {
+        this.context = context;
+        this.couponList = couponList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -43,12 +54,20 @@ public class CouponAdapter extends RecyclerView.Adapter<CouponAdapter.CouponView
         Coupon coupon = couponList.get(position);
         holder.txtCouponCode.setText(coupon.getCode());
 
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onCouponClick(coupon);
+            } else {
+                // Fallback to copy to clipboard if no listener is set
+                copyToClipboard(coupon.getCode());
+            }
+        });
+
         holder.txtCouponCode.setOnClickListener(v -> {
-            ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("Coupon Code", coupon.getCode());
-            if (clipboard != null) {
-                clipboard.setPrimaryClip(clip);
-                Toast.makeText(context, "Coupon code copied to clipboard", Toast.LENGTH_SHORT).show();
+            if (listener != null) {
+                listener.onCouponClick(coupon);
+            } else {
+                copyToClipboard(coupon.getCode());
             }
         });
 
@@ -70,6 +89,15 @@ public class CouponAdapter extends RecyclerView.Adapter<CouponAdapter.CouponView
         }
 
         holder.txtCouponExpiry.setText("Valid Upto: " + formatDate(coupon.getEndDate()));
+    }
+
+    private void copyToClipboard(String code) {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Coupon Code", code);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(context, "Coupon code copied to clipboard", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private String formatDate(String dateStr) {

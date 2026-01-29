@@ -2,7 +2,10 @@ package com.bulkagrochemapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -18,6 +21,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -102,6 +106,19 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         btnChangeAddress.setOnClickListener(v -> {
             Intent intent = new Intent(OrderSummaryActivity.this, ChangeAddressActivity.class);
             changeAddressLauncher.launch(intent);
+        });
+
+        etCoupon.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                resetCouponButton();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
     }
 
@@ -230,7 +247,10 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
                 if (response.isSuccessful() && response.body() != null) {
                     availableCoupons = response.body().getData();
                     if (availableCoupons != null) {
-                        CouponAdapter adapter = new CouponAdapter(OrderSummaryActivity.this, availableCoupons);
+                        CouponAdapter adapter = new CouponAdapter(OrderSummaryActivity.this, availableCoupons, coupon -> {
+                            etCoupon.setText(coupon.getCode());
+                            applyCoupon();
+                        });
                         rvCoupons.setAdapter(adapter);
                     }
                 }
@@ -274,6 +294,7 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
                 txtCouponStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
                 discount = 0;
                 appliedCouponCode = "";
+                resetCouponButton();
             } else {
                 if (selectedCoupon.getType() == 1) { 
                     discount = selectedCoupon.getPrice();
@@ -285,6 +306,10 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
                 txtCouponStatus.setVisibility(View.VISIBLE);
                 txtCouponStatus.setText(String.format(Locale.getDefault(), "Coupon applied! You saved ₹%.2f", discount));
                 txtCouponStatus.setTextColor(getResources().getColor(R.color.green));
+                
+                // Change button to Applied (Green)
+                btnApplyCoupon.setText("Applied");
+                btnApplyCoupon.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.green)));
             }
         } else {
             txtCouponStatus.setVisibility(View.VISIBLE);
@@ -292,9 +317,21 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
             txtCouponStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
             discount = 0;
             appliedCouponCode = "";
+            resetCouponButton();
         }
 
         updateUI();
+    }
+
+    private void resetCouponButton() {
+        if (!btnApplyCoupon.getText().toString().equals("Apply")) {
+            btnApplyCoupon.setText("Apply");
+            btnApplyCoupon.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.orange_brand)));
+            discount = 0;
+            appliedCouponCode = "";
+            txtCouponStatus.setVisibility(View.GONE);
+            updateUI();
+        }
     }
 
     private boolean validateDetails() {
