@@ -59,7 +59,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="0dp">
 
             <!-- Image Container -->
             <FrameLayout
@@ -445,10 +448,12 @@
         android:id="@+id/cardQuantitySelector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="8dp"
         app:cardBackgroundColor="#FDFDFD"
         app:cardCornerRadius="16dp"
-        android:background="@drawable/bg_skeleton"
         app:cardElevation="8dp"
         app:strokeColor="@color/black"
         app:strokeWidth="1dp">
