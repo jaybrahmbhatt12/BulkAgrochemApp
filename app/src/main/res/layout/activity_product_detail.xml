@@ -1,39 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:background="#FFFFFF"
     android:fitsSystemWindows="true"
-    android:background="#FFFFFF">
+    android:orientation="vertical">
 
     <!-- Custom Header -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:background="#FFFFFF">
+        android:background="#FFFFFF"
+        android:padding="12dp">
 
         <ImageButton
             android:id="@+id/btnBack"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_back"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_centerVertical="true"
-            app:tint="@color/black"
-            android:contentDescription="Back" />
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:src="@drawable/ic_back"
+            app:tint="@color/black" />
 
         <ImageView
             android:id="@+id/ivLogo"
             android:layout_width="140dp"
             android:layout_height="40dp"
-            android:src="@drawable/logo_bulkagro"
             android:layout_centerInParent="true"
+            android:contentDescription="@string/app_name"
             android:scaleType="fitCenter"
-            android:contentDescription="@string/app_name" />
+            android:src="@drawable/logo_bulkagro" />
 
         <ImageButton
             android:id="@+id/btnWishlistDetail"
@@ -42,10 +41,10 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_wishlist_border"
+            android:contentDescription="Add to wishlist"
             android:padding="6dp"
             android:scaleType="centerInside"
-            android:contentDescription="Add to wishlist" />
+            android:src="@drawable/ic_wishlist_border" />
 
     </RelativeLayout>
 
@@ -88,8 +87,8 @@
                     android:id="@+id/leftContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_toStartOf="@+id/rightContent"
                     android:layout_marginEnd="16dp"
+                    android:layout_toStartOf="@+id/rightContent"
                     android:orientation="vertical">
 
                     <!-- 1. Product Name -->
@@ -97,20 +96,20 @@
                         android:id="@+id/txtProductName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="2"
                         android:text="Product Name"
                         android:textColor="#212121"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:maxLines="2"
-                        android:ellipsize="end" />
+                        android:textStyle="bold" />
 
                     <!-- 2. Current Price (Green) -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp"
                         android:gravity="center_vertical"
-                        android:layout_marginTop="8dp">
+                        android:orientation="horizontal">
 
                         <TextView
                             android:id="@+id/txtProductPrice"
@@ -127,8 +126,17 @@
                             android:layout_height="20dp"
                             android:layout_marginStart="8dp"
                             android:visibility="gone">
-                            <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                            <View android:id="@+id/shimmerPrice" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="#E0E0E0" />
+
+                            <View
+                                android:id="@+id/shimmerPrice"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/shimmer_gradient" />
                         </FrameLayout>
                     </LinearLayout>
 
@@ -137,8 +145,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
                         <TextView
                             android:id="@+id/txtOriginalPrice"
@@ -169,8 +177,17 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="10dp"
                             android:visibility="gone">
-                            <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                            <View android:id="@+id/shimmerDiscount" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="#E0E0E0" />
+
+                            <View
+                                android:id="@+id/shimmerDiscount"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/shimmer_gradient" />
                         </FrameLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -191,17 +208,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="In Stock"
+                        android:textColor="#388E3C"
                         android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#388E3C" />
+                        android:textStyle="bold" />
 
                     <!-- 2. Ratings (Updated to Blue) -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:orientation="vertical"
-                        android:gravity="end">
+                        android:gravity="end"
+                        android:orientation="vertical">
 
                         <RatingBar
                             android:id="@+id/ratingBar"
@@ -210,10 +227,10 @@
                             android:layout_height="wrap_content"
                             android:isIndicator="true"
                             android:numStars="5"
-                            android:stepSize="0.5"
-                            android:rating="5"
                             android:progressBackgroundTint="#CCCCCC"
-                            android:theme="@style/Widget.AppCompat.RatingBar.Small"/>
+                            android:rating="5"
+                            android:stepSize="0.5"
+                            android:theme="@style/Widget.AppCompat.RatingBar.Small" />
 
                         <TextView
                             android:id="@+id/txtReviews"
@@ -221,8 +238,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="0 Reviews"
-                            android:textSize="12sp"
-                            android:textColor="#757575" />
+                            android:textColor="#757575"
+                            android:textSize="12sp" />
                     </LinearLayout>
                 </LinearLayout>
             </RelativeLayout>
@@ -232,16 +249,42 @@
                 android:id="@+id/skeletonDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:layout_marginTop="16dp"
+                android:orientation="vertical"
                 android:visibility="gone">
-                <FrameLayout android:layout_width="match_parent" android:layout_height="16dp" android:layout_marginTop="4dp">
-                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                    <View android:id="@+id/shimmerDesc1" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp"
+                    android:layout_marginTop="4dp">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#E0E0E0" />
+
+                    <View
+                        android:id="@+id/shimmerDesc1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/shimmer_gradient" />
                 </FrameLayout>
-                <FrameLayout android:layout_width="match_parent" android:layout_height="16dp" android:layout_marginTop="4dp">
-                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                    <View android:id="@+id/shimmerDesc2" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp"
+                    android:layout_marginTop="4dp">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#E0E0E0" />
+
+                    <View
+                        android:id="@+id/shimmerDesc2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/shimmer_gradient" />
                 </FrameLayout>
             </LinearLayout>
 
@@ -254,25 +297,25 @@
                 android:layout_marginBottom="2dp"
                 android:text="₹00 (If you buy max QTY)+ GST (Rates are Per Kg/Per Liter)"
                 android:textColor="#000"
-                android:textStyle="italic"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textStyle="italic" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Price Range based on Quantity"
-                android:textStyle="bold"
-                android:textSize="16sp"
                 android:layout_marginTop="12dp"
-                android:textColor="#000" />
+                android:text="Price Range based on Quantity"
+                android:textColor="#000"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TableLayout
                 android:id="@+id/tablePriceRange"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:stretchColumns="*"
                 android:background="@drawable/table_border"
+                android:stretchColumns="*"
                 android:visibility="visible">
 
                 <TableRow
@@ -280,16 +323,16 @@
                     android:padding="10dp">
 
                     <TextView
+                        android:padding="8dp"
                         android:text="Quantity (Kg/Ltr/Nos)"
                         android:textColor="@android:color/white"
-                        android:textStyle="bold"
-                        android:padding="8dp"/>
+                        android:textStyle="bold" />
 
                     <TextView
+                        android:padding="8dp"
                         android:text="Price (Per Kg/Ltr/Nos)"
                         android:textColor="@android:color/white"
-                        android:textStyle="bold"
-                        android:padding="8dp"/>
+                        android:textStyle="bold" />
                 </TableRow>
 
             </TableLayout>
@@ -301,9 +344,22 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="gone">
-                <FrameLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp">
-                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="#E0E0E0"/>
-                    <View android:id="@+id/shimmerTable1" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/shimmer_gradient"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="4dp">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#E0E0E0" />
+
+                    <View
+                        android:id="@+id/shimmerTable1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/shimmer_gradient" />
                 </FrameLayout>
             </LinearLayout>
 
@@ -311,154 +367,11 @@
                 android:id="@+id/tvTermsConditions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:text="T&amp;C* GST and Transportation Charges are Extra. (Transport Charges are too Pay)"
-                android:textStyle="italic"
+                android:textColor="#000"
                 android:textSize="14sp"
-                android:layout_marginTop="16dp"
-                android:textColor="#000" />
-
-            <!-- 🌟 Professional Quantity Selector -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#FDFDFD"
-                app:strokeWidth="1dp"
-                app:strokeColor="#F0F0F0">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="PURCHASE QUANTITY"
-                        android:textColor="#666666"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.1"/>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="8dp"
-                        android:background="#EEEEEE" />
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true"
-                            android:gravity="start"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Total for Qty"
-                                android:textColor="#9E9E9E"
-                                android:textSize="11sp"
-                                android:textStyle="bold"
-                                android:textAllCaps="true"/>
-
-                            <TextView
-                                android:id="@+id/txtQtySubtotal"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="₹0.00"
-                                android:textColor="#2E7D32"
-                                android:textSize="18sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/qty_stepper_container"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:background="@drawable/bg_qty_stepper_pill"
-                            android:paddingHorizontal="6dp"
-                            android:paddingVertical="4dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:id="@+id/btnMinus"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:background="@drawable/bg_qty_button"
-                                android:text="−"
-                                android:textColor="@color/white"
-                                android:textSize="20sp"
-                                android:textStyle="bold"
-                                android:gravity="center"
-                                android:clickable="true"
-                                android:focusable="true"/>
-
-                            <TextView
-                                android:id="@+id/txtQty"
-                                android:layout_width="48dp"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text="1"
-                                android:textColor="@color/black"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/btnPlus"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:background="@drawable/bg_qty_button"
-                                android:text="+"
-                                android:textColor="@color/white"
-                                android:textSize="20sp"
-                                android:textStyle="bold"
-                                android:gravity="center"
-                                android:clickable="true"
-                                android:focusable="true"/>
-                        </LinearLayout>
-                    </RelativeLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Buttons -->
-            <Button
-                android:id="@+id/btnAddToCart"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="20dp"
-                android:backgroundTint="#2E7D32"
-                android:text="Add to Cart"
-                android:textColor="#FFFFFF" />
-
-            <Button
-                android:id="@+id/btnReturnToCart"
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginTop="16dp"
-                android:backgroundTint="#FF6F00"
-                android:text=" Return to Cart"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:icon="@drawable/outline_add_shopping_cart_24"
-                app:iconGravity="textStart"
-                app:iconPadding="10dp"
-                app:iconTint="#FFFFFF"
-                android:visibility="gone" />
+                android:textStyle="italic" />
 
             <!-- Long Text Sections -->
             <TextView
@@ -486,11 +399,11 @@
                 android:id="@+id/tvRelated"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Related Products"
-                android:textSize="18sp"
-                android:textStyle="bold"
                 android:layout_marginTop="24dp"
-                android:textColor="@color/black"/>
+                android:text="Related Products"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -509,19 +422,154 @@
                     android:layout_height="wrap_content"
                     android:scrollbars="none"
                     android:visibility="gone">
+
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
-                        <include layout="@layout/item_skeleton_product"/>
-                        <include layout="@layout/item_skeleton_product"/>
-                        <include layout="@layout/item_skeleton_product"/>
+
+                        <include layout="@layout/item_skeleton_product" />
+
+                        <include layout="@layout/item_skeleton_product" />
+
+                        <include layout="@layout/item_skeleton_product" />
                     </LinearLayout>
                 </HorizontalScrollView>
             </FrameLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- 🌟 Professional Quantity Selector - FIXED ABOVE BOTTOM NAV -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardQuantitySelector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        app:cardBackgroundColor="#FDFDFD"
+        app:cardCornerRadius="16dp"
+        android:background="@drawable/bg_skeleton"
+        app:cardElevation="8dp"
+        app:strokeColor="@color/black"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:gravity="start"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total for Qty"
+                        android:textAllCaps="true"
+                        android:textColor="#9E9E9E"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txtQtySubtotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹0.00"
+                        android:textColor="#2E7D32"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/qty_stepper_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/bg_qty_stepper_pill"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="4dp">
+
+                    <TextView
+                        android:id="@+id/btnMinus"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_qty_button"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:text="−"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/txtQty"
+                        android:layout_width="40dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btnPlus"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_qty_button"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:text="+"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <Button
+                android:id="@+id/btnAddToCart"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="#2E7D32"
+                android:text="Add to Cart"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnReturnToCart"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="#FF6F00"
+                android:text="Return to Cart"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:textAllCaps="false"
+                app:icon="@drawable/outline_add_shopping_cart_24"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconTint="#FFFFFF" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <include layout="@layout/layout_bottom_nav" />
 
