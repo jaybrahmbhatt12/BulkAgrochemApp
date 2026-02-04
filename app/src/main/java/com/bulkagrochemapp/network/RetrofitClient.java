@@ -28,7 +28,7 @@ public class RetrofitClient {
                     .build();
 
             retrofit = new Retrofit.Builder()
-                    .baseUrl("https://bulkapi.tiffinworld.com/api/")
+                    .baseUrl("https://bulkagrochem.com/api/")
                     //.baseUrl("http://192.168.1.24/Unicrop_BulkAgro_app_api/bulk-android-api/api/")
                     //.baseUrl("http://192.168.1.4/bulkagro_api/api/api/")
                     .client(okHttpClient)
