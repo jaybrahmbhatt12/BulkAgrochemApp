@@ -23,7 +23,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bulkagrochemapp.MainActivity;
+import com.bulkagrochemapp.AllProductsActivity;
 import com.bulkagrochemapp.R;
 import com.bulkagrochemapp.model.Order;
 import com.bulkagrochemapp.network.ApiService;
@@ -272,8 +272,8 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
     }
 
     private void reorder() {
-        Toast.makeText(context, "Redirecting to Home for Reorder", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(context, MainActivity.class);
+        Toast.makeText(context, "Redirecting to Products for Reorder", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(context, AllProductsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
     }

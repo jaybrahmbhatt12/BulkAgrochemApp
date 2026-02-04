@@ -21,7 +21,7 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
-    String IMAGE_URL = "https://bulkagrochem.com/assets/";
+    String IMAGE_URL = "https://bulkagrochem.com/api";
     String BANNER_IMAGE_URL = "https://bulkagrochem.com/assets/";
 
     // Sliders
@@ -49,7 +49,7 @@ public interface ApiService {
     Call<CategoryResponse> getCategories();
 
     // Products by Category
-    @GET("front/product-list")
+    @GET("front/category-products")
     Call<ProductResponse> getProductsByCategory(
             @Query("category_id") int categoryId
     );
@@ -82,7 +82,7 @@ public interface ApiService {
 
     // Fetch Cart
     @FormUrlEncoded
-    @POST("fetch_cart.php")
+    @POST("user/fetch-cart")
     Call<ResponseBody> fetchCart(
             @Field("uid") String uid
     );
@@ -103,8 +103,11 @@ public interface ApiService {
     );
 
     // Fetch India States and Cities from backend assets
-    @GET("../assets/india_states_cities.json")
+    @GET("front/states")
     Call<LocationResponse> getIndiaLocations();
+
+    @GET("front/cities")
+    Call<LocationResponse> getCities();
 
     @FormUrlEncoded
     @POST("user/phone/register")
@@ -141,13 +144,13 @@ public interface ApiService {
     );
 
     // Fetch dynamic pages (About Us, Privacy Policy, etc.)
-    @GET("pages.php")
+    @GET("front/pages")
     Call<ResponseBody> getPageContent(
             @Query("slug") String slug
     );
 
     @FormUrlEncoded
-    @POST("add_to_wishlist.php")
+    @POST("front/add-wishlist")
     Call<ResponseBody> addToWishlist(
             @Field("user_id") String userId,
             @Field("product_id") int productId
@@ -173,7 +176,7 @@ public interface ApiService {
     );
 
     @Headers("Content-Type: application/json")
-    @POST("place_order.php")
+    @POST("user/order-place")
     Call<ResponseBody> placeOrder(@Body RequestBody body);
 
     @FormUrlEncoded
