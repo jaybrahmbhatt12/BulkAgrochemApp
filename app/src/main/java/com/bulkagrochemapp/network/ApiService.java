@@ -21,35 +21,35 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
-    String IMAGE_URL = "https://bulkapi.tiffinworld.com/api/";
-    String BANNER_IMAGE_URL = "https://bulkapi.tiffinworld.com/assets/";
+    String IMAGE_URL = "https://bulkagrochem.com/api";
+    String BANNER_IMAGE_URL = "https://bulkagrochem.com/assets/";
 
     // Sliders
-    @GET("sliders.php")
+    @GET("front/slider-list")
     Call<SliderResponse> getSliders();
 
     // Campaigns
-    @GET("fetch_campaigns.php")
+    @GET("front/campaign-list")
     Call<CampaignResponse> getCampaigns();
 
     // All Products
-    @GET("products.php")
+    @GET("front/product-list")
     Call<ProductResponse> getProducts();
 
     // Coupons
-    @GET("coupons.php")
+    @GET("front/coupon-list")
     Call<CouponResponse> getCoupons();
 
     // Trending Products
-    @GET("products.php")
+    @GET("front/product-list")
     Call<ProductResponse> getTrendingProducts();
 
     // Categories
-    @GET("categories.php")
+    @GET("front/category-list")
     Call<CategoryResponse> getCategories();
 
     // Products by Category
-    @GET("products.php")
+    @GET("front/category-products")
     Call<ProductResponse> getProductsByCategory(
             @Query("category_id") int categoryId
     );
@@ -61,14 +61,14 @@ public interface ApiService {
     );
 
     // Search Products
-    @GET("products.php")
+    @GET("front/product-list")
     Call<ProductResponse> searchProducts(
             @Query("search") String query
     );
 
     // Add to Cart
     @FormUrlEncoded
-    @POST("add_to_cart.php")
+    @POST("user/add-to-cart")
     Call<ResponseBody> addToCart(
             @Field("uid") String uid,
             @Field("pid") int pid,
@@ -82,14 +82,14 @@ public interface ApiService {
 
     // Fetch Cart
     @FormUrlEncoded
-    @POST("fetch_cart.php")
+    @POST("user/fetch-cart")
     Call<ResponseBody> fetchCart(
             @Field("uid") String uid
     );
 
     // Delete from Cart
     @FormUrlEncoded
-    @POST("delete_from_cart.php")
+    @POST("user/delete-from-cart")
     Call<ResponseBody> deleteFromCart(
             @Field("uid") String uid,
             @Field("pid") int pid
@@ -103,11 +103,14 @@ public interface ApiService {
     );
 
     // Fetch India States and Cities from backend assets
-    @GET("../assets/india_states_cities.json")
+    @GET("front/states")
     Call<LocationResponse> getIndiaLocations();
 
+    @GET("front/cities")
+    Call<LocationResponse> getCities();
+
     @FormUrlEncoded
-    @POST("register.php")
+    @POST("user/phone/register")
     Call<ResponseBody> register(
             @Field("name") String name,
             @Field("email") String email,
@@ -115,19 +118,19 @@ public interface ApiService {
     );
 
     @FormUrlEncoded
-    @POST("login.php")
+    @POST("user/phone/login")
     Call<ResponseBody> login(
             @Field("phone") String phone
     );
 
     @FormUrlEncoded
-    @POST("send_otp.php")
+    @POST("user/phone/send-otp")
     Call<ResponseBody> sendOtp(
             @Field("phone") String phone
     );
 
     @FormUrlEncoded
-    @POST("update_profile.php")
+    @POST("user/update/profile")
     Call<ResponseBody> updateProfile(
             @Field("id") String id,
             @Field("name") String name,
@@ -141,43 +144,43 @@ public interface ApiService {
     );
 
     // Fetch dynamic pages (About Us, Privacy Policy, etc.)
-    @GET("pages.php")
+    @GET("front/pages")
     Call<ResponseBody> getPageContent(
             @Query("slug") String slug
     );
 
     @FormUrlEncoded
-    @POST("add_to_wishlist.php")
+    @POST("front/add-wishlist")
     Call<ResponseBody> addToWishlist(
             @Field("user_id") String userId,
             @Field("product_id") int productId
     );
 
     @FormUrlEncoded
-    @POST("get_wishlist.php")
+    @POST("front/get-wishlist")
     Call<ResponseBody> getWishlist(
             @Field("user_id") String userId
     );
 
     @FormUrlEncoded
-    @POST("delete_wishlist_item.php")
+    @POST("front/delete-wishlist")
     Call<ResponseBody> removeFromWishlist(
             @Field("user_id") String userId,
             @Field("product_id") int productId
     );
 
     @FormUrlEncoded
-    @POST("fetch_orders.php")
+    @POST("user/fetch-orders")
     Call<OrderResponse> fetchOrders(
             @Field("user_id") String userId
     );
 
     @Headers("Content-Type: application/json")
-    @POST("place_order.php")
+    @POST("user/order-place")
     Call<ResponseBody> placeOrder(@Body RequestBody body);
 
     @FormUrlEncoded
-    @POST("place_order.php")
+    @POST("user/order-place")
     Call<ResponseBody> updatePaymentStatus(
             @Field("order_id") int orderId,
             @Field("payment_status") String paymentStatus
@@ -190,7 +193,7 @@ public interface ApiService {
     );
 
     @FormUrlEncoded
-    @POST("cancel_order.php")
+    @POST("user/cancel-order")
     Call<ResponseBody> cancelOrder(
             @Field("order_id") int orderId,
             @Field("user_id") String userId

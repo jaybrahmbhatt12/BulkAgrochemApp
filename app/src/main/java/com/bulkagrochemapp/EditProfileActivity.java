@@ -112,9 +112,16 @@ public class EditProfileActivity extends AppCompatActivity {
             public void onResponse(Call<LocationResponse> call, Response<LocationResponse> response) {
                 if (loadingOverlay != null) loadingOverlay.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
-                    indianStates = response.body().getStates();
-                    setupStateSpinner();
+                    List<State> states = response.body().getStates();
+                    if (states != null) {
+                        indianStates = states;
+                        setupStateSpinner();
+                    } else {
+                        Log.e("EditProfile", "States list is null in response");
+                    }
                     loadUserData();
+                } else {
+                    loadUserData(); // Still load user data even if location fetch fails
                 }
             }
 
@@ -122,14 +129,19 @@ public class EditProfileActivity extends AppCompatActivity {
             public void onFailure(Call<LocationResponse> call, Throwable t) {
                 if (loadingOverlay != null) loadingOverlay.setVisibility(View.GONE);
                 Log.e("EditProfile", "Fetch Error: " + t.getMessage());
+                loadUserData(); // Still load user data
             }
         });
     }
 
     private void setupStateSpinner() {
+        if (indianStates == null || indianStates.isEmpty()) return;
+
         List<String> stateNames = new ArrayList<>();
         for (State s : indianStates) {
-            stateNames.add(s.getName());
+            if (s != null && s.getName() != null) {
+                stateNames.add(s.getName());
+            }
         }
 
         ArrayAdapter<String> stateAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, stateNames);
@@ -138,7 +150,7 @@ public class EditProfileActivity extends AppCompatActivity {
         actvState.setOnItemClickListener((parent, view, position, id) -> {
             String stateName = (String) parent.getItemAtPosition(position);
             for (State s : indianStates) {
-                if (s.getName().equals(stateName)) {
+                if (s != null && s.getName() != null && s.getName().equals(stateName)) {
                     updateDistrictSpinner(s.getDistricts());
                     break;
                 }
@@ -148,8 +160,12 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void updateDistrictSpinner(List<District> districts) {
         List<String> districtNames = new ArrayList<>();
-        for (District d : districts) {
-            districtNames.add(d.getName());
+        if (districts != null) {
+            for (District d : districts) {
+                if (d != null && d.getName() != null) {
+                    districtNames.add(d.getName());
+                }
+            }
         }
 
         ArrayAdapter<String> districtAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, districtNames);
@@ -174,10 +190,12 @@ public class EditProfileActivity extends AppCompatActivity {
         String savedState = sanitize(prefs.getString("state", ""));
         if (!savedState.isEmpty()) {
             actvState.setText(savedState, false);
-            for (State s : indianStates) {
-                if (s.getName().equalsIgnoreCase(savedState)) {
-                    updateDistrictSpinner(s.getDistricts());
-                    break;
+            if (indianStates != null) {
+                for (State s : indianStates) {
+                    if (s != null && s.getName() != null && s.getName().equalsIgnoreCase(savedState)) {
+                        updateDistrictSpinner(s.getDistricts());
+                        break;
+                    }
                 }
             }
         } else {

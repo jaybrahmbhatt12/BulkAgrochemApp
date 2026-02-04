@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -36,6 +38,8 @@ public class MyOrdersActivity extends BaseActivity implements OrdersAdapter.OnOr
     private ImageButton btnBack;
     private ChipGroup chipGroupFilters;
     private OrdersAdapter adapter;
+    private LinearLayout layoutEmpty;
+    private TextView tvEmptyMessage;
     
     private List<Order> allOrdersList = new ArrayList<>();
     private List<List<Order>> groupedOrders = new ArrayList<>();
@@ -50,6 +54,8 @@ public class MyOrdersActivity extends BaseActivity implements OrdersAdapter.OnOr
         swipeRefresh = findViewById(R.id.swipeRefresh);
         btnBack = findViewById(R.id.btnBack);
         chipGroupFilters = findViewById(R.id.chipGroupFilters);
+        layoutEmpty = findViewById(R.id.layoutEmpty);
+        tvEmptyMessage = findViewById(R.id.tvEmptyMessage);
 
         btnBack.setOnClickListener(v -> finish());
 
@@ -105,7 +111,7 @@ public class MyOrdersActivity extends BaseActivity implements OrdersAdapter.OnOr
                         allOrdersList.clear();
                         groupedOrders.clear();
                         adapter.notifyDataSetChanged();
-                        Toast.makeText(MyOrdersActivity.this, "No orders found", Toast.LENGTH_SHORT).show();
+                        updateEmptyState(true);
                     }
                 } else {
                     Toast.makeText(MyOrdersActivity.this, "Failed to fetch orders", Toast.LENGTH_SHORT).show();
@@ -160,6 +166,24 @@ public class MyOrdersActivity extends BaseActivity implements OrdersAdapter.OnOr
         groupedOrders.clear();
         groupedOrders.addAll(groups.values());
         adapter.notifyDataSetChanged();
+        
+        updateEmptyState(groupedOrders.isEmpty());
+    }
+
+    private void updateEmptyState(boolean isEmpty) {
+        if (isEmpty) {
+            layoutEmpty.setVisibility(View.VISIBLE);
+            rvOrders.setVisibility(View.GONE);
+            
+            String message = "No " + currentFilter.toLowerCase() + " orders found";
+            if (currentFilter.equalsIgnoreCase("All")) {
+                message = "You haven't placed any orders yet";
+            }
+            tvEmptyMessage.setText(message);
+        } else {
+            layoutEmpty.setVisibility(View.GONE);
+            rvOrders.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
