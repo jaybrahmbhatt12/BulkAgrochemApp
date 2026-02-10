@@ -156,10 +156,9 @@ public interface ApiService {
             @Field("product_id") int productId
     );
 
-    @FormUrlEncoded
-    @POST("front/get-wishlist")
+    @GET("front/get-wishlist")
     Call<ResponseBody> getWishlist(
-            @Field("user_id") String userId
+            @Query("user_id") String userId
     );
 
     @FormUrlEncoded

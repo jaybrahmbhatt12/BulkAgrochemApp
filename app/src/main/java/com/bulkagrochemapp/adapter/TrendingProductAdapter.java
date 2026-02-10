@@ -117,7 +117,7 @@ public class TrendingProductAdapter
             int reviews = random.nextInt(91) + 10;
             holder.txtReviews.setText(reviews + " Reviews");
         }
-        holder.ratingBar.setRating(4.5f); // static or dynamic later
+        holder.ratingBar.setRating(4.5f);
 
         // ===== Stock =====
         holder.txtStock.setText("InStock");
@@ -150,30 +150,17 @@ public class TrendingProductAdapter
         });
 
         // ===== Click (Button ONLY) =====
-        View.OnClickListener openDetails = v -> {
+        holder.ViewDetailBtn.setOnClickListener(v -> {
             Intent intent = new Intent(context, ProductDetailActivity.class);
-            intent.putExtra("product_id", product.getId());
-            intent.putExtra("product_name", product.getName());
-            intent.putExtra("product_price", product.getPrice());
-            intent.putExtra("product_stock", product.getStocktype());
-            intent.putExtra("minimum_qty", product.getMinimumQty());
-            intent.putExtra("product_image", product.getImage());
-            intent.putExtra("product_description", product.getDescription());
-            intent.putExtra("product_details", product.getDetails());
-            intent.putExtra("product_original_price", product.getOriginalPrice());
-            intent.putExtra("product_discount_percent", product.getDiscountPercent());
-
-            // Pass the whole product object to access wholesale data
             intent.putExtra("product", product);
-
             context.startActivity(intent);
-        };
-
-        holder.ViewDetailBtn.setOnClickListener(openDetails);
+        });
         
-        // Disable click on the whole card
-        holder.itemView.setOnClickListener(null);
-        holder.itemView.setClickable(false);
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ProductDetailActivity.class);
+            intent.putExtra("product", product);
+            context.startActivity(intent);
+        });
     }
 
     private void updateWishlistIcon(ImageButton btn, int productId) {
@@ -189,7 +176,6 @@ public class TrendingProductAdapter
         return productList != null ? productList.size() : 0;
     }
 
-    // ===== ViewHolder =====
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imgProduct;

@@ -117,7 +117,7 @@ public class TopSellingProductAdapter
             int reviews = random.nextInt(91) + 10;
             holder.txtReviews.setText(reviews + " Reviews");
         }
-        holder.ratingBar.setRating(4.5f); // static or dynamic later
+        holder.ratingBar.setRating(4.5f);
 
         // ===== Stock =====
         holder.txtStock.setText("InStock");
@@ -127,7 +127,7 @@ public class TopSellingProductAdapter
 
         // ===== Image (PICASSO) =====
         Picasso.get()
-                .load(product.getImage()) // FULL URL FROM API
+                .load(product.getImage())
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .error(R.drawable.ic_image_error)
                 .into(holder.imgProduct);
@@ -140,40 +140,27 @@ public class TopSellingProductAdapter
             holder.btnWishlist.startAnimation(scaleAnim);
 
             if (WishlistManager.isInWishlist(product.getId())) {
-                WishlistManager.removeFromWishlist(product.getId());
+                WishlistManager.removeFromWishlistWithSync(context, product.getId());
                 Toast.makeText(context, product.getName() + " removed from wishlist", Toast.LENGTH_SHORT).show();
             } else {
-                WishlistManager.addToWishlist(product);
+                WishlistManager.addToWishlistWithSync(context, product);
                 Toast.makeText(context, product.getName() + " added to wishlist", Toast.LENGTH_SHORT).show();
             }
             updateWishlistIcon(holder.btnWishlist, product.getId());
         });
 
         // ===== Click (Button ONLY) =====
-        View.OnClickListener openDetails = v -> {
+        holder.ViewDetailBtn.setOnClickListener(v -> {
             Intent intent = new Intent(context, ProductDetailActivity.class);
-            intent.putExtra("product_id", product.getId());
-            intent.putExtra("product_name", product.getName());
-            intent.putExtra("product_price", product.getPrice());
-            intent.putExtra("product_stock", product.getStocktype());
-            intent.putExtra("minimum_qty", product.getMinimumQty());
-            intent.putExtra("product_image", product.getImage());
-            intent.putExtra("product_description", product.getDescription());
-            intent.putExtra("product_details", product.getDetails());
-            intent.putExtra("product_original_price", product.getOriginalPrice());
-            intent.putExtra("product_discount_percent", product.getDiscountPercent());
-
-            // Pass the whole product object to access wholesale data
             intent.putExtra("product", product);
-
             context.startActivity(intent);
-        };
-
-        holder.ViewDetailBtn.setOnClickListener(openDetails);
+        });
         
-        // Disable click on the whole card
-        holder.itemView.setOnClickListener(null);
-        holder.itemView.setClickable(false);
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ProductDetailActivity.class);
+            intent.putExtra("product", product);
+            context.startActivity(intent);
+        });
     }
 
     private void updateWishlistIcon(ImageButton btn, int productId) {
@@ -189,7 +176,6 @@ public class TopSellingProductAdapter
         return productList != null ? productList.size() : 0;
     }
 
-    // ===== ViewHolder =====
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imgProduct;

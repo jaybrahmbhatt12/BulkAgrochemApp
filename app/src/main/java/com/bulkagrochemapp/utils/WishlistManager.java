@@ -13,7 +13,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -25,12 +27,14 @@ public class WishlistManager {
     private static final List<Product> wishlistItems = new ArrayList<>();
 
     public static void addToWishlist(Product product) {
+        if (product == null) return;
         if (!isInWishlist(product.getId())) {
             wishlistItems.add(product);
         }
     }
 
     public static void addToWishlistWithSync(Context context, Product product) {
+        if (product == null) return;
         if (!isInWishlist(product.getId())) {
             wishlistItems.add(product);
             syncAddToRemote(context, product.getId());
@@ -52,16 +56,20 @@ public class WishlistManager {
     }
 
     public static boolean isInWishlist(int productId) {
-        for (Product product : wishlistItems) {
-            if (product.getId() == productId) {
-                return true;
+        synchronized (wishlistItems) {
+            for (Product product : wishlistItems) {
+                if (product.getId() == productId) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
     public static List<Product> getWishlistItems() {
-        return new ArrayList<>(wishlistItems);
+        synchronized (wishlistItems) {
+            return new ArrayList<>(wishlistItems);
+        }
     }
 
     public static void syncAddToRemote(Context context, int productId) {
@@ -128,14 +136,14 @@ public class WishlistManager {
                         String status = jsonObject.optString("status");
                         if ("success".equals(status)) {
                             JSONArray data = jsonObject.optJSONArray("data");
-                            wishlistItems.clear(); // Clear local list before sync
-                            if (data != null && data.length() > 0) {
-                                List<Integer> productIds = new ArrayList<>();
+                            if (data != null) {
+                                Set<Integer> productIds = new HashSet<>();
                                 for (int i = 0; i < data.length(); i++) {
                                     productIds.add(data.getJSONObject(i).getInt("product_id"));
                                 }
                                 fetchProductDetailsForWishlist(productIds, onComplete);
                             } else {
+                                synchronized (wishlistItems) { wishlistItems.clear(); }
                                 if (onComplete != null) onComplete.run();
                             }
                         } else {
@@ -158,7 +166,7 @@ public class WishlistManager {
         });
     }
 
-    private static void fetchProductDetailsForWishlist(List<Integer> productIds, Runnable onComplete) {
+    private static void fetchProductDetailsForWishlist(Set<Integer> productIds, Runnable onComplete) {
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.getProducts().enqueue(new Callback<ProductResponse>() {
             @Override
@@ -166,10 +174,16 @@ public class WishlistManager {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Product> allProducts = response.body().getData();
                     if (allProducts != null) {
+                        List<Product> newWishlist = new ArrayList<>();
                         for (Product p : allProducts) {
                             if (productIds.contains(p.getId())) {
-                                wishlistItems.add(p);
+                                newWishlist.add(p);
                             }
+                        }
+                        // Update the master list atomically to prevent duplicates and race conditions
+                        synchronized (wishlistItems) {
+                            wishlistItems.clear();
+                            wishlistItems.addAll(newWishlist);
                         }
                     }
                 }

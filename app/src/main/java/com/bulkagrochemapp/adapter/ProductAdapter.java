@@ -36,13 +36,10 @@ import java.util.List;
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder>
         implements Filterable {
 
-    Context context;
-    List<Product> productList;
-    private final OnProductClickListener onProductClickListener;
-    List<Product> productListFull; // original list
-    private Random random = new Random(); // Initialize random object
-
-    //============== Constructor ================//
+    private Context context;
+    private List<Product> productList;
+    private List<Product> productListFull; // original list
+    private Random random = new Random();
 
     public interface OnProductClickListener {
         void onProductClick(Product product);
@@ -51,11 +48,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
     public ProductAdapter(Context context, List<Product> productList, OnProductClickListener onProductClickListener) {
         this.context = context;
         this.productList = productList;
-        this.productListFull = new ArrayList<>(productList); // copy
-        this.onProductClickListener = onProductClickListener;
+        this.productListFull = new ArrayList<>(productList);
     }
 
-    //====== onCreateViewHolder() =====//
+    public void setProductList(List<Product> products) {
+        this.productList = products;
+        this.productListFull = new ArrayList<>(products);
+        notifyDataSetChanged();
+    }
 
     @NonNull
     @Override
@@ -65,19 +65,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         return new ViewHolder(view);
     }
 
-    //====== onBindViewHolder() =====//
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
         Product product = productList.get(position);
+        if (product == null) return;
 
         holder.txtName.setText(product.getName());
-        holder.txtPrice.setText(
-                "₹" + String.format("%.2f", product.getPrice()) + "/" + product.getStocktype()
-        );
+        holder.txtPrice.setText("₹" + String.format("%.2f", product.getPrice()) + "/" + product.getStocktype());
         
-        // ===== Original Price =====
         if (product.getOriginalPrice() > product.getPrice()) {
             holder.txtOriginalPrice.setText("₹" + String.format("%.2f", product.getOriginalPrice()));
             holder.txtOriginalPrice.setPaintFlags(holder.txtOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
@@ -86,7 +81,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             holder.txtOriginalPrice.setVisibility(View.GONE);
         }
 
-        // ===== Discount Badge =====
         if (product.getDiscountPercent() > 0) {
             holder.txtDiscount.setText(product.getDiscountPercent() + "% OFF");
             holder.txtDiscount.setVisibility(View.VISIBLE);
@@ -94,14 +88,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             holder.txtDiscount.setVisibility(View.GONE);
         }
 
-
         if (product.getDescription() != null) {
             holder.txtDescription.setText(HtmlUtil.fromHtml(product.getDescription()));
         } else {
             holder.txtDescription.setText("");
         }
 
-        // Bind details
         if (product.getDetails() != null && !product.getDetails().isEmpty()) {
             holder.txtDetails.setText(HtmlUtil.fromHtml(product.getDetails()));
             holder.txtDetails.setVisibility(View.VISIBLE);
@@ -109,22 +101,15 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             holder.txtDetails.setVisibility(View.GONE);
         }
 
-
-        // Generate random reviews count between 10 and 100
         int reviewsCount = random.nextInt(91) + 10;
         holder.txtReviews.setText(reviewsCount + " Reviews");
 
-
-        // The API provides the full URL, so use it directly.
-        String imageUrl = product.getImage();
-
         Picasso.get()
-                .load(imageUrl)
+                .load(product.getImage())
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .error(R.drawable.ic_image_error)
                 .into(holder.imgProduct);
 
-        // ===== Wishlist Logic =====
         updateWishlistIcon(holder.btnWishlist, product.getId());
 
         holder.btnWishlist.setOnClickListener(v -> {
@@ -141,27 +126,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             updateWishlistIcon(holder.btnWishlist, product.getId());
         });
 
-        // Add the click listener to the View More button
         holder.ViewDetailBtn.setOnClickListener(v -> {
-
             Intent intent = new Intent(context, ProductDetailActivity.class);
-            intent.putExtra("product_id", product.getId());
-            intent.putExtra("product_name", product.getName());
-            intent.putExtra("product_price", product.getPrice());
-            intent.putExtra("product_stock", product.getStocktype());
-            intent.putExtra("minimum_qty", product.getMinimumQty());
-            intent.putExtra("product_image", product.getImage());
-            intent.putExtra("product_description", product.getDescription());
-            intent.putExtra("product_details", product.getDetails());
-            intent.putExtra("product_original_price", product.getOriginalPrice());
-            intent.putExtra("product_discount_percent", product.getDiscountPercent());
-            
-            // Pass the whole product object to access wholesale data
             intent.putExtra("product", product);
-
             context.startActivity(intent);
         });
-
     }
 
     private void updateWishlistIcon(ImageButton btn, int productId) {
@@ -174,55 +143,44 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return productList.size();
+        return productList != null ? productList.size() : 0;
     }
 
-    // SEARCH FILTER IMPLEMENTATION
     @Override
     public Filter getFilter() {
         return productFilter;
     }
 
-    // Filter implementation
-
     private final Filter productFilter = new Filter() {
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
-
             List<Product> filteredList = new ArrayList<>();
-
             if (constraint == null || constraint.length() == 0) {
                 filteredList.addAll(productListFull);
             } else {
-                String filterPattern =
-                        constraint.toString().toLowerCase().trim();
-
+                String filterPattern = constraint.toString().toLowerCase().trim();
                 for (Product product : productListFull) {
                     if (product.getName().toLowerCase().contains(filterPattern)) {
                         filteredList.add(product);
                     }
                 }
             }
-
             FilterResults results = new FilterResults();
             results.values = filteredList;
             return results;
         }
 
-        //====== publishResults() =====//
-
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
             productList.clear();
-            productList.addAll((List<Product>) results.values);
+            if (results.values != null) {
+                productList.addAll((List<Product>) results.values);
+            }
             notifyDataSetChanged();
         }
     };
 
-    //====== ViewHolder =====//
-
     static class ViewHolder extends RecyclerView.ViewHolder {
-
         ImageView imgProduct;
         TextView txtName, txtPrice, txtReviews, txtDescription, txtDetails, txtOriginalPrice, txtDiscount;
         Button ViewDetailBtn;
