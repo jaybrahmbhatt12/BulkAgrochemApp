@@ -377,7 +377,7 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
 
     private void startPayment() {
         Checkout checkout = new Checkout();
-        checkout.setKeyID("rzp_test_RZEWfckatMa4lh");
+        checkout.setKeyID("rzp_live_RmHyDVn3U5T3QJ");
 
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
         String name = sanitize(prefs.getString("name", "User"));
