@@ -103,7 +103,7 @@ public interface ApiService {
     );
 
     // Fetch India States and Cities from backend assets
-    @GET("front/states")
+    @GET("../assets/india_states_cities.json")
     Call<LocationResponse> getIndiaLocations();
 
     @GET("front/cities")
