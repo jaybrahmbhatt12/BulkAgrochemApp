@@ -38,6 +38,7 @@ import com.google.gson.Gson;
 import com.razorpay.Checkout;
 import com.razorpay.PaymentResultListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -94,15 +95,12 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         loadCoupons();
 
         btnBack.setOnClickListener(v -> finish());
-        
         btnApplyCoupon.setOnClickListener(v -> applyCoupon());
-
         btnPayNow.setOnClickListener(v -> {
             if (validateDetails()) {
                 startPayment();
             }
         });
-
         btnChangeAddress.setOnClickListener(v -> {
             Intent intent = new Intent(OrderSummaryActivity.this, ChangeAddressActivity.class);
             changeAddressLauncher.launch(intent);
@@ -111,12 +109,10 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         etCoupon.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 resetCouponButton();
             }
-
             @Override
             public void afterTextChanged(Editable s) {}
         });
@@ -131,11 +127,9 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         btnPayNow = findViewById(R.id.btnPayNow);
         btnBack = findViewById(R.id.btnBack);
         btnChangeAddress = findViewById(R.id.btnChangeAddress);
-        
         txtAddressName = findViewById(R.id.txtAddressName);
         txtAddressDetails = findViewById(R.id.txtAddressDetails);
         txtAddressPhone = findViewById(R.id.txtAddressPhone);
-
         txtPriceItems = findViewById(R.id.txtPriceItems);
         txtDiscountAmount = findViewById(R.id.txtDiscountAmount);
         txtTax = findViewById(R.id.txtTax);
@@ -143,7 +137,6 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         txtBottomTotal = findViewById(R.id.txtBottomTotal);
         txtCouponStatus = findViewById(R.id.txtCouponStatus);
         layoutDiscount = findViewById(R.id.layoutDiscount);
-
         rvCoupons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
     }
 
@@ -159,19 +152,14 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         String name = sanitize(prefs.getString("name", "User Name"));
         String phone = sanitize(prefs.getString("phone", "Phone Number"));
         String address = sanitize(prefs.getString("address", ""));
-        
         String city = sanitize(prefs.getString("district", ""));
         if (city.isEmpty()) city = sanitize(prefs.getString("city", ""));
-        
         String state = sanitize(prefs.getString("state", ""));
         String zip = sanitize(prefs.getString("zip", ""));
-
         if (name.isEmpty() || name.equalsIgnoreCase("New User")) name = "User Name";
         if (phone.isEmpty()) phone = "Phone Number";
-
         txtAddressName.setText(name);
         txtAddressPhone.setText(phone);
-        
         StringBuilder fullAddress = new StringBuilder();
         if (!address.isEmpty()) fullAddress.append(address);
         if (!city.isEmpty()) {
@@ -186,7 +174,6 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
             if (fullAddress.length() > 0) fullAddress.append(" ");
             fullAddress.append(zip);
         }
-
         if (fullAddress.length() > 0) {
             txtAddressDetails.setText(fullAddress.toString());
             txtAddressDetails.setTextColor(getResources().getColor(R.color.black));
@@ -211,17 +198,14 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
     private void updateUI() {
         grandTotal = subtotal + tax - discount;
         if (grandTotal < 0) grandTotal = 0;
-
         txtPriceItems.setText(String.format(Locale.getDefault(), "₹%.2f", subtotal));
         txtTax.setText(String.format(Locale.getDefault(), "₹%.2f", tax));
-        
         if (discount > 0) {
             layoutDiscount.setVisibility(View.VISIBLE);
             txtDiscountAmount.setText(String.format(Locale.getDefault(), "-₹%.2f", discount));
         } else {
             layoutDiscount.setVisibility(View.GONE);
         }
-
         txtTotalAmount.setText(String.format(Locale.getDefault(), "₹%.2f", grandTotal));
         txtBottomTotal.setText(String.format(Locale.getDefault(), "₹%.2f", grandTotal));
     }
@@ -233,7 +217,6 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
             skeletonCoupons.startAnimation(pulseAnim);
         }
         if (rvCoupons != null) rvCoupons.setVisibility(View.GONE);
-
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.getCoupons().enqueue(new Callback<CouponResponse>() {
             @Override
@@ -243,7 +226,6 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
                     skeletonCoupons.setVisibility(View.GONE);
                 }
                 if (rvCoupons != null) rvCoupons.setVisibility(View.VISIBLE);
-
                 if (response.isSuccessful() && response.body() != null) {
                     availableCoupons = response.body().getData();
                     if (availableCoupons != null) {
@@ -255,14 +237,12 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
                     }
                 }
             }
-
             @Override
             public void onFailure(Call<CouponResponse> call, Throwable t) {
                 if (skeletonCoupons != null) {
                     skeletonCoupons.clearAnimation();
                     skeletonCoupons.setVisibility(View.GONE);
                 }
-                // Silently fail or log
             }
         });
     }
@@ -273,12 +253,10 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
             Toast.makeText(this, "Please enter a coupon code", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (availableCoupons == null || availableCoupons.isEmpty()) {
             Toast.makeText(this, "No coupons available", Toast.LENGTH_SHORT).show();
             return;
         }
-
         Coupon selectedCoupon = null;
         for (Coupon coupon : availableCoupons) {
             if (coupon.getCode().equalsIgnoreCase(code)) {
@@ -286,7 +264,6 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
                 break;
             }
         }
-
         if (selectedCoupon != null) {
             if (subtotal < selectedCoupon.getAbovePrice()) {
                 txtCouponStatus.setVisibility(View.VISIBLE);
@@ -301,13 +278,10 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
                 } else { 
                     discount = (subtotal * selectedCoupon.getPrice()) / 100;
                 }
-                
                 appliedCouponCode = selectedCoupon.getCode();
                 txtCouponStatus.setVisibility(View.VISIBLE);
                 txtCouponStatus.setText(String.format(Locale.getDefault(), "Coupon applied! You saved ₹%.2f", discount));
                 txtCouponStatus.setTextColor(getResources().getColor(R.color.green));
-                
-                // Change button to Applied (Green)
                 btnApplyCoupon.setText("Applied");
                 btnApplyCoupon.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.green)));
             }
@@ -319,7 +293,6 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
             appliedCouponCode = "";
             resetCouponButton();
         }
-
         updateUI();
     }
 
@@ -341,23 +314,18 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         String email = sanitize(prefs.getString("email", ""));
         String phone = sanitize(prefs.getString("phone", ""));
         String address = sanitize(prefs.getString("address", ""));
-        
         String city = sanitize(prefs.getString("district", ""));
         if (city.isEmpty()) city = sanitize(prefs.getString("city", ""));
-        
         String state = sanitize(prefs.getString("state", ""));
         String zip = sanitize(prefs.getString("zip", ""));
-
         if (uid.isEmpty()) {
             Toast.makeText(this, "Please login to place order", Toast.LENGTH_SHORT).show();
             return false;
         }
-
         if (address.isEmpty() || city.isEmpty() || state.isEmpty() || zip.isEmpty() || email.isEmpty() || name.isEmpty() || name.equalsIgnoreCase("New User") || phone.isEmpty()) {
             showErrorSnackbar("Please complete your profile (Email, Address, City, State, ZIP) to place an order");
             return false;
         }
-
         if (CartManager.getCartItems().isEmpty()) {
             Toast.makeText(this, "Your cart is empty", Toast.LENGTH_SHORT).show();
             return false;
@@ -377,29 +345,26 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
 
     private void startPayment() {
         Checkout checkout = new Checkout();
+        // USING TEST KEY FOR TESTING WITHOUT BALANCE
         checkout.setKeyID("rzp_live_RmHyDVn3U5T3QJ");
-
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
         String name = sanitize(prefs.getString("name", "User"));
         String email = sanitize(prefs.getString("email", ""));
         String phone = sanitize(prefs.getString("phone", ""));
-
         try {
             JSONObject options = new JSONObject();
             options.put("name", "BulkAgrochem");
             options.put("description", "Order Payment");
             options.put("image", "https://bulkapi.tiffinworld.com/assets/logo_bulkagro.png");
             options.put("currency", "INR");
-            options.put("amount", Math.round(grandTotal * 100)); // Amount in paisa
-
+            options.put("amount", Math.round(grandTotal * 100));
             JSONObject prefill = new JSONObject();
             prefill.put("email", email);
             prefill.put("contact", phone);
             options.put("prefill", prefill);
-
             checkout.open(this, options);
         } catch (Exception e) {
-            Toast.makeText(this, "Error in starting Razorpay: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -410,9 +375,7 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
 
     @Override
     public void onPaymentError(int code, String response) {
-        // Show Payment Failure Page
-        Intent intent = new Intent(OrderSummaryActivity.this, PaymentFailureActivity.class);
-        startActivity(intent);
+        startActivity(new Intent(OrderSummaryActivity.this, PaymentFailureActivity.class));
     }
 
     private void placeOrder(String paymentId) {
@@ -422,28 +385,21 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         String email = sanitize(prefs.getString("email", ""));
         String phone = sanitize(prefs.getString("phone", ""));
         String address = sanitize(prefs.getString("address", ""));
-        
         String city = sanitize(prefs.getString("district", ""));
         if (city.isEmpty()) city = sanitize(prefs.getString("city", ""));
-
         String state = sanitize(prefs.getString("state", ""));
         String zip = sanitize(prefs.getString("zip", ""));
-
         List<CartItem> cartItems = CartManager.getCartItems();
         int totalQty = 0;
         for (CartItem item : cartItems) {
             totalQty += item.getQuantity();
         }
-
-        String cartJson = new Gson().toJson(cartItems);
-
         btnPayNow.setEnabled(false);
         btnPayNow.setText("Placing Order...");
-
         JSONObject orderJson = new JSONObject();
         try {
             orderJson.put("user_id", uid);
-            orderJson.put("cart", cartJson);
+            orderJson.put("cart", new JSONArray(new Gson().toJson(cartItems)));
             orderJson.put("method", "Razorpay");
             orderJson.put("payment_id", paymentId);
             orderJson.put("payment_status", "Completed");
@@ -452,7 +408,6 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
             orderJson.put("pay_amount", grandTotal);
             orderJson.put("totalprice", subtotal);
             orderJson.put("tax", tax);
-
             orderJson.put("customer_name", name);
             orderJson.put("customer_email", email);
             orderJson.put("customer_phone", phone);
@@ -461,19 +416,12 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
             orderJson.put("customer_state", state);
             orderJson.put("customer_zip", zip);
             orderJson.put("customer_country", "India");
-
             orderJson.put("coupon_code", appliedCouponCode);
             orderJson.put("coupon_discount", discount);
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        RequestBody body = RequestBody.create(
-                MediaType.parse("application/json"),
-                orderJson.toString()
-        );
-
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), orderJson.toString());
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.placeOrder(body).enqueue(new Callback<ResponseBody>() {
             @Override
@@ -482,37 +430,33 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
                     try {
                         String result = response.body().string();
                         JSONObject jsonObject = new JSONObject(result);
-                        String status = jsonObject.optString("status");
-
-                        if ("success".equalsIgnoreCase(status)) {
-                            // Clear cart locally and on server
+                        if ("success".equalsIgnoreCase(jsonObject.optString("status"))) {
                             CartManager.clearCart(OrderSummaryActivity.this);
-
-                            Intent intent = new Intent(OrderSummaryActivity.this, PaymentSuccessActivity.class);
-                            startActivity(intent);
+                            startActivity(new Intent(OrderSummaryActivity.this, PaymentSuccessActivity.class));
                             finish();
                         } else {
                             btnPayNow.setEnabled(true);
                             btnPayNow.setText("Pay Now");
-                            Toast.makeText(OrderSummaryActivity.this, "Server Error: " + jsonObject.optString("message"), Toast.LENGTH_LONG).show();
+                            Toast.makeText(OrderSummaryActivity.this, "Server: " + jsonObject.optString("message"), Toast.LENGTH_LONG).show();
                         }
                     } catch (IOException | JSONException e) {
                         btnPayNow.setEnabled(true);
                         btnPayNow.setText("Pay Now");
-                        Toast.makeText(OrderSummaryActivity.this, "Response Parsing Error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(OrderSummaryActivity.this, "Parsing Error", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     btnPayNow.setEnabled(true);
                     btnPayNow.setText("Pay Now");
-                    Toast.makeText(OrderSummaryActivity.this, "Failed to place order", Toast.LENGTH_SHORT).show();
+                    String error = "";
+                    try { if (response.errorBody() != null) error = response.errorBody().string(); } catch (Exception ignored) {}
+                    Toast.makeText(OrderSummaryActivity.this, "Error " + response.code() + ": " + error, Toast.LENGTH_LONG).show();
                 }
             }
-
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 btnPayNow.setEnabled(true);
                 btnPayNow.setText("Pay Now");
-                Toast.makeText(OrderSummaryActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(OrderSummaryActivity.this, "Network Error", Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -24,49 +24,33 @@ public interface ApiService {
     String IMAGE_URL = "https://bulkagrochem.com/api";
     String BANNER_IMAGE_URL = "https://bulkagrochem.com/assets/";
 
-    // Sliders
     @GET("front/slider-list")
     Call<SliderResponse> getSliders();
 
-    // Campaigns
     @GET("front/campaign-list")
     Call<CampaignResponse> getCampaigns();
 
-    // All Products
     @GET("front/product-list")
     Call<ProductResponse> getProducts();
 
-    // Coupons
     @GET("front/coupon-list")
     Call<CouponResponse> getCoupons();
 
-    // Trending Products
     @GET("front/product-list")
     Call<ProductResponse> getTrendingProducts();
 
-    // Categories
     @GET("front/category-list")
     Call<CategoryResponse> getCategories();
 
-    // Products by Category
     @GET("front/category-products")
-    Call<ProductResponse> getProductsByCategory(
-            @Query("category_id") int categoryId
-    );
+    Call<ProductResponse> getProductsByCategory(@Query("category_id") int categoryId);
 
-    // Product Details
     @GET("product_details.php")
-    Call<ProductResponse> getProductDetails(
-            @Query("product_id") int productId
-    );
+    Call<ProductResponse> getProductDetails(@Query("product_id") int productId);
 
-    // Search Products
     @GET("front/product-list")
-    Call<ProductResponse> searchProducts(
-            @Query("search") String query
-    );
+    Call<ProductResponse> searchProducts(@Query("search") String query);
 
-    // Add to Cart
     @FormUrlEncoded
     @POST("user/add-to-cart")
     Call<ResponseBody> addToCart(
@@ -80,29 +64,18 @@ public interface ApiService {
             @Field("total_prices") double totalPrices
     );
 
-    // Fetch Cart
     @FormUrlEncoded
     @POST("user/fetch-cart")
-    Call<ResponseBody> fetchCart(
-            @Field("uid") String uid
-    );
+    Call<ResponseBody> fetchCart(@Field("uid") String uid);
 
-    // Delete from Cart
     @FormUrlEncoded
     @POST("user/delete-from-cart")
-    Call<ResponseBody> deleteFromCart(
-            @Field("uid") String uid,
-            @Field("pid") int pid
-    );
+    Call<ResponseBody> deleteFromCart(@Field("uid") String uid, @Field("pid") int pid);
 
-    // Clear Cart
     @FormUrlEncoded
     @POST("clear_cart.php")
-    Call<ResponseBody> clearCart(
-            @Field("uid") String uid
-    );
+    Call<ResponseBody> clearCart(@Field("uid") String uid);
 
-    // Fetch India States and Cities from backend assets
     @GET("../assets/india_states_cities.json")
     Call<LocationResponse> getIndiaLocations();
 
@@ -111,23 +84,15 @@ public interface ApiService {
 
     @FormUrlEncoded
     @POST("user/phone/register")
-    Call<ResponseBody> register(
-            @Field("name") String name,
-            @Field("email") String email,
-            @Field("phone") String phone
-    );
+    Call<ResponseBody> register(@Field("name") String name, @Field("email") String email, @Field("phone") String phone);
 
     @FormUrlEncoded
     @POST("user/phone/login")
-    Call<ResponseBody> login(
-            @Field("phone") String phone
-    );
+    Call<ResponseBody> login(@Field("phone") String phone);
 
     @FormUrlEncoded
     @POST("user/phone/send-otp")
-    Call<ResponseBody> sendOtp(
-            @Field("phone") String phone
-    );
+    Call<ResponseBody> sendOtp(@Field("phone") String phone);
 
     @FormUrlEncoded
     @POST("user/update/profile")
@@ -143,66 +108,41 @@ public interface ApiService {
             @Field("address") String address
     );
 
-    // Fetch dynamic pages (About Us, Privacy Policy, etc.)
     @GET("front/pages")
-    Call<ResponseBody> getPageContent(
-            @Query("slug") String slug
-    );
+    Call<ResponseBody> getPageContent(@Query("slug") String slug);
 
     @FormUrlEncoded
     @POST("front/add-wishlist")
-    Call<ResponseBody> addToWishlist(
-            @Field("user_id") String userId,
-            @Field("product_id") int productId
-    );
+    Call<ResponseBody> addToWishlist(@Field("user_id") String userId, @Field("product_id") int productId);
 
     @GET("front/get-wishlist")
-    Call<ResponseBody> getWishlist(
-            @Query("user_id") String userId
-    );
+    Call<ResponseBody> getWishlist(@Query("user_id") String userId);
 
     @FormUrlEncoded
     @POST("front/delete-wishlist")
-    Call<ResponseBody> removeFromWishlist(
-            @Field("user_id") String userId,
-            @Field("product_id") int productId
-    );
+    Call<ResponseBody> removeFromWishlist(@Field("user_id") String userId, @Field("product_id") int productId);
 
     @FormUrlEncoded
     @POST("user/fetch-orders")
-    Call<OrderResponse> fetchOrders(
-            @Field("user_id") String userId
-    );
+    Call<OrderResponse> fetchOrders(@Field("user_id") String userId);
 
-    @Headers("Content-Type: application/json")
+    @Headers({"Accept: application/json", "Content-Type: application/json"})
     @POST("user/order-place")
     Call<ResponseBody> placeOrder(@Body RequestBody body);
 
     @FormUrlEncoded
     @POST("user/order-place")
-    Call<ResponseBody> updatePaymentStatus(
-            @Field("order_id") int orderId,
-            @Field("payment_status") String paymentStatus
-    );
+    Call<ResponseBody> updatePaymentStatus(@Field("order_id") int orderId, @Field("payment_status") String paymentStatus);
 
     @FormUrlEncoded
     @POST("user/fetch-orders")
-    Call<OrderResponse> getOrderHistory(
-            @Field("uid") String uid
-    );
+    Call<OrderResponse> getOrderHistory(@Field("uid") String uid);
 
     @FormUrlEncoded
     @POST("user/cancel-order")
-    Call<ResponseBody> cancelOrder(
-            @Field("order_id") int orderId,
-            @Field("user_id") String userId
-    );
+    Call<ResponseBody> cancelOrder(@Field("order_id") int orderId, @Field("user_id") String userId);
 
     @FormUrlEncoded
     @POST("return_order.php")
-    Call<ResponseBody> returnOrder(
-            @Field("order_id") int orderId,
-            @Field("uid") String uid,
-            @Field("reason") String reason
-    );
+    Call<ResponseBody> returnOrder(@Field("order_id") int orderId, @Field("uid") String uid, @Field("reason") String reason);
 }
