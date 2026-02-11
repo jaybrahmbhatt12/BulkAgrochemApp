@@ -43,6 +43,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -345,7 +347,6 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
 
     private void startPayment() {
         Checkout checkout = new Checkout();
-        // USING TEST KEY FOR TESTING WITHOUT BALANCE
         checkout.setKeyID("rzp_live_RmHyDVn3U5T3QJ");
         SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
         String name = sanitize(prefs.getString("name", "User"));
@@ -389,17 +390,65 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         if (city.isEmpty()) city = sanitize(prefs.getString("city", ""));
         String state = sanitize(prefs.getString("state", ""));
         String zip = sanitize(prefs.getString("zip", ""));
+
         List<CartItem> cartItems = CartManager.getCartItems();
         int totalQty = 0;
         for (CartItem item : cartItems) {
             totalQty += item.getQuantity();
         }
+
         btnPayNow.setEnabled(false);
         btnPayNow.setText("Placing Order...");
+
+        JSONArray cartArray = new JSONArray();
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+        try {
+            for (CartItem item : cartItems) {
+                JSONObject itemJson = new JSONObject();
+                itemJson.put("prid", String.valueOf(item.getProductId()));
+                itemJson.put("stock", JSONObject.NULL);
+                itemJson.put("size", JSONObject.NULL);
+                itemJson.put("minimum_qty", String.valueOf(item.getMinQuantity()));
+                itemJson.put("name", item.getName());
+                
+                String photo = item.getImage();
+                if (photo != null && photo.contains("/")) {
+                    photo = photo.substring(photo.lastIndexOf("/") + 1);
+                }
+                itemJson.put("photo", photo);
+                
+                itemJson.put("slug", item.getName().toLowerCase().replace(" ", "-"));
+                itemJson.put("type", "Physical");
+                itemJson.put("measure", JSONObject.NULL);
+                itemJson.put("discount", ""); 
+                itemJson.put("id", String.valueOf(item.getProductId())); // Local ID if applicable
+                itemJson.put("date", currentDate);
+                itemJson.put("uid", uid);
+                itemJson.put("pid", String.valueOf(item.getProductId()));
+                itemJson.put("qty", String.valueOf(item.getQuantity()));
+                itemJson.put("color", JSONObject.NULL);
+                itemJson.put("size_qty", JSONObject.NULL);
+                itemJson.put("size_price", JSONObject.NULL);
+                itemJson.put("size_key", JSONObject.NULL);
+                itemJson.put("keys", JSONObject.NULL);
+                itemJson.put("values", JSONObject.NULL);
+                itemJson.put("prices", String.valueOf(item.getPrice()));
+                itemJson.put("tax", String.valueOf(item.getTaxAmount()));
+                itemJson.put("total_prices", String.valueOf(item.getSubtotalAmount()));
+                itemJson.put("created_at", currentDate);
+                itemJson.put("updated_at", currentDate);
+                
+                cartArray.put(itemJson);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         JSONObject orderJson = new JSONObject();
         try {
             orderJson.put("user_id", uid);
-            orderJson.put("cart", new JSONArray(new Gson().toJson(cartItems)));
+            orderJson.put("cart", cartArray);
             orderJson.put("method", "Razorpay");
             orderJson.put("payment_id", paymentId);
             orderJson.put("payment_status", "Completed");
@@ -421,7 +470,9 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         RequestBody body = RequestBody.create(MediaType.parse("application/json"), orderJson.toString());
+
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         apiService.placeOrder(body).enqueue(new Callback<ResponseBody>() {
             @Override
