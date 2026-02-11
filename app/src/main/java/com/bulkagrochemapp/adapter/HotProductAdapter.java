@@ -129,10 +129,10 @@ public class HotProductAdapter
             holder.btnWishlist.startAnimation(scaleAnim);
 
             if (WishlistManager.isInWishlist(product.getId())) {
-                WishlistManager.removeFromWishlist(product.getId());
+                WishlistManager.removeFromWishlistWithSync(context, product.getId());
                 Toast.makeText(context, product.getName() + " removed from wishlist", Toast.LENGTH_SHORT).show();
             } else {
-                WishlistManager.addToWishlist(product);
+                WishlistManager.addToWishlistWithSync(context, product);
                 Toast.makeText(context, product.getName() + " added to wishlist", Toast.LENGTH_SHORT).show();
             }
             updateWishlistIcon(holder.btnWishlist, product.getId());
@@ -141,28 +141,18 @@ public class HotProductAdapter
         // ===== Click (Button ONLY) =====
         View.OnClickListener openDetails = v -> {
             Intent intent = new Intent(context, ProductDetailActivity.class);
-            intent.putExtra("product_id", product.getId());
-            intent.putExtra("product_name", product.getName());
-            intent.putExtra("product_price", product.getPrice());
-            intent.putExtra("product_stock", product.getStocktype());
-            intent.putExtra("minimum_qty", product.getMinimumQty());
-            intent.putExtra("product_image", product.getImage());
-            intent.putExtra("product_description", product.getDescription());
-            intent.putExtra("product_details", product.getDetails());
-            intent.putExtra("product_original_price", product.getOriginalPrice());
-            intent.putExtra("product_discount_percent", product.getDiscountPercent());
-            
             // Pass the whole product object to access wholesale data
             intent.putExtra("product", product);
-
             context.startActivity(intent);
         };
 
         holder.ViewDetailBtn.setOnClickListener(openDetails);
         
-        // Disable click on the whole card
-        holder.itemView.setOnClickListener(null);
-        holder.itemView.setClickable(false);
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ProductDetailActivity.class);
+            intent.putExtra("product", product);
+            context.startActivity(intent);
+        });
     }
 
     private void updateWishlistIcon(ImageButton btn, int productId) {
