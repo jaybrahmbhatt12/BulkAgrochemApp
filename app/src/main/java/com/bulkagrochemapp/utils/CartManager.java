@@ -142,7 +142,7 @@ public class CartManager {
                 "", // values
                 String.valueOf(item.getPrice()),
                 String.valueOf(item.getTaxAmount()),
-                item.getSubtotalAmount()
+                item.getTotalAmount() // total_prices = Price * Quantity (excluding tax)
         ).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -196,7 +196,6 @@ public class CartManager {
                                 }
                             }
                         } else {
-                            // If status is not success (e.g., cart empty), clear local list
                             cartItems.clear();
                         }
                     } catch (IOException | JSONException e) {
@@ -270,10 +269,6 @@ public class CartManager {
         return total;
     }
 
-    /**
-     * Clears the cart locally and calls the server to delete all items.
-     * Uses the provided delete_from_cart.php logic for each item.
-     */
     public static void clearCart(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("user_session", Context.MODE_PRIVATE);
         String uid = prefs.getString("id", null);
@@ -281,7 +276,6 @@ public class CartManager {
         if (uid != null) {
             ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
             
-            // Loop through a copy of the current items to delete them from server
             List<CartItem> itemsToClear = new ArrayList<>(cartItems);
             for (CartItem item : itemsToClear) {
                 apiService.deleteFromCart(uid, item.getProductId()).enqueue(new Callback<ResponseBody>() {
@@ -296,7 +290,6 @@ public class CartManager {
                 });
             }
 
-            // Also call clear_cart.php if it exists as a fallback
             apiService.clearCart(uid).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -307,7 +300,6 @@ public class CartManager {
             });
         }
 
-        // Clear local list and update UI
         cartItems.clear();
         notifyListeners();
     }
