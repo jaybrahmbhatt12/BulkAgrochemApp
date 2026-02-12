@@ -97,10 +97,28 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         holder.viewStatusDot.setBackground(shape);
 
         String fullDateTime = mainOrder.getCreatedAt();
-        if (fullDateTime != null && fullDateTime.contains(" ")) {
-            holder.txtDate.setText(fullDateTime.split(" ")[0]);
-        } else {
-            holder.txtDate.setText(fullDateTime);
+        if (fullDateTime != null) {
+            if (fullDateTime.contains("T")) {
+                String[] parts = fullDateTime.split("T");
+                String date = parts[0];
+                String time = parts[1];
+                if (time.contains(".")) {
+                    time = time.split("\\.")[0];
+                } else if (time.contains("Z")) {
+                    time = time.replace("Z", "");
+                }
+                holder.txtDate.setText(date + " " + time);
+            } else if (fullDateTime.contains(" ")) {
+                String[] parts = fullDateTime.split(" ");
+                String date = parts[0];
+                String time = parts[1];
+                if (time.contains(".")) {
+                    time = time.split("\\.")[0];
+                }
+                holder.txtDate.setText(date + " " + time);
+            } else {
+                holder.txtDate.setText(fullDateTime);
+            }
         }
 
         holder.txtAddress.setText("Address: " + mainOrder.getCustomerAddress() + ", " + mainOrder.getCustomerCity());
@@ -161,12 +179,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             holder.btnInvoice.setOnClickListener(v -> InvoiceGenerator.generateInvoice(context, mainOrder));
         }
 
-        if (status.equals("pending")) {
-            holder.btnPrimary.setVisibility(View.VISIBLE);
-            holder.btnPrimary.setText("CANCEL ORDER");
-            holder.btnPrimary.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.red)));
-            holder.btnPrimary.setOnClickListener(v -> showConfirmationDialog("CANCEL", orderIds));
-        } else if (status.equals("completed")) {
+        if (status.equals("completed")) {
             holder.btnPrimary.setVisibility(View.VISIBLE);
             holder.btnPrimary.setText("REORDER");
             holder.btnPrimary.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green)));
@@ -220,55 +233,6 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             }
         }
         dialog.show();
-    }
-
-    private void showConfirmationDialog(String action, List<Integer> orderIds) {
-        new AlertDialog.Builder(context)
-                .setTitle("Confirm " + action)
-                .setMessage("Are you sure you want to " + action.toLowerCase() + " this entire order?")
-                .setPositiveButton("PROCEED", (dialog, which) -> cancelAllOrders(orderIds))
-                .setNegativeButton("CANCEL", null)
-                .show();
-    }
-
-    private void cancelAllOrders(List<Integer> orderIds) {
-        SharedPreferences prefs = context.getSharedPreferences("user_session", Context.MODE_PRIVATE);
-        String userId = prefs.getString("id", null);
-
-        if (userId == null) {
-            Toast.makeText(context, "Session expired. Please login again.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        final int[] completedCount = {0};
-        final int totalToCancel = orderIds.size();
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-
-        for (Integer orderId : orderIds) {
-            apiService.cancelOrder(orderId, userId).enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    completedCount[0]++;
-                    if (completedCount[0] == totalToCancel) {
-                        Toast.makeText(context, "Order cancelled successfully", Toast.LENGTH_SHORT).show();
-                        if (actionListener != null) {
-                            actionListener.onRefreshNeeded();
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    completedCount[0]++;
-                    if (completedCount[0] == totalToCancel) {
-                        Toast.makeText(context, "Order cancelled with some errors", Toast.LENGTH_SHORT).show();
-                        if (actionListener != null) {
-                            actionListener.onRefreshNeeded();
-                        }
-                    }
-                }
-            });
-        }
     }
 
     private void reorder() {

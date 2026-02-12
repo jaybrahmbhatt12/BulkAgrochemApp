@@ -72,8 +72,13 @@ public class InvoiceGenerator {
         y += 15;
         
         String orderDate = order.getCreatedAt();
-        if (orderDate != null && orderDate.contains(" ")) {
-            orderDate = orderDate.split(" ")[0];
+        if (orderDate != null) {
+            orderDate = orderDate.replace("T", " ");
+            if (orderDate.contains(".")) {
+                orderDate = orderDate.substring(0, orderDate.indexOf("."));
+            } else if (orderDate.contains("Z")) {
+                orderDate = orderDate.replace("Z", "");
+            }
         }
         canvas.drawText("Order Date : " + (orderDate != null ? orderDate : "N/A"), x, y, paint);
         y += 15;
@@ -107,31 +112,56 @@ public class InvoiceGenerator {
         textPaint.set(paint);
         int addressWidth = 220; // Max width for the address to wrap
 
+        // Fetch state logic
+        String state = order.getCustomerState();
+        if (state == null || state.trim().isEmpty() || state.equalsIgnoreCase("null")) {
+            // Try to extract from address if blank
+            String fullAddr = order.getCustomerAddress();
+            if (fullAddr != null && fullAddr.contains(",")) {
+                String[] parts = fullAddr.split(",");
+                if (parts.length >= 2) {
+                    state = parts[parts.length - 1].trim();
+                    // Basic check to see if it's likely a state (not just a zip)
+                    if (state.matches(".*\\d{6}.*")) {
+                        // If it has a zip, try previous part
+                        if (parts.length >= 3) {
+                             state = parts[parts.length - 2].trim();
+                        }
+                    }
+                }
+            }
+        }
+        if (state == null || state.equalsIgnoreCase("null")) state = "";
+
         // Shipping Details
         canvas.drawText("Customer Name: " + order.getCustomerName(), x, y, paint);
         int shippingY = y + 15;
+        canvas.drawText("Phone: " + order.getCustomerPhone(), x, shippingY, paint);
+        shippingY += 15;
         List<String> shippingAddressLines = wrapText("Address: " + order.getCustomerAddress(), addressWidth, textPaint);
         for (String line : shippingAddressLines) {
             canvas.drawText(line, x, shippingY, textPaint);
             shippingY += 15;
         }
-        canvas.drawText("Phone: " + order.getCustomerPhone(), x, shippingY, paint);
-        shippingY += 15;
         canvas.drawText("City: " + order.getCustomerCity(), x, shippingY, paint);
+        shippingY += 15;
+        canvas.drawText("State: " + state, x, shippingY, paint); 
         shippingY += 15;
         canvas.drawText("Country: India", x, shippingY, paint);
 
         // Billing Details
         canvas.drawText("Customer Name: " + order.getCustomerName(), billingX, y, paint);
         int billingY = y + 15;
+        canvas.drawText("Phone: " + order.getCustomerPhone(), billingX, billingY, paint);
+        billingY += 15;
         List<String> billingAddressLines = wrapText("Address: " + order.getCustomerAddress(), addressWidth, textPaint);
         for (String line : billingAddressLines) {
             canvas.drawText(line, billingX, billingY, textPaint);
             billingY += 15;
         }
-        canvas.drawText("Phone: " + order.getCustomerPhone(), billingX, billingY, paint);
-        billingY += 15;
         canvas.drawText("City: " + order.getCustomerCity(), billingX, billingY, paint);
+        billingY += 15;
+        canvas.drawText("State: " + state, billingX, billingY, paint);
         billingY += 15;
         canvas.drawText("Country: India", billingX, billingY, paint);
         
