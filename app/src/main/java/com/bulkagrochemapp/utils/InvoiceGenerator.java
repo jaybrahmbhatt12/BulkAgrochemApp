@@ -104,21 +104,39 @@ public class InvoiceGenerator {
 
         y += 20;
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        // Shipping
+        textPaint.set(paint);
+        int addressWidth = 220; // Max width for the address to wrap
+
+        // Shipping Details
         canvas.drawText("Customer Name: " + order.getCustomerName(), x, y, paint);
-        canvas.drawText("Address: " + order.getCustomerAddress(), x, y + 15, paint);
-        canvas.drawText("Phone: " + order.getCustomerPhone(), x, y + 30, paint);
-        canvas.drawText("City: " + order.getCustomerCity(), x, y + 45, paint);
-        canvas.drawText("Country: India", x, y + 60, paint);
+        int shippingY = y + 15;
+        List<String> shippingAddressLines = wrapText("Address: " + order.getCustomerAddress(), addressWidth, textPaint);
+        for (String line : shippingAddressLines) {
+            canvas.drawText(line, x, shippingY, textPaint);
+            shippingY += 15;
+        }
+        canvas.drawText("Phone: " + order.getCustomerPhone(), x, shippingY, paint);
+        shippingY += 15;
+        canvas.drawText("City: " + order.getCustomerCity(), x, shippingY, paint);
+        shippingY += 15;
+        canvas.drawText("Country: India", x, shippingY, paint);
 
-        // Billing
+        // Billing Details
         canvas.drawText("Customer Name: " + order.getCustomerName(), billingX, y, paint);
-        canvas.drawText("Address: " + order.getCustomerAddress(), billingX, y + 15, paint);
-        canvas.drawText("Phone: " + order.getCustomerPhone(), billingX, y + 30, paint);
-        canvas.drawText("City: " + order.getCustomerCity(), billingX, y + 45, paint);
-        canvas.drawText("Country: India", billingX, y + 60, paint);
+        int billingY = y + 15;
+        List<String> billingAddressLines = wrapText("Address: " + order.getCustomerAddress(), addressWidth, textPaint);
+        for (String line : billingAddressLines) {
+            canvas.drawText(line, billingX, billingY, textPaint);
+            billingY += 15;
+        }
+        canvas.drawText("Phone: " + order.getCustomerPhone(), billingX, billingY, paint);
+        billingY += 15;
+        canvas.drawText("City: " + order.getCustomerCity(), billingX, billingY, paint);
+        billingY += 15;
+        canvas.drawText("Country: India", billingX, billingY, paint);
+        
+        y = Math.max(shippingY, billingY) + 30;
 
-        y += 90;
         // Table Header
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         canvas.drawRect(x, y, 555, y + 25, getHeaderPaint());
