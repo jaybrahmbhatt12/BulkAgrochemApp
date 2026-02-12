@@ -346,7 +346,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Version 1.0.0"
+                    android:text="Version 2.0.1"
                     android:textAlignment="center"
                     android:textColor="@color/static_text_sec"
                     android:textSize="12sp"
