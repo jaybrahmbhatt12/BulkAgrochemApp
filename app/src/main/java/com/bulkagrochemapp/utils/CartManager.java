@@ -221,18 +221,19 @@ public class CartManager {
         
         boolean changed = false;
         for (CartItem item : cartItems) {
-            if (item.getName().equals("Loading...") || item.getImage().isEmpty()) {
-                for (Product p : allProducts) {
-                    if (p.getId() == item.getProductId()) {
-                        item.setName(p.getName());
-                        item.setImage(p.getImage());
-                        item.setPrice(p.getPrice());
-                        item.setStockType(p.getStocktype());
-                        item.setMinQuantity(p.getMinimumQty());
-                        item.setTaxRate(p.getTaxRate());
-                        changed = true;
-                        break;
-                    }
+            for (Product p : allProducts) {
+                if (p.getId() == item.getProductId()) {
+                    item.setName(p.getName());
+                    item.setImage(p.getImage());
+                    item.setBasePrice(p.getPrice());
+                    item.setStockType(p.getStocktype());
+                    item.setMinQuantity(p.getMinimumQty());
+                    item.setTaxRate(p.getTaxRate());
+                    item.setWholeSellQty(p.getWholeSellQty());
+                    item.setWholeSellDiscount(p.getWholeSellDiscount());
+                    item.setQuantity(item.getQuantity()); // Trigger tiered price update
+                    changed = true;
+                    break;
                 }
             }
         }
