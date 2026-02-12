@@ -88,10 +88,28 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         holder.viewStatusDot.setBackground(shape);
 
         String fullDateTime = mainOrder.getCreatedAt();
-        if (fullDateTime != null && fullDateTime.contains(" ")) {
-            holder.txtDate.setText(fullDateTime.split(" ")[0]);
-        } else {
-            holder.txtDate.setText(fullDateTime);
+        if (fullDateTime != null) {
+            if (fullDateTime.contains("T")) {
+                String[] parts = fullDateTime.split("T");
+                String date = parts[0];
+                String time = parts[1];
+                if (time.contains(".")) {
+                    time = time.split("\\.")[0];
+                } else if (time.contains("Z")) {
+                    time = time.replace("Z", "");
+                }
+                holder.txtDate.setText(date + " " + time);
+            } else if (fullDateTime.contains(" ")) {
+                String[] parts = fullDateTime.split(" ");
+                String date = parts[0];
+                String time = parts[1];
+                if (time.contains(".")) {
+                    time = time.split("\\.")[0];
+                }
+                holder.txtDate.setText(date + " " + time);
+            } else {
+                holder.txtDate.setText(fullDateTime);
+            }
         }
 
         holder.txtAddress.setText("Address: " + mainOrder.getCustomerAddress() + ", " + mainOrder.getCustomerCity());
