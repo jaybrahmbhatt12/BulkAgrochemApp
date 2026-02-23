@@ -235,12 +235,13 @@ public class ProductDetailActivity extends BaseActivity {
 
         if (btnAddToCart != null) {
             btnAddToCart.setOnClickListener(v -> {
-                double currentUnitPrice = calculateTieredPrice(quantity);
                 CartItem cartItem;
                 if (product != null) {
-                    cartItem = new CartItem(product.getId(), product.getName(), product.getImage(), currentUnitPrice, product.getMinimumQty(), product.getStocktype(), product.getTaxRate());
+                    cartItem = new CartItem(product.getId(), product.getName(), product.getImage(), product.getPrice(), product.getMinimumQty(), product.getStocktype(), product.getTaxRate());
+                    cartItem.setWholeSellQty(product.getWholeSellQty());
+                    cartItem.setWholeSellDiscount(product.getWholeSellDiscount());
                 } else {
-                    cartItem = new CartItem(productId, intentName, intentImage, currentUnitPrice, intentMinQty, intentStocktype, 18.0);
+                    cartItem = new CartItem(productId, intentName, intentImage, intentPrice, intentMinQty, intentStocktype, 18.0);
                 }
                 cartItem.setQuantity(quantity);
                 CartManager.addToCart(ProductDetailActivity.this, cartItem);

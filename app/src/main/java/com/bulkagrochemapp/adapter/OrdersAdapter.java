@@ -3,7 +3,6 @@ package com.bulkagrochemapp.adapter;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -18,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,7 +25,6 @@ import com.bulkagrochemapp.AllProductsActivity;
 import com.bulkagrochemapp.R;
 import com.bulkagrochemapp.model.Order;
 import com.bulkagrochemapp.network.ApiService;
-import com.bulkagrochemapp.network.RetrofitClient;
 import com.bulkagrochemapp.utils.InvoiceGenerator;
 import com.google.android.material.button.MaterialButton;
 
@@ -35,14 +32,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder> {
 
@@ -74,13 +65,13 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
 
         Order mainOrder = orderGroup.get(0);
         String status = mainOrder.getStatus() != null ? mainOrder.getStatus().toLowerCase() : "";
-        
+
         if (status.equals("declined")) {
             holder.txtStatus.setText("cancelled");
         } else {
             holder.txtStatus.setText(status);
         }
-        
+
         int dotColor = Color.GRAY;
         switch (status) {
             case "pending": dotColor = Color.parseColor("#FFC107"); break;
@@ -97,28 +88,43 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         holder.viewStatusDot.setBackground(shape);
 
         String fullDateTime = mainOrder.getCreatedAt();
-        if (fullDateTime != null && fullDateTime.contains(" ")) {
-            holder.txtDate.setText(fullDateTime.split(" ")[0]);
-        } else {
-            holder.txtDate.setText(fullDateTime);
+        if (fullDateTime != null) {
+            if (fullDateTime.contains("T")) {
+                String[] parts = fullDateTime.split("T");
+                String date = parts[0];
+                String time = parts[1];
+                if (time.contains(".")) {
+                    time = time.split("\\.")[0];
+                } else if (time.contains("Z")) {
+                    time = time.replace("Z", "");
+                }
+                holder.txtDate.setText(date + " " + time);
+            } else if (fullDateTime.contains(" ")) {
+                String[] parts = fullDateTime.split(" ");
+                String date = parts[0];
+                String time = parts[1];
+                if (time.contains(".")) {
+                    time = time.split("\\.")[0];
+                }
+                holder.txtDate.setText(date + " " + time);
+            } else {
+                holder.txtDate.setText(fullDateTime);
+            }
         }
 
         holder.txtAddress.setText("Address: " + mainOrder.getCustomerAddress() + ", " + mainOrder.getCustomerCity());
-        
+
         double grandTotal = 0;
         int totalQty = 0;
 
         holder.productsContainer.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        List<Integer> orderIds = new ArrayList<>();
         int displayedProductCount = 0;
         final int MAX_DISPLAYED_PRODUCTS = 2;
         boolean hasMoreProducts = false;
 
-        for (int i = 0; i < orderGroup.size(); i++) {
-            Order order = orderGroup.get(i);
-            orderIds.add(order.getId());
+        for (Order order : orderGroup) {
             grandTotal += order.getPayAmount();
             try {
                 totalQty += Integer.parseInt(order.getTotalQty());
@@ -161,12 +167,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             holder.btnInvoice.setOnClickListener(v -> InvoiceGenerator.generateInvoice(context, mainOrder));
         }
 
-        if (status.equals("pending")) {
-            holder.btnPrimary.setVisibility(View.VISIBLE);
-            holder.btnPrimary.setText("CANCEL ORDER");
-            holder.btnPrimary.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.red)));
-            holder.btnPrimary.setOnClickListener(v -> showConfirmationDialog("CANCEL", orderIds));
-        } else if (status.equals("completed")) {
+        if (status.equals("completed")) {
             holder.btnPrimary.setVisibility(View.VISIBLE);
             holder.btnPrimary.setText("REORDER");
             holder.btnPrimary.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green)));
@@ -190,7 +191,6 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_order_products);
         if (dialog.getWindow() != null) {
-            // Set width to 90% of screen to make it look like a popup
             int width = (int)(context.getResources().getDisplayMetrics().widthPixels * 0.90);
             dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -220,55 +220,6 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             }
         }
         dialog.show();
-    }
-
-    private void showConfirmationDialog(String action, List<Integer> orderIds) {
-        new AlertDialog.Builder(context)
-                .setTitle("Confirm " + action)
-                .setMessage("Are you sure you want to " + action.toLowerCase() + " this entire order?")
-                .setPositiveButton("PROCEED", (dialog, which) -> cancelAllOrders(orderIds))
-                .setNegativeButton("CANCEL", null)
-                .show();
-    }
-
-    private void cancelAllOrders(List<Integer> orderIds) {
-        SharedPreferences prefs = context.getSharedPreferences("user_session", Context.MODE_PRIVATE);
-        String userId = prefs.getString("id", null);
-
-        if (userId == null) {
-            Toast.makeText(context, "Session expired. Please login again.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        final int[] completedCount = {0};
-        final int totalToCancel = orderIds.size();
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-
-        for (Integer orderId : orderIds) {
-            apiService.cancelOrder(orderId, userId).enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    completedCount[0]++;
-                    if (completedCount[0] == totalToCancel) {
-                        Toast.makeText(context, "Order cancelled successfully", Toast.LENGTH_SHORT).show();
-                        if (actionListener != null) {
-                            actionListener.onRefreshNeeded();
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    completedCount[0]++;
-                    if (completedCount[0] == totalToCancel) {
-                        Toast.makeText(context, "Order cancelled with some errors", Toast.LENGTH_SHORT).show();
-                        if (actionListener != null) {
-                            actionListener.onRefreshNeeded();
-                        }
-                    }
-                }
-            });
-        }
     }
 
     private void reorder() {

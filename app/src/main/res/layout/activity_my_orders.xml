@@ -87,16 +87,6 @@
                 android:textColor="@color/chip_text_color_selector"
                 app:chipIconVisible="false" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipCancelled"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cancelled"
-                app:chipBackgroundColor="@color/chip_background_selector"
-                android:textColor="@color/chip_text_color_selector"
-                app:chipIconVisible="false" />
-
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 

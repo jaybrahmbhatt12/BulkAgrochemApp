@@ -31,6 +31,8 @@ public class Order implements Serializable {
     private String customerAddress;
     @SerializedName("customer_city")
     private String customerCity;
+    @SerializedName("customer_state")
+    private String customerState;
     @SerializedName("customer_zip")
     private String customerZip;
     @SerializedName("shipping_name")
@@ -74,6 +76,7 @@ public class Order implements Serializable {
     public String getCustomerPhone() { return customerPhone; }
     public String getCustomerAddress() { return customerAddress; }
     public String getCustomerCity() { return customerCity; }
+    public String getCustomerState() { return customerState; }
     public String getCustomerZip() { return customerZip; }
     public String getShippingName() { return shippingName; }
     public String getShippingAddress() { return shippingAddress; }

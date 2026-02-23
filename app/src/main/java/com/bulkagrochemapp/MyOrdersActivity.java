@@ -79,8 +79,6 @@ public class MyOrdersActivity extends BaseActivity implements OrdersAdapter.OnOr
                 currentFilter = "processing";
             } else if (checkedId == R.id.chipCompleted) {
                 currentFilter = "completed";
-            } else if (checkedId == R.id.chipCancelled) {
-                currentFilter = "cancelled";
             }
             applyFilterAndGroup();
         });
@@ -136,12 +134,6 @@ public class MyOrdersActivity extends BaseActivity implements OrdersAdapter.OnOr
                     filteredList.add(order);
                 }
             }
-        } else if (currentFilter.equalsIgnoreCase("cancelled")) {
-            for (Order order : allOrdersList) {
-                if (order.getStatus().equalsIgnoreCase("cancelled") || order.getStatus().equalsIgnoreCase("declined")) {
-                    filteredList.add(order);
-                }
-            }
         } else {
             for (Order order : allOrdersList) {
                 if (order.getStatus().equalsIgnoreCase(currentFilter)) {
@@ -156,7 +148,10 @@ public class MyOrdersActivity extends BaseActivity implements OrdersAdapter.OnOr
     private void groupOrdersByDateTimeAndStatus(List<Order> orders) {
         Map<String, List<Order>> groups = new LinkedHashMap<>();
         for (Order order : orders) {
-            String groupKey = order.getCreatedAt() + "_" + order.getStatus();
+            // Grouping key should consider 'declined' and 'cancelled' as the same state for grouping
+            String displayStatus = order.getStatus().equalsIgnoreCase("declined") ? "cancelled" : order.getStatus().toLowerCase();
+            String groupKey = order.getCreatedAt() + "_" + displayStatus;
+
             if (!groups.containsKey(groupKey)) {
                 groups.put(groupKey, new ArrayList<>());
             }

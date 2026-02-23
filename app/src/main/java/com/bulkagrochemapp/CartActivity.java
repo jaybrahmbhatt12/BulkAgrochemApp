@@ -16,6 +16,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bulkagrochemapp.adapter.BigProductAdapter;
 import com.bulkagrochemapp.adapter.CartAdapter;
@@ -39,8 +40,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-//=========== Cart Activity ===========//
-
 public class CartActivity extends BaseActivity implements CartManager.OnCartDataChangedListener {
 
     RecyclerView rvCart, rvRecommended, rvCoupons;
@@ -50,6 +49,7 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
     ImageButton btnOrders;
     Button browseProductBtn, payBtn;
     ProgressBar progressBarCart;
+    SwipeRefreshLayout swipeRefreshLayout;
 
     private boolean flag=false;
 
@@ -58,8 +58,6 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
     // Summary views
     CardView cardCartTotals;
     TextView txtSummarySubtotal, txtSummaryTax, txtSummaryTotal;
-
-    //=========== onCreate() ===========//
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,13 +72,13 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
         payBtn = findViewById(R.id.payBtn);
         payLinearLayout = findViewById(R.id.payLinearLayout);
         progressBarCart = findViewById(R.id.progressBarCart);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
         rvRecommended = findViewById(R.id.rvRecommended);
         skeletonRecommended = findViewById(R.id.skeleton_recommended);
         rvCoupons = findViewById(R.id.rvCoupons);
         skeletonCoupons = findViewById(R.id.skeleton_coupons);
         
-        // Initialize summary views
         cardCartTotals = findViewById(R.id.cardCartTotals);
         txtSummarySubtotal = findViewById(R.id.txtSummarySubtotal);
         txtSummaryTax = findViewById(R.id.txtSummaryTax);
@@ -91,8 +89,6 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
         Intent intent2 = getIntent();
         flag = intent2.getBooleanExtra("flag",false);
 
-        
-        // Use Horizontal LinearLayoutManager for Recommended Section
         rvRecommended.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvCoupons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
@@ -121,7 +117,6 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
 
         rvCart.setAdapter(adapter);
 
-        // Redirect to Orders Activity
         if (btnOrders != null) {
             btnOrders.setOnClickListener(v -> {
                 Intent intent = new Intent(CartActivity.this, MyOrdersActivity.class);
@@ -151,12 +146,10 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
                         CartItem deletedItem = items.get(position);
                         int deletedPosition = position;
 
-                        // Remove item
                         items.remove(position);
                         rvCart.getAdapter().notifyItemRemoved(position);
                         updateCartUI();
 
-                        // Show Snackbar for Undo
                         Snackbar.make(rvCart, "Item removed from cart", 5000)
                                 .setAction("UNDO", v -> {
                                     items.add(deletedPosition, deletedItem);
@@ -168,22 +161,12 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
 
         new ItemTouchHelper(swipeCallback).attachToRecyclerView(rvCart);
 
-        loadRecommendedProducts();
-        loadCoupons();
+        swipeRefreshLayout.setOnRefreshListener(this::refreshData);
+        swipeRefreshLayout.setColorSchemeResources(R.color.orange_brand, R.color.green);
 
-        // Register listener for real-time updates when data is synced
+        refreshData();
+
         CartManager.addDataChangedListener(this);
-
-        // Initial refresh
-        updateCartUI();
-
-        // Ensure data is fresh
-        if (CartManager.getCartItems().isEmpty()) {
-            fetchCartAndProducts();
-        } else {
-            // Even if not empty, trigger a sync to get latest details if they were "Loading..."
-            syncCurrentCart();
-        }
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -203,37 +186,30 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
         });
     }
 
-    private void syncCurrentCart() {
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-        apiService.getProducts().enqueue(new Callback<ProductResponse>() {
-            @Override
-            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    CartManager.syncWithProducts(response.body().getData());
-                }
-            }
-            @Override
-            public void onFailure(Call<ProductResponse> call, Throwable t) {}
-        });
+    private void refreshData() {
+        swipeRefreshLayout.setRefreshing(true);
+        loadRecommendedProducts();
+        loadCoupons();
+        fetchCartAndProducts();
     }
 
     private void fetchCartAndProducts() {
-        if (progressBarCart != null) progressBarCart.setVisibility(View.VISIBLE);
-
         CartManager.fetchCartFromDatabase(this, () -> {
             ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
             apiService.getProducts().enqueue(new Callback<ProductResponse>() {
                 @Override
                 public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
-                    if (progressBarCart != null) progressBarCart.setVisibility(View.GONE);
+                    if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                     if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
                         CartManager.syncWithProducts(response.body().getData());
                     }
+                    updateCartUI();
                 }
 
                 @Override
                 public void onFailure(Call<ProductResponse> call, Throwable t) {
-                    if (progressBarCart != null) progressBarCart.setVisibility(View.GONE);
+                    if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                    updateCartUI();
                 }
             });
         });
@@ -261,7 +237,6 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
         if (rvCart != null && rvCart.getAdapter() != null) {
             rvCart.getAdapter().notifyDataSetChanged();
         }
-        // Refresh recommended adapter to sync wishlist icon state
         if (rvRecommended != null && rvRecommended.getAdapter() != null) {
             rvRecommended.getAdapter().notifyDataSetChanged();
         }
@@ -305,7 +280,6 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
                     skeletonRecommended.clearAnimation();
                     skeletonRecommended.setVisibility(View.GONE);
                 }
-                Log.e("CART_API", "Error loading recommendations: " + t.getMessage());
             }
         });
     }
@@ -339,7 +313,6 @@ public class CartActivity extends BaseActivity implements CartManager.OnCartData
                     skeletonCoupons.clearAnimation();
                     skeletonCoupons.setVisibility(View.GONE);
                 }
-                Log.e("COUPON_API", "Error loading coupons: " + t.getMessage());
             }
         });
     }

@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bulkagrochemapp.model.District;
 import com.bulkagrochemapp.model.LocationResponse;
@@ -43,6 +44,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private Button btnUpdateProfile;
     private MaterialToolbar toolbar;
     private View loadingOverlay;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private List<State> indianStates = new ArrayList<>();
 
@@ -66,6 +68,8 @@ public class EditProfileActivity extends AppCompatActivity {
         if (getIntent().getBooleanExtra("is_first_time", false)) {
             Toast.makeText(this, "Please complete your profile to continue", Toast.LENGTH_LONG).show();
         }
+
+        swipeRefreshLayout.setOnRefreshListener(this::refreshUserData);
     }
 
     private void initViews() {
@@ -82,6 +86,7 @@ public class EditProfileActivity extends AppCompatActivity {
         etAddress = findViewById(R.id.etAddress);
         btnUpdateProfile = findViewById(R.id.btnUpdateProfile);
         loadingOverlay = findViewById(R.id.loadingOverlay);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         
         if (etCountry != null) {
             etCountry.setText("India");
@@ -209,6 +214,63 @@ public class EditProfileActivity extends AppCompatActivity {
 
         etZip.setText(sanitize(prefs.getString("zip", "")));
         etAddress.setText(sanitize(prefs.getString("address", "")));
+    }
+
+    private void refreshUserData() {
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        String phone = prefs.getString("phone", "");
+
+        if (phone.isEmpty()) {
+            swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
+
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        apiService.login(phone).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                swipeRefreshLayout.setRefreshing(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String jsonString = response.body().string();
+                        JSONObject jsonObject = new JSONObject(jsonString);
+                        if ("success".equalsIgnoreCase(jsonObject.optString("status"))) {
+                            JSONObject userData = jsonObject.optJSONObject("user");
+                            if (userData != null) {
+                                saveUserSession(userData);
+                                loadUserData();
+                                Toast.makeText(EditProfileActivity.this, "Profile Refreshed", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(EditProfileActivity.this, "Failed to refresh", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void saveUserSession(JSONObject userData) {
+        SharedPreferences prefs = getSharedPreferences("user_session", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        if (userData != null) {
+            editor.putString("id", sanitize(userData.optString("id")));
+            editor.putString("name", sanitize(userData.optString("name")));
+            editor.putString("email", sanitize(userData.optString("email")));
+            editor.putString("phone", sanitize(userData.optString("phone")));
+            editor.putString("country", sanitize(userData.optString("country", "India")));
+            editor.putString("state", sanitize(userData.optString("state", "")));
+            editor.putString("city", sanitize(userData.optString("city", "")));
+            editor.putString("zip", sanitize(userData.optString("zip", "")));
+            editor.putString("address", sanitize(userData.optString("address", "")));
+            editor.apply();
+        }
     }
 
     private String sanitize(String input) {
