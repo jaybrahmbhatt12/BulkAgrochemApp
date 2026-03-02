@@ -13,7 +13,7 @@ import androidx.appcompat.app.AlertDialog;
 public class ProfileActivity extends BaseActivity {
 
     private TextView tvLoggedInNumber, tvUserName;
-    private View btnLogout, btnEditProfile, btnHelpSupport, btnRefundPolicy, btnShippingPolicy, btnMyOrders;
+    private View btnLogout, btnEditProfile, btnHelpSupport, btnRefundPolicy, btnShippingPolicy, btnMyOrders, btnRequestDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +28,7 @@ public class ProfileActivity extends BaseActivity {
         btnRefundPolicy = findViewById(R.id.btnRefundPolicy);
         btnShippingPolicy = findViewById(R.id.btnShippingPolicy);
         btnMyOrders = findViewById(R.id.btnMyOrders);
+        btnRequestDelete = findViewById(R.id.btnRequestDelete);
 
         updateProfileUI();
 
@@ -38,6 +39,13 @@ public class ProfileActivity extends BaseActivity {
 
         btnEditProfile.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, EditProfileActivity.class);
+            startActivity(intent);
+        });
+
+        btnRequestDelete.setOnClickListener(v -> {
+            String url = "https://docs.google.com/forms/d/e/1FAIpQLSdfO6oO4TTy8AVWAz6AZx-p6bdz4irdzNRdyb7jjKtxnOGQ1A/viewform?usp=publish-editor";
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(url));
             startActivity(intent);
         });
 
