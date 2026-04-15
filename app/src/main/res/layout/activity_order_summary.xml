@@ -316,24 +316,24 @@
                             android:textColor="#212121"/>
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingVertical="4dp">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Delivery Charges"
-                            android:textColor="#616161"/>
-                        <TextView
-                            android:id="@+id/txtDeliveryCharges"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="FREE"
-                            android:textColor="#2E7D32"/>
-                    </LinearLayout>
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:orientation="horizontal"-->
+<!--                        android:paddingVertical="4dp">-->
+<!--                        <TextView-->
+<!--                            android:layout_width="0dp"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_weight="1"-->
+<!--                            android:text="Delivery Charges"-->
+<!--                            android:textColor="#616161"/>-->
+<!--                        <TextView-->
+<!--                            android:id="@+id/txtDeliveryCharges"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="FREE"-->
+<!--                            android:textColor="#2E7D32"/>-->
+<!--                    </LinearLayout>-->
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginVertical="8dp"/>
 
