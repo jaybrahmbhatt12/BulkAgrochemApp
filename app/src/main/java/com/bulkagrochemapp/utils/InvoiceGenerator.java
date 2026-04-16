@@ -223,11 +223,11 @@ public class InvoiceGenerator {
                     }
                     
                     // Draw Tax Percentage below product name
-                    y += 15;
-                    paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.ITALIC));
-                    paint.setTextSize(10);
-                    canvas.drawText("Tax: " + String.format(Locale.getDefault(), "%.1f", taxPercentage) + "%", x + 10, y, paint);
-                    paint.setTextSize(12); // Reset size
+//                    y += 15;
+//                    paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.ITALIC));
+//                    paint.setTextSize(10);
+//                    canvas.drawText("Tax: " + String.format(Locale.getDefault(), "%.1f", taxPercentage) + "%", x + 10, y, paint);
+//                    paint.setTextSize(12); // Reset size
 
                     // Details section (Price, Qty) - Align with start of name
                     int detailsY = nameStartY;

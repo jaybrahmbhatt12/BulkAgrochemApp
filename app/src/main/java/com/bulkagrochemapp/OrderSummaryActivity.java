@@ -426,16 +426,20 @@ public class OrderSummaryActivity extends AppCompatActivity implements PaymentRe
                 itemJson.put("date", currentDate);
                 itemJson.put("uid", uid);
                 itemJson.put("pid", String.valueOf(item.getProductId()));
-                itemJson.put("qty", String.valueOf(item.getQuantity()));
+                itemJson.put("qty", item.getQuantity());
+                itemJson.put("quantity", item.getQuantity());
                 itemJson.put("color", JSONObject.NULL);
                 itemJson.put("size_qty", JSONObject.NULL);
-                itemJson.put("size_price", JSONObject.NULL);
+                itemJson.put("size_price", item.getPrice());
                 itemJson.put("size_key", JSONObject.NULL);
                 itemJson.put("keys", JSONObject.NULL);
                 itemJson.put("values", JSONObject.NULL);
-                itemJson.put("prices", String.valueOf(item.getPrice()));
-                itemJson.put("tax", String.valueOf(item.getTaxAmount()));
-                itemJson.put("total_prices", String.valueOf(item.getSubtotalAmount()));
+                itemJson.put("prices", item.getPrice());
+                itemJson.put("price", item.getPrice());
+                itemJson.put("tax", item.getTaxAmount());
+                itemJson.put("taxpro", item.getTaxRate());
+                itemJson.put("tax_rate", item.getTaxRate());
+                itemJson.put("total_prices", item.getSubtotalAmount());
                 itemJson.put("created_at", currentDate);
                 itemJson.put("updated_at", currentDate);
                 
