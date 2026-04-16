@@ -134,7 +134,11 @@ public class InvoiceGenerator {
         if (state == null || state.equalsIgnoreCase("null")) state = "";
 
         // Shipping Details
-        canvas.drawText("Customer Name: " + order.getCustomerName(), x, y, paint);
+        String shippingName = order.getShippingName();
+        if (shippingName == null || shippingName.isEmpty() || shippingName.equalsIgnoreCase("null")) {
+            shippingName = order.getCustomerName();
+        }
+        canvas.drawText("Customer Name: " + shippingName, x, y, paint);
         int shippingY = y + 15;
         canvas.drawText("Phone: " + order.getCustomerPhone(), x, shippingY, paint);
         shippingY += 15;
@@ -189,7 +193,12 @@ public class InvoiceGenerator {
                     JSONObject cartObj = cartArray.getJSONObject(i);
                     String name = cartObj.optString("name");
                     double price = cartObj.optDouble("price", 0);
-                    int qty = cartObj.optInt("quantity", 0);
+                    if (price == 0) price = cartObj.optDouble("prices", 0);
+                    if (price == 0) price = cartObj.optDouble("size_price", 0);
+
+                    int qty = cartObj.optInt("qty", 0);
+                    if (qty == 0) qty = cartObj.optInt("quantity", 0);
+
                     double itemTaxTotal = cartObj.optDouble("tax", 0); 
                     
                     // Fetch tax percentage from JSON keys (taxpro, tax_rate, or taxRate)
@@ -222,12 +231,12 @@ public class InvoiceGenerator {
                         if (line < wrappedName.size() - 1) y += 15;
                     }
                     
-                    // Draw Tax Percentage below product name
-//                    y += 15;
-//                    paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.ITALIC));
-//                    paint.setTextSize(10);
-//                    canvas.drawText("Tax: " + String.format(Locale.getDefault(), "%.1f", taxPercentage) + "%", x + 10, y, paint);
-//                    paint.setTextSize(12); // Reset size
+//                    // Draw Tax Percentage below product name
+                    y += 15;
+                    paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.ITALIC));
+                    paint.setTextSize(10);
+                    canvas.drawText("Tax: " + String.format(Locale.getDefault(), "%.1f", taxPercentage) + "%", x + 10, y, paint);
+                    paint.setTextSize(12); // Reset size
 
                     // Details section (Price, Qty) - Align with start of name
                     int detailsY = nameStartY;
